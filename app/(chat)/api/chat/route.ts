@@ -127,10 +127,10 @@ export async function POST(request: Request) {
     const { longitude, latitude, city, country } = geolocation(request);
 
     const requestHints: RequestHints = {
-      longitude,
-      latitude,
-      city,
-      country,
+      longitude: longitude || undefined,
+      latitude: latitude || undefined,
+      city: city || 'Seoul', // 기본값 설정
+      country: country || 'South Korea', // 기본값 설정
     };
 
     await saveMessages({
