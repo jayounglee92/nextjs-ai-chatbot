@@ -39,23 +39,35 @@ export const {
   ...authConfig,
   providers: [
     Credentials({
-      credentials: {},
-      async authorize({ email, password }: any) {
-        const users = await getUser(email);
+      id: 'credentials',
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        const users = await getUser(credentials.email as string);
 
         if (users.length === 0) {
-          await compare(password, DUMMY_PASSWORD);
+          await compare(credentials.password as string, DUMMY_PASSWORD);
           return null;
         }
 
         const [user] = users;
 
         if (!user.password) {
-          await compare(password, DUMMY_PASSWORD);
+          await compare(credentials.password as string, DUMMY_PASSWORD);
           return null;
         }
 
-        const passwordsMatch = await compare(password, user.password);
+        const passwordsMatch = await compare(
+          credentials.password as string,
+          user.password,
+        );
 
         if (!passwordsMatch) return null;
 
@@ -64,6 +76,7 @@ export const {
     }),
     Credentials({
       id: 'guest',
+      name: 'guest',
       credentials: {},
       async authorize() {
         const [guestUser] = await createGuestUser();
