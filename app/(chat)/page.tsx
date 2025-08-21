@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
 export default async function Page() {
   const session = await auth();
 
+  // 세션이 없으면 게스트 로그인 페이지로 리다이렉트
   if (!session) {
     redirect('/api/auth/guest');
   }
@@ -19,6 +20,7 @@ export default async function Page() {
   const cookieStore = await cookies();
   const modelIdFromCookie = cookieStore.get('chat-model');
 
+  // 쿠키에 저장된 모델이 없으면 기본 모델로 설정
   if (!modelIdFromCookie) {
     return (
       <>
@@ -37,6 +39,7 @@ export default async function Page() {
     );
   }
 
+  // 쿠키에 저장된 모델이 있으면 해당 모델로 설정
   return (
     <>
       <Chat

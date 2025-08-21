@@ -10,6 +10,10 @@ import {
 import type { VisibilityType } from '@/components/visibility-selector';
 import { myProvider } from '@/lib/ai/providers';
 
+/**
+ * 채팅 모델을 쿠키에 저장하는 함수
+ * @param model - 저장할 모델 ID
+ */
 export async function saveChatModelAsCookie(model: string) {
   const cookieStore = await cookies();
   cookieStore.set('chat-model', model);

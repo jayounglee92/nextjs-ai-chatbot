@@ -136,9 +136,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
           }
         });
 
-        return 'Chat deleted successfully';
+        return '채팅이 삭제되었어요!';
       },
-      error: 'Failed to delete chat',
+      error: '채팅을 삭제하는데 실패했어요.',
     });
 
     setShowDeleteDialog(false);
@@ -346,10 +346,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>채팅을 삭제하시겠습니까?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              chat and remove it from our servers.
+              채팅을 삭제하면 히스토리에서 사라지고 복구가 불가해요.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

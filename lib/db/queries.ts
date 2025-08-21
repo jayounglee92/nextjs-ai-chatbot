@@ -123,6 +123,21 @@ export async function deleteChatById({ id }: { id: string }) {
   }
 }
 
+/**
+ * 사용자 ID로 채팅 목록을 커서 기반 페이지네이션으로 조회
+ *
+ * 이 함수의 주요 특징:
+ * 1. 커서 기반 페이지네이션으로 효율적인 무한 스크롤 지원
+ * 2. createdAt 기준 내림차순 정렬 (최신 채팅이 먼저)
+ * 3. hasMore 플래그로 다음 페이지 존재 여부 확인
+ * 4. limit + 1로 조회하여 다음 페이지 존재 여부 판단
+ *
+ * @param id - 사용자 ID
+ * @param limit - 반환할 채팅 수
+ * @param startingAfter - 이 채팅 ID 이후의 채팅들을 조회 (다음 페이지)
+ * @param endingBefore - 이 채팅 ID 이전의 채팅들을 조회 (이전 페이지)
+ * @returns 채팅 목록과 hasMore 플래그
+ */
 export async function getChatsByUserId({
   id,
   limit,
@@ -135,29 +150,36 @@ export async function getChatsByUserId({
   endingBefore: string | null;
 }) {
   try {
+    // 다음 페이지 존재 여부를 확인하기 위해 요청된 limit보다 1개 더 조회
     const extendedLimit = limit + 1;
 
+    // 공통 쿼리 빌더 함수
+    // whereCondition이 있으면 추가 조건과 userId 조건을 AND로 결합
+    // 없으면 userId 조건만 적용
     const query = (whereCondition?: SQL<any>) =>
       db
         .select()
         .from(chat)
         .where(
           whereCondition
-            ? and(whereCondition, eq(chat.userId, id))
-            : eq(chat.userId, id),
+            ? and(whereCondition, eq(chat.userId, id)) // 커서 조건 + 사용자 조건
+            : eq(chat.userId, id), // 사용자 조건만
         )
-        .orderBy(desc(chat.createdAt))
-        .limit(extendedLimit);
+        .orderBy(desc(chat.createdAt)) // 최신 채팅부터 정렬
+        .limit(extendedLimit); // limit + 1개 조회
 
     let filteredChats: Array<Chat> = [];
 
+    // 케이스 1: startingAfter가 있는 경우 (다음 페이지 조회)
     if (startingAfter) {
+      // 기준점이 되는 채팅을 먼저 조회
       const [selectedChat] = await db
         .select()
         .from(chat)
         .where(eq(chat.id, startingAfter))
         .limit(1);
 
+      // 기준 채팅이 존재하지 않으면 에러
       if (!selectedChat) {
         throw new ChatSDKError(
           'not_found:database',
@@ -165,14 +187,20 @@ export async function getChatsByUserId({
         );
       }
 
+      // 기준 채팅의 createdAt보다 이후(더 최근)인 채팅들 조회
+      // gt = greater than (더 큰, 즉 더 최근)
       filteredChats = await query(gt(chat.createdAt, selectedChat.createdAt));
-    } else if (endingBefore) {
+    }
+    // 케이스 2: endingBefore가 있는 경우 (이전 페이지 조회)
+    else if (endingBefore) {
+      // 기준점이 되는 채팅을 먼저 조회
       const [selectedChat] = await db
         .select()
         .from(chat)
         .where(eq(chat.id, endingBefore))
         .limit(1);
 
+      // 기준 채팅이 존재하지 않으면 에러
       if (!selectedChat) {
         throw new ChatSDKError(
           'not_found:database',
@@ -180,18 +208,29 @@ export async function getChatsByUserId({
         );
       }
 
+      // 기준 채팅의 createdAt보다 이전(더 오래된)인 채팅들 조회
+      // lt = less than (더 작은, 즉 더 오래된)
       filteredChats = await query(lt(chat.createdAt, selectedChat.createdAt));
-    } else {
+    }
+    // 케이스 3: 커서가 없는 경우 (첫 페이지 조회)
+    else {
+      // 사용자의 모든 채팅을 최신순으로 조회
       filteredChats = await query();
     }
 
+    // 다음 페이지가 있는지 확인
+    // extendedLimit(limit + 1)개를 조회했으므로,
+    // 실제 결과가 limit보다 많으면 다음 페이지가 존재
     const hasMore = filteredChats.length > limit;
 
     return {
+      // hasMore가 true면 마지막 1개를 제거하여 정확히 limit개만 반환
+      // false면 모든 결과 반환
       chats: hasMore ? filteredChats.slice(0, limit) : filteredChats,
-      hasMore,
+      hasMore, // 다음 페이지 존재 여부
     };
   } catch (error) {
+    // 데이터베이스 오류 발생 시 표준 에러로 변환
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to get chats by user id',
