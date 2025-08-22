@@ -111,7 +111,7 @@ export function MessageEditor({
             setMode('view'); // 편집 모드 종료, 보기 모드로 전환
           }}
         >
-          Cancel
+          취소
         </Button>
 
         {/* 전송 버튼 */}
@@ -159,7 +159,7 @@ export function MessageEditor({
           }}
         >
           {/* 전송 상태에 따른 버튼 텍스트 변경 */}
-          {isSubmitting ? 'Sending...' : 'Send'}
+          {isSubmitting ? '전송중...' : '전송'}
         </Button>
       </div>
     </div>

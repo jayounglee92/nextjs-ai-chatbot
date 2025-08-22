@@ -74,9 +74,11 @@ export function SidebarUserNav({ user }: { user: User }) {
             <DropdownMenuItem
               data-testid="user-nav-item-theme"
               className="cursor-pointer"
-              onSelect={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              onSelect={() =>
+                setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+              }
             >
-              {`Toggle ${resolvedTheme === 'light' ? 'dark' : 'light'} mode`}
+              {`${resolvedTheme === 'light' ? '다크' : '라이트'} 모드로 변경`}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
@@ -88,7 +90,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                     toast({
                       type: 'error',
                       description:
-                        'Checking authentication status, please try again!',
+                        '인증 상태를 확인하는 중입니다. 다시 시도해주세요!',
                     });
 
                     return;
@@ -103,7 +105,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   }
                 }}
               >
-                {isGuest ? 'Login to your account' : 'Sign out'}
+                {isGuest ? '로그인' : '로그아웃'}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -159,7 +159,7 @@ const guestLogin = async () => {
       }
     ];
   };
-  selectedChatModel: 'chat-model' | 'chat-model-reasoning';
+  selectedChatModel: 'chat-model' | 'chat-model-nano' | 'chat-model-reasoning';
   selectedVisibilityType: 'public' | 'private';
 }
 ```

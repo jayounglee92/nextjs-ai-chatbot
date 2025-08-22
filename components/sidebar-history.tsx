@@ -219,7 +219,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                     {groupedChats.today.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Today
+                          오늘
                         </div>
                         {groupedChats.today.map((chat) => (
                           <ChatItem
@@ -239,7 +239,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                     {groupedChats.yesterday.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Yesterday
+                          어제
                         </div>
                         {groupedChats.yesterday.map((chat) => (
                           <ChatItem
@@ -329,8 +329,8 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
           />
 
           {hasReachedEnd ? (
-            <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2 mt-8">
-              You have reached the end of your chat history.
+            <div className="px-2 text-zinc-500 w-full flex flex-row text-sm gap-2 mt-8">
+              채팅 히스토리가 마지막이에요.
             </div>
           ) : (
             <div className="p-2 text-zinc-500 dark:text-zinc-400 flex flex-row gap-2 items-center mt-8">

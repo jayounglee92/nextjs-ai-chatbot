@@ -18,29 +18,51 @@ function PureSuggestedActions({
   sendMessage,
   selectedVisibilityType,
 }: SuggestedActionsProps) {
+  // const suggestedActions = [
+  //   {
+  //     title: 'What are the advantages',
+  //     label: 'of using Next.js?',
+  //     action: 'What are the advantages of using Next.js?',
+  //   },
+  //   {
+  //     title: 'Write code to',
+  //     label: `demonstrate djikstra's algorithm`,
+  //     action: `Write code to demonstrate djikstra's algorithm`,
+  //   },
+  //   {
+  //     title: 'Help me write an essay',
+  //     label: `about silicon valley`,
+  //     action: `Help me write an essay about silicon valley`,
+  //   },
+  //   {
+  //     title: 'What is the weather',
+  //     label: 'in San Francisco?',
+  //     action: 'What is the weather in San Francisco?',
+  //   },
+  // ];
+
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'Next.js 의',
+      label: '장점은 무엇인가요?',
+      action: 'Next.js의 장점은 무엇인가요?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: '다익스트라 알고리즘',
+      label: `코드 구현하기`,
+      action: `다익스트라 알고리즘 코드 구현하기`,
     },
     {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      title: '실리콘밸리에 대한 에세이',
+      label: `작성을 도와주세요.`,
+      action: `실리콘밸리는 무엇인가요?`,
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: 'San Francisco의',
+      label: '날씨는 어떤가요?',
+      action: 'San Francisco의 날씨는 어떤가요?',
     },
   ];
-
   return (
     <div
       data-testid="suggested-actions"

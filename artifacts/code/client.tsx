@@ -114,8 +114,8 @@ export const codeArtifact = new Artifact<'code', Metadata>({
   actions: [
     {
       icon: <PlayIcon size={18} />,
-      label: 'Run',
-      description: 'Execute code',
+      label: '실행',
+      description: '코드 실행',
       onClick: async ({ content, setMetadata }) => {
         const runId = generateUUID();
         const outputContent: Array<ConsoleOutputContent> = [];
@@ -210,7 +210,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
     },
     {
       icon: <UndoIcon size={18} />,
-      description: 'View Previous version',
+      description: '이전 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('prev');
       },
@@ -224,7 +224,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
     },
     {
       icon: <RedoIcon size={18} />,
-      description: 'View Next version',
+      description: '다음 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('next');
       },
@@ -238,10 +238,10 @@ export const codeArtifact = new Artifact<'code', Metadata>({
     },
     {
       icon: <CopyIcon size={18} />,
-      description: 'Copy code to clipboard',
+      description: '코드 복사하기',
       onClick: ({ content }) => {
         navigator.clipboard.writeText(content);
-        toast.success('Copied to clipboard!');
+        toast.success('클립보드에 코드가 복사되었습니다!');
       },
     },
   ],

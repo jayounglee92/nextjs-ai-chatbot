@@ -46,7 +46,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
   actions: [
     {
       icon: <UndoIcon size={18} />,
-      description: 'View Previous version',
+      description: '이전 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('prev');
       },
@@ -60,7 +60,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
     },
     {
       icon: <RedoIcon size={18} />,
-      description: 'View Next version',
+      description: '다음 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('next');
       },
@@ -74,7 +74,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
     },
     {
       icon: <CopyIcon />,
-      description: 'Copy as .csv',
+      description: 'csv 파일로 복사하기',
       onClick: ({ content }) => {
         const parsed = parse<string[]>(content, { skipEmptyLines: true });
 
@@ -85,7 +85,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
         const cleanedCsv = unparse(nonEmptyRows);
 
         navigator.clipboard.writeText(cleanedCsv);
-        toast.success('Copied csv to clipboard!');
+        toast.success('클립보드에 csv 파일이 복사되었습니다!');
       },
     },
   ],

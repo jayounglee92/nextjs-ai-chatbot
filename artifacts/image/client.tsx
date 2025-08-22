@@ -20,7 +20,7 @@ export const imageArtifact = new Artifact({
   actions: [
     {
       icon: <UndoIcon size={18} />,
-      description: 'View Previous version',
+      description: '이전 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('prev');
       },
@@ -34,7 +34,7 @@ export const imageArtifact = new Artifact({
     },
     {
       icon: <RedoIcon size={18} />,
-      description: 'View Next version',
+      description: '다음 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('next');
       },
@@ -48,7 +48,7 @@ export const imageArtifact = new Artifact({
     },
     {
       icon: <CopyIcon size={18} />,
-      description: 'Copy image to clipboard',
+      description: '이미지 복사하기',
       onClick: ({ content }) => {
         const img = new Image();
         img.src = `data:image/png;base64,${content}`;
@@ -68,7 +68,7 @@ export const imageArtifact = new Artifact({
           }, 'image/png');
         };
 
-        toast.success('Copied image to clipboard!');
+        toast.success('클립보드에 이미지가 복사되었습니다!');
       },
     },
   ],

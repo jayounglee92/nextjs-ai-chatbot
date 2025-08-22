@@ -67,10 +67,10 @@ function PureChatHeader({
             >
               <PlusIcon />
               {/* 모바일에서는 텍스트 숨김 (아이콘만 표시) */}
-              <span className="md:sr-only">New Chat</span>
+              <span className="md:sr-only">새 채팅</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>New Chat</TooltipContent>
+          <TooltipContent>새 채팅</TooltipContent>
         </Tooltip>
       )}
 
@@ -93,7 +93,7 @@ function PureChatHeader({
       )}
 
       {/* Vercel 배포 버튼 - 데스크톱에서만 표시 */}
-      <Button
+      {/* <Button
         className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 hidden md:flex py-1.5 px-2 h-fit md:h-[34px] order-4 md:ml-auto"
         asChild
       >
@@ -105,7 +105,7 @@ function PureChatHeader({
           <VercelIcon size={16} />
           Deploy with Vercel
         </Link>
-      </Button>
+      </Button> */}
     </header>
   );
 }

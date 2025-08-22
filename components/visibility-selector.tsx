@@ -28,13 +28,13 @@ const visibilities: Array<{
   {
     id: 'private',
     label: 'Private',
-    description: 'Only you can access this chat',
+    description: '오직 본인만 접근할 수 있어요',
     icon: <LockIcon />,
   },
   {
     id: 'public',
     label: 'Public',
-    description: 'Anyone with the link can access this chat',
+    description: '링크를 알고 있으면 누구나 접근할 수 있어요',
     icon: <GlobeIcon />,
   },
 ];

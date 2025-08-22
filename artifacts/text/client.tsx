@@ -97,7 +97,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
   actions: [
     {
       icon: <ClockRewind size={18} />,
-      description: 'View changes',
+      description: '변경된 부분 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('toggle');
       },
@@ -111,7 +111,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
     },
     {
       icon: <UndoIcon size={18} />,
-      description: 'View Previous version',
+      description: '이전 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('prev');
       },
@@ -125,7 +125,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
     },
     {
       icon: <RedoIcon size={18} />,
-      description: 'View Next version',
+      description: '다음 버전 보기',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('next');
       },
@@ -139,24 +139,24 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
     },
     {
       icon: <CopyIcon size={18} />,
-      description: 'Copy to clipboard',
+      description: '복사하기',
       onClick: ({ content }) => {
         navigator.clipboard.writeText(content);
-        toast.success('Copied to clipboard!');
+        toast.success('클립보드에 복사되었습니다!');
       },
     },
   ],
   toolbar: [
     {
       icon: <PenIcon />,
-      description: 'Add final polish',
+      description: '마지막으로 다듬기',
       onClick: ({ sendMessage }) => {
         sendMessage({
           role: 'user',
           parts: [
             {
               type: 'text',
-              text: 'Please add final polish and check for grammar, add section titles for better structure, and ensure everything reads smoothly.',
+              text: '최종 검토를 해주세요. 문법을 확인하고 구조를 개선하며 자연스럽게 읽히도록 다듬어주세요.',
             },
           ],
         });
@@ -164,14 +164,14 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
     },
     {
       icon: <MessageIcon />,
-      description: 'Request suggestions',
+      description: '제안 요청',
       onClick: ({ sendMessage }) => {
         sendMessage({
           role: 'user',
           parts: [
             {
               type: 'text',
-              text: 'Please add suggestions you have that could improve the writing.',
+              text: '글쓰기를 개선할 수 있는 제안사항을 추가해주세요.',
             },
           ],
         });

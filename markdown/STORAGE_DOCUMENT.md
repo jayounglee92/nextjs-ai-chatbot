@@ -307,13 +307,14 @@ OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 ### 사용 모델
 
-| 모델 ID                | OpenAI 모델          | 용도           |
-| ---------------------- | -------------------- | -------------- |
-| `chat-model`           | `gpt-4o`             | 일반 채팅      |
-| `chat-model-reasoning` | `gpt-4o` (추론 모드) | 복잡한 추론    |
-| `title-model`          | `gpt-4o`             | 채팅 제목 생성 |
-| `artifact-model`       | `gpt-4o`             | 아티팩트 생성  |
-| `small-model`          | `dall-e-2`           | 이미지 생성    |
+| 모델 ID                | OpenAI 모델               | 용도           |
+| ---------------------- | ------------------------- | -------------- |
+| `chat-model`           | `gpt-4o-mini`             | 일반 채팅      |
+| `chat-model-reasoning` | `gpt-4o-mini` (추론 모드) | 복잡한 추론    |
+| `title-model`          | `gpt-3.5-turbo`           | 채팅 제목 생성 |
+| `artifact-model`       | `gpt-4o-mini`             | 아티팩트 생성  |
+| `small-model`          | `dall-e-2`                | 이미지 생성    |
+| `large-model`          | `dall-e-2`                | 이미지 생성    |
 
 ### 사용 위치
 

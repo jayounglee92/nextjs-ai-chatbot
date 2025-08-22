@@ -441,15 +441,13 @@ export const ThinkingMessage = () => {
           },
         )}
       >
-        {/* AI 아바타 (SparklesIcon) */}
         <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
           <SparklesIcon size={14} />
         </div>
 
-        {/* "생각 중..." 텍스트 */}
         <div className="flex flex-col gap-2 w-full">
           <div className="flex flex-col gap-4 text-muted-foreground">
-            Hmm... {/* 사용자에게 친근감을 주는 표현 */}
+            Hmm...
           </div>
         </div>
       </div>
