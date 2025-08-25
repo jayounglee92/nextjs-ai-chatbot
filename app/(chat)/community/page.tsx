@@ -60,26 +60,22 @@ export default function CommunityPage() {
   }
 
   return (
-    <>
-      <CommunityHeader />
-
-      <div className="flex flex-1 flex-col  p-8">
-        <div className="space-y-4  flex flex-col">
-          <div className="flex items-center gap-2">
-            <UsersIcon className=" !size-8" />
-            <h1 className="text-2xl font-semibold text-foreground">커뮤니티</h1>
-          </div>
-          <p className="text-muted-foreground">
-            다른 사용자들과 함께 대화하고 지식을 공유할 수 있는 공간입니다.
-          </p>
+    <div className="flex flex-1 flex-col  p-8">
+      <div className="space-y-4  flex flex-col">
+        <div className="flex items-center gap-2">
+          <UsersIcon className=" !size-8" />
+          <h1 className="text-2xl font-semibold text-foreground">커뮤니티</h1>
         </div>
-        <div className="flex-1">
-          <div className="mb-6">
-            <h2 className="text-lg font-medium mb-4">공개 채팅 목록</h2>
-            <PublicChatList chats={publicChats} />
-          </div>
+        <p className="text-muted-foreground">
+          다른 사용자들과 함께 대화하고 지식을 공유할 수 있는 공간입니다.
+        </p>
+      </div>
+      <div className="flex-1">
+        <div className="mb-6">
+          <h2 className="text-lg font-medium mb-4">공개 채팅 목록</h2>
+          <PublicChatList chats={publicChats} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
