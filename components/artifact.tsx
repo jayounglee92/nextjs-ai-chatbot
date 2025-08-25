@@ -329,7 +329,7 @@ function PureArtifact({
       {artifact.isVisible && (
         <motion.div
           data-testid="artifact"
-          className="flex flex-row h-dvh w-dvw fixed top-0 left-0 z-50 bg-transparent"
+          className="fixed left-0 top-0 z-50 flex h-dvh w-dvw flex-row bg-transparent"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { delay: 0.4 } }}
@@ -337,7 +337,7 @@ function PureArtifact({
           {/* 데스크톱용 배경 오버레이 */}
           {!isMobile && (
             <motion.div
-              className="fixed bg-background h-dvh"
+              className="fixed h-dvh bg-background"
               initial={{
                 width: isSidebarOpen ? windowWidth - 256 : windowWidth,
                 right: 0,
@@ -353,7 +353,7 @@ function PureArtifact({
           {/* 데스크톱용 왼쪽 채팅 패널 */}
           {!isMobile && (
             <motion.div
-              className="relative w-[400px] bg-muted dark:bg-background h-dvh shrink-0"
+              className="relative h-dvh w-[400px] shrink-0 bg-muted dark:bg-background"
               initial={{ opacity: 0, x: 10, scale: 1 }}
               animate={{
                 opacity: 1,
@@ -377,7 +377,7 @@ function PureArtifact({
               <AnimatePresence>
                 {!isCurrentVersion && (
                   <motion.div
-                    className="left-0 absolute h-dvh w-[400px] top-0 bg-zinc-900/50 z-50"
+                    className="absolute left-0 top-0 z-50 h-dvh w-[400px] bg-zinc-900/50"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -385,7 +385,7 @@ function PureArtifact({
                 )}
               </AnimatePresence>
 
-              <div className="flex flex-col h-full justify-between items-center">
+              <div className="flex h-full flex-col items-center justify-between">
                 {/* 채팅 메시지 영역 */}
                 <ArtifactMessages
                   chatId={chatId}
@@ -399,7 +399,7 @@ function PureArtifact({
                 />
 
                 {/* 메시지 입력 폼 */}
-                <form className="flex flex-row gap-2 relative items-end w-full px-4 pb-4">
+                <form className="relative flex w-full flex-row items-end gap-2 px-4 pb-4">
                   <MultimodalInput
                     chatId={chatId}
                     input={input}
@@ -421,7 +421,7 @@ function PureArtifact({
 
           {/* 오른쪽 아티팩트 콘텐츠 패널 */}
           <motion.div
-            className="fixed dark:bg-muted bg-background h-dvh flex flex-col overflow-y-scroll md:border-l dark:border-zinc-700 border-zinc-200"
+            className="fixed flex h-dvh flex-col overflow-y-scroll border-zinc-200 bg-background dark:border-zinc-700 dark:bg-muted md:border-l"
             initial={
               isMobile
                 ? {
@@ -488,8 +488,8 @@ function PureArtifact({
             }}
           >
             {/* 아티팩트 헤더 영역 */}
-            <div className="p-2 flex flex-row justify-between items-start">
-              <div className="flex flex-row gap-4 items-start">
+            <div className="flex flex-row items-start justify-between p-2">
+              <div className="flex flex-row items-start gap-4">
                 {/* 닫기 버튼 */}
                 <ArtifactCloseButton />
 
@@ -515,7 +515,7 @@ function PureArtifact({
                       업데이트됨
                     </div>
                   ) : (
-                    <div className="w-32 h-3 mt-2 bg-muted-foreground/20 rounded-md animate-pulse" />
+                    <div className="mt-2 h-3 w-32 animate-pulse rounded-md bg-muted-foreground/20" />
                   )}
                 </div>
               </div>
@@ -533,7 +533,7 @@ function PureArtifact({
             </div>
 
             {/* 아티팩트 메인 콘텐츠 영역 */}
-            <div className="dark:bg-muted bg-background h-full overflow-y-scroll !max-w-full items-center">
+            <div className="h-full !max-w-full items-center overflow-y-scroll bg-background dark:bg-muted">
               {/* 동적 아티팩트 콘텐츠 렌더링 */}
               <artifactDefinition.content
                 title={artifact.title}

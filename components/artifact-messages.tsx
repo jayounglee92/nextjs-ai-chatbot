@@ -42,7 +42,7 @@ function PureArtifactMessages({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex flex-col gap-4 h-full items-center overflow-y-scroll px-4 pt-20"
+      className="flex h-full flex-col items-center gap-4 overflow-y-scroll px-4 pt-20"
     >
       {messages.map((message, index) => (
         <PreviewMessage
@@ -70,7 +70,7 @@ function PureArtifactMessages({
 
       <motion.div
         ref={messagesEndRef}
-        className="shrink-0 min-w-[24px] min-h-[24px]"
+        className="min-h-[24px] min-w-[24px] shrink-0"
         onViewportLeave={onViewportLeave}
         onViewportEnter={onViewportEnter}
       />

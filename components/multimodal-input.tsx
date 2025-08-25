@@ -27,6 +27,8 @@ import { ArrowDown } from 'lucide-react';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
 import type { VisibilityType } from './visibility-selector';
 import type { Attachment, ChatMessage } from '@/lib/types';
+import { ModelSelector } from './model-selector';
+import type { Session } from 'next-auth';
 
 /**
  * 멀티모달 입력 컴포넌트 - 채팅의 핵심 입력 인터페이스
@@ -58,6 +60,8 @@ function PureMultimodalInput({
   sendMessage, // 메시지 전송 함수
   className, // 추가 CSS 클래스
   selectedVisibilityType, // 채팅 가시성 설정
+  selectedModelId, // 선택된 AI 모델 ID
+  session, // 사용자 세션
 }: {
   chatId: string;
   input: string;
@@ -71,6 +75,8 @@ function PureMultimodalInput({
   sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
   className?: string;
   selectedVisibilityType: VisibilityType;
+  selectedModelId: string;
+  session: Session;
 }) {
   // 텍스트 영역 DOM 참조 (높이 조절용)
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -286,7 +292,7 @@ function PureMultimodalInput({
   }, [status, scrollToBottom]);
 
   return (
-    <div className="relative w-full flex flex-col gap-4">
+    <div className="relative flex w-full flex-col gap-4">
       {/* 하단 스크롤 버튼 (스크롤이 위에 있을 때만 표시) */}
       <AnimatePresence>
         {!isAtBottom && (
@@ -295,7 +301,7 @@ function PureMultimodalInput({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="absolute left-1/2 bottom-28 -translate-x-1/2 z-50"
+            className="absolute bottom-28 left-1/2 z-50 -translate-x-1/2"
           >
             <Button
               data-testid="scroll-to-bottom-button"
@@ -327,7 +333,7 @@ function PureMultimodalInput({
       {/* 숨겨진 파일 입력 엘리먼트 (첨부파일 버튼에서 트리거) */}
       <input
         type="file"
-        className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
+        className="pointer-events-none fixed -left-4 -top-4 size-0.5 opacity-0"
         ref={fileInputRef}
         multiple
         onChange={handleFileChange}
@@ -338,7 +344,7 @@ function PureMultimodalInput({
       {(attachments.length > 0 || uploadQueue.length > 0) && (
         <div
           data-testid="attachments-preview"
-          className="flex flex-row gap-2 overflow-x-scroll items-end"
+          className="flex flex-row items-end gap-2 overflow-x-scroll"
         >
           {/* 업로드 완료된 첨부파일들 */}
           {attachments.map((attachment) => (
@@ -368,7 +374,7 @@ function PureMultimodalInput({
         value={input}
         onChange={handleInput}
         className={cx(
-          'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl !text-base bg-muted pb-10 dark:border-zinc-700',
+          'max-h-[calc(75dvh)] min-h-[24px] resize-none overflow-hidden rounded-2xl pb-10 !text-base dark:border-zinc-700',
           className,
         )}
         rows={2}
@@ -392,13 +398,18 @@ function PureMultimodalInput({
         }}
       />
 
-      {/* 왼쪽 하단: 첨부파일 버튼 */}
-      <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
+      {/* 왼쪽 하단: 첨부파일 버튼 + 모델 선택기 */}
+      <div className="absolute bottom-0 flex w-fit flex-row justify-start gap-2 p-2">
         <AttachmentsButton fileInputRef={fileInputRef} status={status} />
+        {/* <ModelSelector
+          session={session}
+          selectedModelId={selectedModelId}
+          className="h-fit"
+        /> */}
       </div>
 
       {/* 오른쪽 하단: 전송/중지 버튼 */}
-      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
+      <div className="absolute bottom-0 right-0 flex w-fit flex-row justify-end p-2">
         {status === 'submitted' ? (
           <StopButton stop={stop} setMessages={setMessages} />
         ) : (
@@ -422,6 +433,7 @@ export const MultimodalInput = memo(
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
       return false;
+    if (prevProps.selectedModelId !== nextProps.selectedModelId) return false;
 
     return true;
   },
@@ -441,7 +453,7 @@ function PureAttachmentsButton({
   return (
     <Button
       data-testid="attachments-button"
-      className="rounded-md rounded-bl-lg p-[7px] h-fit dark:border-zinc-700 hover:dark:bg-zinc-900 hover:bg-zinc-200"
+      className="h-fit rounded-md rounded-bl-lg p-[7px] hover:bg-zinc-200 dark:border-zinc-700 hover:dark:bg-zinc-900"
       onClick={(event) => {
         event.preventDefault();
         // 숨겨진 파일 입력 엘리먼트 클릭 트리거
@@ -471,7 +483,7 @@ function PureStopButton({
   return (
     <Button
       data-testid="stop-button"
-      className="rounded-full p-1.5 h-fit border dark:border-zinc-600"
+      className="h-fit rounded-full border p-1.5 dark:border-zinc-600"
       onClick={(event) => {
         event.preventDefault();
         stop(); // AI 응답 중지
@@ -501,7 +513,7 @@ function PureSendButton({
   return (
     <Button
       data-testid="send-button"
-      className="rounded-full p-1.5 h-fit border dark:border-zinc-600"
+      className="h-fit rounded-full border p-1.5 dark:border-zinc-600"
       onClick={(event) => {
         event.preventDefault();
         submitForm();

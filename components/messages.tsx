@@ -61,7 +61,7 @@ function PureMessages({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4 relative"
+      className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-scroll pt-4"
     >
       {/* 메시지가 없을 때 환영 인사 표시 */}
       {messages.length === 0 && <Greeting />}
@@ -98,7 +98,7 @@ function PureMessages({
       {/* 메시지 끝 지점 마커 (자동 스크롤 및 뷰포트 감지용) */}
       <motion.div
         ref={messagesEndRef}
-        className="shrink-0 min-w-[24px] min-h-[24px]"
+        className="min-h-[24px] min-w-[24px] shrink-0"
         onViewportLeave={onViewportLeave} // 뷰포트에서 벗어날 때
         onViewportEnter={onViewportEnter} // 뷰포트에 들어올 때
       />

@@ -171,7 +171,7 @@ export function Chat({
   return (
     <>
       {/* 메인 채팅 인터페이스 */}
-      <div className="flex flex-col min-w-0 h-dvh bg-background">
+      <div className="flex h-dvh min-w-0 flex-col bg-background">
         {/* 채팅 헤더 (제목, 설정 버튼 등) */}
         <ChatHeader
           chatId={id}
@@ -194,7 +194,7 @@ export function Chat({
         />
 
         {/* 메시지 입력 폼 */}
-        <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+        <form className="mx-auto flex w-full gap-2 bg-background px-4 pb-4 md:max-w-3xl md:pb-6">
           {/* 읽기 전용이 아닐 때만 입력 가능 */}
           {!isReadonly && (
             <MultimodalInput
@@ -209,6 +209,8 @@ export function Chat({
               setMessages={setMessages}
               sendMessage={sendMessage}
               selectedVisibilityType={visibilityType}
+              selectedModelId={initialChatModel}
+              session={session}
             />
           )}
         </form>

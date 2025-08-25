@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-import { AppSidebar } from '@/components/app-sidebar';
+import { DepthSidebar } from '@/components/depth-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { auth } from '../(auth)/auth';
 import Script from 'next/script';
@@ -15,7 +15,7 @@ export default async function Layout({
 }) {
   const [session, cookieStore] = await Promise.all([auth(), cookies()]);
   const isCollapsed = cookieStore.get('sidebar:state')?.value !== 'true';
-
+  console.log(session);
   return (
     <>
       <Script
@@ -24,7 +24,7 @@ export default async function Layout({
       />
       <DataStreamProvider>
         <SidebarProvider defaultOpen={!isCollapsed}>
-          <AppSidebar user={session?.user} />
+          <DepthSidebar user={session?.user} />
           <SidebarInset>{children}</SidebarInset>
         </SidebarProvider>
       </DataStreamProvider>

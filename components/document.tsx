@@ -62,7 +62,7 @@ function PureDocumentToolResult({
   return (
     <button
       type="button"
-      className="bg-background cursor-pointer border py-2 px-3 rounded-xl w-fit flex flex-row gap-3 items-start"
+      className="flex w-fit cursor-pointer flex-row items-start gap-3 rounded-xl border bg-background px-3 py-2"
       onClick={(event) => {
         // 읽기 전용 모드에서는 아티팩트 열기 불가
         if (isReadonly) {
@@ -94,7 +94,7 @@ function PureDocumentToolResult({
       }}
     >
       {/* 작업 타입에 따른 아이콘 표시 */}
-      <div className="text-muted-foreground mt-1">
+      <div className="mt-1 text-muted-foreground">
         {type === 'create' ? (
           <FileIcon /> // 파일 생성 아이콘
         ) : type === 'update' ? (
@@ -150,7 +150,7 @@ function PureDocumentToolCall({
   return (
     <button
       type="button"
-      className="cursor pointer w-fit border py-2 px-3 rounded-xl flex flex-row items-start justify-between gap-3"
+      className="cursor pointer flex w-fit flex-row items-start justify-between gap-3 rounded-xl border px-3 py-2"
       onClick={(event) => {
         // 읽기 전용 모드에서는 아티팩트 열기 불가
         if (isReadonly) {
@@ -179,9 +179,9 @@ function PureDocumentToolCall({
         }));
       }}
     >
-      <div className="flex flex-row gap-3 items-start">
+      <div className="flex flex-row items-start gap-3">
         {/* 작업 타입에 따른 아이콘 표시 */}
-        <div className="text-zinc-500 mt-1">
+        <div className="mt-1 text-zinc-500">
           {type === 'create' ? (
             <FileIcon /> // 파일 생성 아이콘
           ) : type === 'update' ? (
@@ -206,7 +206,7 @@ function PureDocumentToolCall({
       </div>
 
       {/* 로딩 스피너 */}
-      <div className="animate-spin mt-1">{<LoaderIcon />}</div>
+      <div className="mt-1 animate-spin">{<LoaderIcon />}</div>
     </button>
   );
 }

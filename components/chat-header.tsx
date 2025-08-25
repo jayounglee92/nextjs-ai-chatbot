@@ -1,18 +1,17 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useWindowSize } from 'usehooks-ts';
 
-import { ModelSelector } from '@/components/model-selector';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, VercelIcon } from './icons';
+import { PlusIcon } from './icons';
 import { useSidebar } from './ui/sidebar';
 import { memo } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { type VisibilityType, VisibilitySelector } from './visibility-selector';
 import type { Session } from 'next-auth';
+import { ModelSelector } from './model-selector';
 
 /**
  * 채팅 헤더의 순수 컴포넌트 (메모이제이션 최적화를 위해 분리)
@@ -49,30 +48,30 @@ function PureChatHeader({
   return (
     <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
       {/* 사이드바 열기/닫기 토글 버튼 */}
-      <SidebarToggle />
+      {/* <SidebarToggle /> */}
 
       {/* 새 채팅 시작 버튼 - 조건부 표시 */}
       {/* 사이드바가 닫혀있거나 모바일 화면일 때만 표시 */}
-      {(!open || windowWidth < 768) && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
-              onClick={() => {
-                // 홈페이지로 이동하여 새 채팅 시작
-                router.push('/');
-                router.refresh(); // 페이지 새로고침으로 상태 초기화
-              }}
-            >
-              <PlusIcon />
-              {/* 모바일에서는 텍스트 숨김 (아이콘만 표시) */}
-              <span className="md:sr-only">새 채팅</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>새 채팅</TooltipContent>
-        </Tooltip>
-      )}
+      {(!open || windowWidth < 768) &&
+        // <Tooltip>
+        //   <TooltipTrigger asChild>
+        //     <Button
+        //       variant="outline"
+        //       className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
+        //       onClick={() => {
+        //         // 홈페이지로 이동하여 새 채팅 시작
+        //         router.push('/');
+        //         router.refresh(); // 페이지 새로고침으로 상태 초기화
+        //       }}
+        //     >
+        //       <PlusIcon />
+        //       {/* 모바일에서는 텍스트 숨김 (아이콘만 표시) */}
+        //       <span className="md:sr-only">새 채팅</span>
+        //     </Button>
+        //   </TooltipTrigger>
+        //   <TooltipContent>새 채팅</TooltipContent>
+        // </Tooltip>
+        null}
 
       {/* AI 모델 선택기 - 편집 가능한 채팅에서만 표시 */}
       {!isReadonly && (
@@ -88,7 +87,7 @@ function PureChatHeader({
         <VisibilitySelector
           chatId={chatId}
           selectedVisibilityType={selectedVisibilityType}
-          className="order-1 md:order-3" // 반응형 순서 조정
+          className="order-1 md:order-2" // 반응형 순서 조정
         />
       )}
 

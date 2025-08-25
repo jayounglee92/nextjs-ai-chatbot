@@ -68,14 +68,14 @@ const PurePreviewMessage = ({
     <AnimatePresence>
       <motion.div
         data-testid={`message-${message.role}`} // 테스트용 식별자
-        className="w-full mx-auto max-w-3xl px-4 group/message"
+        className="group/message mx-auto w-full max-w-3xl px-4"
         initial={{ y: 5, opacity: 0 }} // 등장 애니메이션 초기값
         animate={{ y: 0, opacity: 1 }} // 등장 애니메이션 최종값
         data-role={message.role} // CSS 선택자용 역할 속성
       >
         <div
           className={cn(
-            'flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl',
+            'flex w-full gap-4 group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl',
             {
               'w-full': mode === 'edit', // 편집 모드일 때 전체 너비
               'group-data-[role=user]/message:w-fit': mode !== 'edit', // 보기 모드일 때 사용자 메시지는 내용에 맞춤
@@ -84,7 +84,7 @@ const PurePreviewMessage = ({
         >
           {/* AI 메시지인 경우에만 아바타 표시 */}
           {message.role === 'assistant' && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
               <div className="translate-y-px">
                 <SparklesIcon size={14} />
               </div>
@@ -92,7 +92,7 @@ const PurePreviewMessage = ({
           )}
 
           <div
-            className={cn('flex flex-col gap-4 w-full', {
+            className={cn('flex w-full flex-col gap-4', {
               // AI 메시지이고 스크롤 패딩이 필요한 경우 최소 높이 설정
               'min-h-96': message.role === 'assistant' && requiresScrollPadding,
             })}
@@ -137,7 +137,7 @@ const PurePreviewMessage = ({
                 // 보기 모드: 텍스트 표시 + 편집 버튼
                 if (mode === 'view') {
                   return (
-                    <div key={key} className="flex flex-row gap-2 items-start">
+                    <div key={key} className="flex flex-row items-start gap-2">
                       {/* 사용자 메시지이고 읽기 전용이 아닌 경우 편집 버튼 표시 */}
                       {message.role === 'user' && !isReadonly && (
                         <Tooltip>
@@ -145,7 +145,7 @@ const PurePreviewMessage = ({
                             <Button
                               data-testid="message-edit-button"
                               variant="ghost"
-                              className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
+                              className="h-fit rounded-full px-2 text-muted-foreground opacity-0 group-hover/message:opacity-100"
                               onClick={() => {
                                 setMode('edit'); // 편집 모드로 전환
                               }}
@@ -161,7 +161,7 @@ const PurePreviewMessage = ({
                         data-testid="message-content"
                         className={cn('flex flex-col gap-4', {
                           // 사용자 메시지는 말풍선 스타일 적용
-                          'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
+                          'rounded-xl bg-primary px-3 py-2 text-primary-foreground':
                             message.role === 'user',
                         })}
                       >
@@ -175,7 +175,7 @@ const PurePreviewMessage = ({
                 // 편집 모드: 메시지 에디터 표시
                 if (mode === 'edit') {
                   return (
-                    <div key={key} className="flex flex-row gap-2 items-start">
+                    <div key={key} className="flex flex-row items-start gap-2">
                       <div className="size-8" /> {/* 아바타 공간 확보 */}
                       <MessageEditor
                         key={message.id}
@@ -241,7 +241,7 @@ const PurePreviewMessage = ({
                     return (
                       <div
                         key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
+                        className="rounded border p-2 text-red-500"
                       >
                         Error: {String(output.error)}
                       </div>
@@ -287,7 +287,7 @@ const PurePreviewMessage = ({
                     return (
                       <div
                         key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
+                        className="rounded border p-2 text-red-500"
                       >
                         Error: {String(output.error)}
                       </div>
@@ -332,7 +332,7 @@ const PurePreviewMessage = ({
                     return (
                       <div
                         key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
+                        className="rounded border p-2 text-red-500"
                       >
                         Error: {String(output.error)}
                       </div>
@@ -428,24 +428,24 @@ export const ThinkingMessage = () => {
   return (
     <motion.div
       data-testid="message-assistant-loading" // 테스트용 식별자
-      className="w-full mx-auto max-w-3xl px-4 group/message min-h-96"
+      className="group/message mx-auto min-h-96 w-full max-w-3xl px-4"
       initial={{ y: 5, opacity: 0 }} // 등장 애니메이션 초기값
       animate={{ y: 0, opacity: 1, transition: { delay: 1 } }} // 1초 후 나타남
       data-role={role}
     >
       <div
         className={cx(
-          'flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl',
+          'flex w-full gap-4 rounded-xl group-data-[role=user]/message:ml-auto group-data-[role=user]/message:w-fit group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:px-3 group-data-[role=user]/message:py-2',
           {
             'group-data-[role=user]/message:bg-muted': true,
           },
         )}
       >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full ring-1 ring-border">
           <SparklesIcon size={14} />
         </div>
 
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex w-full flex-col gap-2">
           <div className="flex flex-col gap-4 text-muted-foreground">
             Hmm...
           </div>

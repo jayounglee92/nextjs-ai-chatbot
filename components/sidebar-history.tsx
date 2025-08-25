@@ -93,7 +93,13 @@ export function getChatHistoryPaginationKey(
   return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}`;
 }
 
-export function SidebarHistory({ user }: { user: User | undefined }) {
+export function SidebarHistory({
+  user,
+  visibilityFilter,
+}: {
+  user: User | undefined;
+  visibilityFilter?: 'private' | 'public';
+}) {
   const { setOpenMobile } = useSidebar();
   const { id } = useParams();
 
@@ -152,7 +158,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     return (
       <SidebarGroup>
         <SidebarGroupContent>
-          <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
+          <div className="flex w-full flex-row items-center justify-center gap-2 px-2 text-sm text-zinc-500">
             Login to save and revisit previous chats!
           </div>
         </SidebarGroupContent>
@@ -171,10 +177,10 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
             {[44, 32, 28, 64, 52].map((item) => (
               <div
                 key={item}
-                className="rounded-md h-8 flex gap-2 px-2 items-center"
+                className="flex h-8 items-center gap-2 rounded-md px-2"
               >
                 <div
-                  className="h-4 rounded-md flex-1 max-w-[--skeleton-width] bg-sidebar-accent-foreground/10"
+                  className="h-4 max-w-[--skeleton-width] flex-1 rounded-md bg-sidebar-accent-foreground/10"
                   style={
                     {
                       '--skeleton-width': `${item}%`,
@@ -193,7 +199,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     return (
       <SidebarGroup>
         <SidebarGroupContent>
-          <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
+          <div className="flex w-full flex-row items-center justify-center gap-2 px-2 text-sm text-zinc-500">
             채팅을 시작하면 여기에 나타납니다!
           </div>
         </SidebarGroupContent>
@@ -211,7 +217,15 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                 const chatsFromHistory = paginatedChatHistories.flatMap(
                   (paginatedChatHistory) => paginatedChatHistory.chats,
                 );
-                const groupedChats = groupChatsByDate(chatsFromHistory);
+
+                // visibilityFilter가 있으면 해당 visibility만 필터링
+                const filteredChats = visibilityFilter
+                  ? chatsFromHistory.filter(
+                      (chat) => chat.visibility === visibilityFilter,
+                    )
+                  : chatsFromHistory;
+
+                const groupedChats = groupChatsByDate(filteredChats);
 
                 return (
                   <div className="flex flex-col gap-6">
@@ -328,11 +342,11 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
           />
 
           {hasReachedEnd ? (
-            <div className="px-2 text-zinc-500 w-full flex flex-row text-sm gap-2 mt-8">
+            <div className="mt-8 flex w-full flex-row gap-2 px-2 text-sm text-zinc-500">
               채팅 히스토리가 마지막이에요.
             </div>
           ) : (
-            <div className="p-2 text-zinc-500 dark:text-zinc-400 flex flex-row gap-2 items-center mt-8">
+            <div className="mt-8 flex flex-row items-center gap-2 p-2 text-zinc-500 dark:text-zinc-400">
               <div className="animate-spin">
                 <LoaderIcon />
               </div>

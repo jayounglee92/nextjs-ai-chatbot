@@ -162,14 +162,14 @@ export function DocumentPreview({
 const LoadingSkeleton = ({ artifactKind }: { artifactKind: ArtifactKind }) => (
   <div className="w-full">
     {/* 헤더 스켈레톤 (아이콘 + 제목) */}
-    <div className="p-4 border rounded-t-2xl flex flex-row gap-2 items-center justify-between dark:bg-muted h-[57px] dark:border-zinc-700 border-b-0">
+    <div className="flex h-[57px] flex-row items-center justify-between gap-2 rounded-t-2xl border border-b-0 p-4 dark:border-zinc-700 dark:bg-muted">
       <div className="flex flex-row items-center gap-3">
         <div className="text-muted-foreground">
           {/* 아이콘 자리 애니메이션 박스 */}
-          <div className="animate-pulse rounded-md size-4 bg-muted-foreground/20" />
+          <div className="size-4 animate-pulse rounded-md bg-muted-foreground/20" />
         </div>
         {/* 제목 자리 애니메이션 박스 */}
-        <div className="animate-pulse rounded-lg h-4 bg-muted-foreground/20 w-24" />
+        <div className="h-4 w-24 animate-pulse rounded-lg bg-muted-foreground/20" />
       </div>
       <div>
         <FullscreenIcon />
@@ -179,12 +179,12 @@ const LoadingSkeleton = ({ artifactKind }: { artifactKind: ArtifactKind }) => (
     {/* 콘텐츠 스켈레톤 (타입별 구분) */}
     {artifactKind === 'image' ? (
       // 이미지 타입: 고정 높이 박스
-      <div className="overflow-y-scroll border rounded-b-2xl bg-muted border-t-0 dark:border-zinc-700">
-        <div className="animate-pulse h-[257px] bg-muted-foreground/20 w-full" />
+      <div className="overflow-y-scroll rounded-b-2xl border border-t-0 bg-muted dark:border-zinc-700">
+        <div className="h-[257px] w-full animate-pulse bg-muted-foreground/20" />
       </div>
     ) : (
       // 텍스트/코드 타입: 라인 형태 스켈레톤
-      <div className="overflow-y-scroll border rounded-b-2xl p-8 pt-4 bg-muted border-t-0 dark:border-zinc-700">
+      <div className="overflow-y-scroll rounded-b-2xl border border-t-0 bg-muted p-8 pt-4 dark:border-zinc-700">
         <InlineDocumentSkeleton />
       </div>
     )}
@@ -243,15 +243,15 @@ const PureHitboxLayer = ({
 
   return (
     <div
-      className="size-full absolute top-0 left-0 rounded-xl z-10" // 전체 영역을 덮는 투명한 레이어
+      className="absolute left-0 top-0 z-10 size-full rounded-xl" // 전체 영역을 덮는 투명한 레이어
       ref={hitboxRef}
       onClick={handleClick}
       role="presentation" // 접근성: 장식적 요소임을 표시
       aria-hidden="true" // 스크린 리더에서 숨김
     >
-      <div className="w-full p-4 flex justify-end items-center">
+      <div className="flex w-full items-center justify-end p-4">
         {/* 우측 상단 전체화면 아이콘 (호버 효과 포함) */}
-        <div className="absolute right-[9px] top-[13px] p-2 hover:dark:bg-zinc-700 rounded-md hover:bg-zinc-100">
+        <div className="absolute right-[9px] top-[13px] rounded-md p-2 hover:bg-zinc-100 hover:dark:bg-zinc-700">
           <FullscreenIcon />
         </div>
       </div>
@@ -288,8 +288,8 @@ const PureDocumentHeader = ({
   kind: ArtifactKind; // 문서 타입 (text, code, image, sheet)
   isStreaming: boolean; // 스트리밍 중 여부
 }) => (
-  <div className="p-4 border rounded-t-2xl flex flex-row gap-2 items-start sm:items-center justify-between dark:bg-muted border-b-0 dark:border-zinc-700">
-    <div className="flex flex-row items-start sm:items-center gap-3">
+  <div className="flex flex-row items-start justify-between gap-2 rounded-t-2xl border border-b-0 p-4 dark:border-zinc-700 dark:bg-muted sm:items-center">
+    <div className="flex flex-row items-start gap-3 sm:items-center">
       {/* 상태별 아이콘 표시 */}
       <div className="text-muted-foreground">
         {isStreaming ? (
@@ -306,7 +306,7 @@ const PureDocumentHeader = ({
         )}
       </div>
       {/* 문서 제목 (반응형 위치 조정) */}
-      <div className="-translate-y-1 sm:translate-y-0 font-medium">{title}</div>
+      <div className="-translate-y-1 font-medium sm:translate-y-0">{title}</div>
     </div>
     {/* 우측 여백 (전체화면 아이콘 공간 확보) */}
     <div className="w-8" />
@@ -339,7 +339,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
 
   // 문서 타입별 컨테이너 스타일 설정
   const containerClassName = cn(
-    'h-[257px] overflow-y-scroll border rounded-b-2xl dark:bg-muted border-t-0 dark:border-zinc-700',
+    'h-[257px] overflow-y-scroll rounded-b-2xl border border-t-0 dark:border-zinc-700 dark:bg-muted',
     {
       'p-4 sm:px-14 sm:py-16': document.kind === 'text', // 텍스트: 넉넉한 패딩
       'p-0': document.kind === 'code', // 코드: 패딩 없음 (에디터 자체 스타일 사용)
@@ -364,14 +364,14 @@ const DocumentContent = ({ document }: { document: Document }) => {
         <Editor {...commonProps} onSaveContent={() => {}} />
       ) : document.kind === 'code' ? (
         // 코드 문서: 코드 에디터 (구문 하이라이팅 지원)
-        <div className="flex flex-1 relative w-full">
+        <div className="relative flex w-full flex-1">
           <div className="absolute inset-0">
             <CodeEditor {...commonProps} onSaveContent={() => {}} />
           </div>
         </div>
       ) : document.kind === 'sheet' ? (
         // 스프레드시트 문서: 표 형태 에디터
-        <div className="flex flex-1 relative size-full p-4">
+        <div className="relative flex size-full flex-1 p-4">
           <div className="absolute inset-0">
             <SpreadsheetEditor {...commonProps} />
           </div>

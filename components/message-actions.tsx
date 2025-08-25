@@ -63,7 +63,7 @@ export function PureMessageActions({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="py-1 px-2 h-fit text-muted-foreground"
+              className="h-fit px-2 py-1 text-muted-foreground"
               variant="outline"
               onClick={async () => {
                 // 메시지에서 텍스트 타입 부분만 추출하여 복사
@@ -95,7 +95,7 @@ export function PureMessageActions({
           <TooltipTrigger asChild>
             <Button
               data-testid="message-upvote"
-              className="py-1 px-2 h-fit text-muted-foreground !pointer-events-auto"
+              className="!pointer-events-auto h-fit px-2 py-1 text-muted-foreground"
               disabled={vote?.isUpvoted}
               variant="outline"
               onClick={async () => {
@@ -149,7 +149,7 @@ export function PureMessageActions({
           <TooltipTrigger asChild>
             <Button
               data-testid="message-downvote"
-              className="py-1 px-2 h-fit text-muted-foreground !pointer-events-auto"
+              className="!pointer-events-auto h-fit px-2 py-1 text-muted-foreground"
               variant="outline"
               disabled={vote && !vote.isUpvoted} // 이미 싫어요를 눌렀으면 비활성화
               onClick={async () => {

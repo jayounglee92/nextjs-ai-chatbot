@@ -75,7 +75,7 @@ export function ModelSelector({
         <Button
           data-testid="model-selector" // 테스트용 식별자
           variant="outline"
-          className="md:px-2 md:h-[34px]" // 반응형 패딩과 높이
+          className="md:h-[34px] md:px-2" // 반응형 패딩과 높이
         >
           {/* 현재 선택된 모델 이름 표시 */}
           {selectedChatModel?.name}
@@ -113,22 +113,27 @@ export function ModelSelector({
             >
               <button
                 type="button"
-                className="gap-4 group/item flex flex-row justify-between items-center w-full"
+                className="group/item flex w-full flex-row items-center justify-between gap-4"
               >
                 {/* 모델 정보 영역 */}
-                <div className="flex flex-col gap-1 items-start">
+                <div className="flex gap-4 items-center">
                   {/* 모델 이름 (예: GPT-4, Claude-3.5-Sonnet) */}
-                  <div>{chatModel.name}</div>
 
-                  {/* 모델 설명 (예: "Most capable model", "Fast and efficient") */}
-                  <div className="text-xs text-muted-foreground">
-                    {chatModel.description}
+                  <chatModel.icon size={16} />
+
+                  <div className="flex flex-col gap-1 items-start">
+                    <p>{chatModel.name}</p>
+
+                    {/* 모델 설명 (예: "Most capable model", "Fast and efficient") */}
+                    <div className="text-xs text-muted-foreground">
+                      {chatModel.description}
+                    </div>
                   </div>
                 </div>
 
                 {/* 선택 표시 아이콘 */}
                 {/* 현재 선택된 모델에만 체크 아이콘 표시 */}
-                <div className="text-foreground dark:text-foreground opacity-0 group-data-[active=true]/item:opacity-100">
+                <div className="text-foreground opacity-0 group-data-[active=true]/item:opacity-100 dark:text-foreground">
                   <CheckCircleFillIcon />
                 </div>
               </button>

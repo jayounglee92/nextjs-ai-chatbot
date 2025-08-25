@@ -66,7 +66,7 @@ export const VersionFooter = ({
 
   return (
     <motion.div
-      className="absolute flex flex-col gap-4 lg:flex-row bottom-0 bg-background p-4 w-full border-t z-50 justify-between"
+      className="absolute bottom-0 z-50 flex w-full flex-col justify-between gap-4 border-t bg-background p-4 lg:flex-row"
       initial={{ y: isMobile ? 200 : 77 }}
       animate={{ y: 0 }}
       exit={{ y: isMobile ? 200 : 77 }}
@@ -75,7 +75,7 @@ export const VersionFooter = ({
       {/* 알림 메시지 영역 */}
       <div>
         <div>이전 버전을 보고 있습니다</div>
-        <div className="text-muted-foreground text-sm">
+        <div className="text-sm text-muted-foreground">
           이전 버전으로 되돌려 수정할 수 있습니다
         </div>
       </div>

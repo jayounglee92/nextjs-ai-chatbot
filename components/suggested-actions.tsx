@@ -66,7 +66,7 @@ function PureSuggestedActions({
   return (
     <div
       data-testid="suggested-actions"
-      className="grid sm:grid-cols-2 gap-2 w-full"
+      className="grid w-full gap-2 sm:grid-cols-2"
     >
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div
@@ -87,7 +87,7 @@ function PureSuggestedActions({
                 parts: [{ type: 'text', text: suggestedAction.action }],
               });
             }}
-            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
+            className="h-auto w-full flex-1 items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
           >
             <span className="font-medium">{suggestedAction.title}</span>
             <span className="text-muted-foreground">
