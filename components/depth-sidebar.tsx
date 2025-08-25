@@ -101,7 +101,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
         />
         <div
           className={`fixed inset-y-0 left-0 z-50 h-svh transition-[left,right,width] duration-200 ease-linear ${
-            isOpen ? 'w-20 flex border-r border-sidebar-border' : 'w-0 hidden'
+            isOpen ? 'w-20 flex border-sidebar-border' : 'w-0 hidden'
           }`}
         >
           <div className="relative z-40 flex h-full w-full flex-col bg-sidebar">
@@ -179,7 +179,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -63, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
-            className="absolute left-20 top-0 z-10 h-full w-[280px] overflow-hidden border-r border-sidebar-border bg-sidebar shadow-lg"
+            className="absolute left-20 top-0 z-10 h-full w-[280px] overflow-hidden border-sidebar-border bg-sidebar shadow-lg"
             onMouseEnter={() => setHoveredMenu(hoveredMenu)}
             onMouseLeave={(e) => {
               // 마우스가 서브메뉴 영역을 벗어났는지 확인
