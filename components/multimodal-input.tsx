@@ -399,7 +399,7 @@ function PureMultimodalInput({
       />
 
       {/* 왼쪽 하단: 첨부파일 버튼 + 모델 선택기 */}
-      <div className="absolute bottom-0 flex w-fit flex-row justify-start gap-2 p-2">
+      <div className="absolute bottom-0 flex  flex-row justify-between gap-2 p-2 w-full pr-12">
         <AttachmentsButton fileInputRef={fileInputRef} status={status} />
         {/* <ModelSelector
           session={session}
