@@ -106,7 +106,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
   } = useSWRInfinite<ChatHistory>(getChatHistoryPaginationKey, fetcher, {
     fallbackData: [],
   });
-
+  console.log(paginatedChatHistories);
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -125,7 +125,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     });
 
     toast.promise(deletePromise, {
-      loading: 'Deleting chat...',
+      loading: '채팅을 삭제하는 중이에요...',
       success: () => {
         mutate((chatHistories) => {
           if (chatHistories) {
@@ -194,7 +194,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
       <SidebarGroup>
         <SidebarGroupContent>
           <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
-            Your conversations will appear here once you start chatting!
+            채팅을 시작하면 여기에 나타납니다!
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -211,7 +211,6 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                 const chatsFromHistory = paginatedChatHistories.flatMap(
                   (paginatedChatHistory) => paginatedChatHistory.chats,
                 );
-
                 const groupedChats = groupChatsByDate(chatsFromHistory);
 
                 return (
@@ -259,7 +258,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                     {groupedChats.lastWeek.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Last 7 days
+                          지난 7일
                         </div>
                         {groupedChats.lastWeek.map((chat) => (
                           <ChatItem
@@ -337,7 +336,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
               <div className="animate-spin">
                 <LoaderIcon />
               </div>
-              <div>Loading Chats...</div>
+              <div>채팅을 불러오고 있어요...</div>
             </div>
           )}
         </SidebarGroupContent>
@@ -352,10 +351,8 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Continue
-            </AlertDialogAction>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>삭제</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

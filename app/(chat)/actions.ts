@@ -48,10 +48,11 @@ export async function generateTitleFromUserMessage({
   const { text: title } = await generateText({
     model: myProvider.languageModel('title-model'), // 제목 생성 전용 모델 사용
     system: `\n
-    - you will generate a short title based on the first message a user begins a conversation with
-    - ensure it is not more than 80 characters long
-    - the title should be a summary of the user's message
-    - do not use quotes or colons`,
+    - 사용자 메시지와 같은 언어로 제목을 생성하세요 (한글 메시지면 한글 제목, 영어 메시지면 영어 제목)
+    - 80자를 넘지 않도록 하세요
+    - 사용자 메시지의 핵심 내용을 요약한 제목이어야 합니다
+    - 따옴표나 콜론은 사용하지 마세요
+    - 자연스럽고 간결한 제목을 만드세요`,
     prompt: JSON.stringify(message), // 사용자 메시지를 JSON으로 변환하여 전달
   });
 
