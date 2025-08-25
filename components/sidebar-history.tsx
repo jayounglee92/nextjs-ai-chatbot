@@ -98,7 +98,7 @@ export function SidebarHistory({
   visibilityFilter,
 }: {
   user: User | undefined;
-  visibilityFilter?: 'private' | 'public';
+  visibilityFilter?: 'private' | 'public' | 'all';
 }) {
   const { setOpenMobile } = useSidebar();
   const { id } = useParams();
@@ -219,11 +219,12 @@ export function SidebarHistory({
                 );
 
                 // visibilityFilter가 있으면 해당 visibility만 필터링
-                const filteredChats = visibilityFilter
-                  ? chatsFromHistory.filter(
-                      (chat) => chat.visibility === visibilityFilter,
-                    )
-                  : chatsFromHistory;
+                const filteredChats =
+                  visibilityFilter && visibilityFilter !== 'all'
+                    ? chatsFromHistory.filter(
+                        (chat) => chat.visibility === visibilityFilter,
+                      )
+                    : chatsFromHistory;
 
                 const groupedChats = groupChatsByDate(filteredChats);
 

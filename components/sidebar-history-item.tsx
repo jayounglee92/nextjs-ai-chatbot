@@ -46,6 +46,7 @@ const PureChatItem = ({
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={isActive}>
         <Link href={`/chat/${chat.id}`} onClick={() => setOpenMobile(false)}>
+          {visibilityType === 'public' ? <GlobeIcon /> : <LockIcon />}
           <span>{chat.title}</span>
         </Link>
       </SidebarMenuButton>
@@ -55,6 +56,14 @@ const PureChatItem = ({
           <SidebarMenuAction
             className="mr-0.5 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             showOnHover={!isActive}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <MoreHorizontalIcon />
             <span className="sr-only">More</span>

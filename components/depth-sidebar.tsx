@@ -2,8 +2,9 @@
 
 import type { User } from 'next-auth';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useWindowSize } from 'usehooks-ts';
 
 import { SidebarHistory } from '@/components/sidebar-history';
 import { SidebarUserNav } from '@/components/sidebar-user-nav';
@@ -12,11 +13,8 @@ import { useSidebar } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { UsersIcon, HomeIcon, OrbitIcon } from 'lucide-react';
 import { PlusIcon } from './icons';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@radix-ui/react-tooltip';
+import Image from 'next/image';
+import logo from '@/public/images/logo.png';
 
 // 메뉴 타입 정의
 type MenuType = 'home' | 'space' | 'community' | null;
@@ -28,9 +26,12 @@ interface DepthSidebarProps {
 export function DepthSidebar({ user }: DepthSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, open, setOpen, isMobile, openMobile } = useSidebar();
   const [hoveredMenu, setHoveredMenu] = useState<MenuType>(null);
   const [activeMenu, setActiveMenu] = useState<MenuType>('home');
+
+  // 현재 사이드바가 열려있는지 확인 (모바일/데스크톱 상태에 따라)
+  const isOpen = isMobile ? openMobile : open;
 
   // 메뉴 아이템 설정
   const menuItems = [
@@ -44,7 +45,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
       id: 'space' as const,
       label: '공간',
       icon: OrbitIcon,
-      hasSubmenu: true,
+      hasSubmenu: false,
     },
     {
       id: 'community' as const,
@@ -55,20 +56,30 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
   ];
 
   const handleMenuClick = (menuId: MenuType) => {
-    if (menuId === 'community') {
-      setActiveMenu('community');
-      router.push('/community');
+    if (menuId === 'community' || menuId === 'space') {
+      setActiveMenu(menuId);
+      if (menuId === 'community') {
+        router.push('/community');
+      } else if (menuId === 'space') {
+        router.push('/space');
+      }
     } else {
       setActiveMenu(menuId);
-      if (menuId === 'home' || menuId === 'space') {
+      if (menuId === 'home') {
         router.push('/');
       }
     }
-    setOpenMobile(false);
+    // 모바일에서만 사이드바 닫기
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   };
 
   const handleNewChat = () => {
-    setOpenMobile(false);
+    // 모바일에서만 사이드바 닫기
+    if (isMobile) {
+      setOpenMobile(false);
+    }
     router.push('/');
     router.refresh();
   };
@@ -77,12 +88,22 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
     <>
       {/* 메인 사이드바 */}
       <div
-        className="group peer hidden text-sidebar-foreground md:block"
-        data-state="expanded"
+        className={`group peer text-sidebar-foreground transition-all duration-200 ease-linear ${
+          isOpen ? 'block' : 'hidden'
+        }`}
+        data-state={isOpen ? 'expanded' : 'collapsed'}
         data-side="left"
       >
-        <div className="relative h-svh w-20 bg-transparent transition-[width] duration-200 ease-linear" />
-        <div className="fixed inset-y-0 left-0 z-50 hidden h-svh w-20 border-sidebar-border transition-[left,right,width] duration-200 ease-linear md:flex">
+        <div
+          className={`relative h-svh bg-transparent transition-[width] duration-200 ease-linear ${
+            isOpen ? 'w-20' : 'w-0'
+          }`}
+        />
+        <div
+          className={`fixed inset-y-0 left-0 z-50 h-svh transition-[left,right,width] duration-200 ease-linear ${
+            isOpen ? 'w-20 flex border-r border-sidebar-border' : 'w-0 hidden'
+          }`}
+        >
           <div className="relative z-40 flex h-full w-full flex-col bg-sidebar">
             {/* 헤더 */}
             <div className="flex flex-col gap-2 p-2">
@@ -90,12 +111,20 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                 <Link
                   href="/"
                   onClick={() => {
-                    setOpenMobile(false);
+                    if (isMobile) {
+                      setOpenMobile(false);
+                    }
                     setActiveMenu('home');
                   }}
-                  className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground"
+                  className="flex h-14 w-14 items-center justify-center rounded-lg  text-lg font-bold text-primary-foreground hover:bg-secondary hover:text-primary-foreground"
                 >
-                  C
+                  <Image
+                    src={logo}
+                    alt="logo"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
                 </Link>
               </div>
             </div>
@@ -144,7 +173,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
 
       {/* 서브메뉴 사이드바 - Floating Overlay */}
       <AnimatePresence>
-        {hoveredMenu && (
+        {hoveredMenu && isOpen && (
           <motion.div
             initial={{ x: -63, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -152,21 +181,28 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="absolute left-20 top-0 z-10 h-full w-[280px] overflow-hidden border-r border-sidebar-border bg-sidebar shadow-lg"
             onMouseEnter={() => setHoveredMenu(hoveredMenu)}
-            onMouseLeave={() => setHoveredMenu(null)}
+            onMouseLeave={(e) => {
+              // 마우스가 서브메뉴 영역을 벗어났는지 확인
+              const relatedTarget = e.relatedTarget as HTMLElement;
+
+              // html 요소로 이동한 경우 (드롭다운 메뉴 클릭 시 발생) 닫지 않음
+              if (relatedTarget?.tagName === 'HTML') {
+                return;
+              }
+
+              setHoveredMenu(null);
+            }}
           >
             <div className="flex h-full w-full flex-col">
               <div className="border-b border-sidebar-border p-4">
                 <h3 className="text-sm font-medium text-sidebar-foreground">
-                  {hoveredMenu === 'home' ? '개인 채팅' : '공개 채팅'}
+                  모든 채팅
                 </h3>
               </div>
 
               <div className="flex-1 overflow-hidden">
                 {hoveredMenu === 'home' && (
-                  <SidebarHistory user={user} visibilityFilter="private" />
-                )}
-                {hoveredMenu === 'space' && (
-                  <SidebarHistory user={user} visibilityFilter="public" />
+                  <SidebarHistory user={user} visibilityFilter="all" />
                 )}
               </div>
             </div>
