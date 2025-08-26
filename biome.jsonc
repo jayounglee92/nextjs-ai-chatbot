@@ -94,8 +94,7 @@
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "trailingCommas": "all",
-      "semicolons": "always",
+      "semicolons": "asNeeded",
       "arrowParentheses": "always",
       "bracketSpacing": true,
       "bracketSameLine": false,
@@ -105,8 +104,7 @@
   },
   "json": {
     "formatter": {
-      "enabled": true,
-      "trailingCommas": "none"
+      "enabled": true
     },
     "parser": {
       "allowComments": true,

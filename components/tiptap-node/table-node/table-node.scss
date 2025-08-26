@@ -1,0 +1,125 @@
+/* =====================
+     TABLE STYLING
+     ===================== */
+
+.tiptap.ProseMirror {
+  /* Table Container */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+
+  /* Table Header */
+  thead {
+    th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--tt-gray-light-900);
+      font-size: 0.875rem;
+      border: 1px solid var(--tt-gray-light-200);
+    }
+  }
+
+  /* Table Body */
+  tbody {
+    tr:first-child {
+      background-color: var(--tt-gray-light-50);
+    }
+
+    th {
+      text-align: left;
+      padding: 0.5rem 0.7rem;
+      color: var(--tt-gray-light-800);
+      border: 1px solid var(--tt-gray-light-200);
+      vertical-align: top;
+    }
+
+    td {
+      padding: 0.5rem 0.7rem;
+      color: var(--tt-gray-light-800);
+      border: 1px solid var(--tt-gray-light-200);
+      vertical-align: top;
+    }
+  }
+
+  /* Table Footer */
+  tfoot {
+    background-color: #f8f9fa;
+
+    td {
+      padding: 0.75rem 1rem;
+      font-weight: 500;
+      color: var(--tt-gray-light-700);
+    }
+  }
+
+  /* Column Widths */
+  .table-col-1 {
+    width: 8.333333%;
+  }
+  .table-col-2 {
+    width: 16.666667%;
+  }
+  .table-col-3 {
+    width: 25%;
+  }
+  .table-col-4 {
+    width: 33.333333%;
+  }
+  .table-col-5 {
+    width: 41.666667%;
+  }
+  .table-col-6 {
+    width: 50%;
+  }
+  .table-col-7 {
+    width: 58.333333%;
+  }
+  .table-col-8 {
+    width: 66.666667%;
+  }
+  .table-col-9 {
+    width: 75%;
+  }
+  .table-col-10 {
+    width: 83.333333%;
+  }
+  .table-col-11 {
+    width: 91.666667%;
+  }
+  .table-col-12 {
+    width: 100%;
+  }
+
+  /* Text Alignment */
+  .text-left {
+    text-align: left;
+  }
+  .text-center {
+    text-align: center;
+  }
+  .text-right {
+    text-align: right;
+  }
+  .text-justify {
+    text-align: justify;
+  }
+
+  /* Responsive Table */
+  @media (max-width: 768px) {
+    table {
+      font-size: 0.75rem;
+
+      thead th,
+      tbody td,
+      tfoot td {
+        padding: 0.5rem 0.75rem;
+      }
+    }
+  }
+}
