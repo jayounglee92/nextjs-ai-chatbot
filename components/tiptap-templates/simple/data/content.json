@@ -10,7 +10,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Getting started"
+          "text": "시작하기"
         }
       ]
     },
@@ -22,7 +22,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Welcome to the "
+          "text": "Tiptap "
         },
         {
           "type": "text",
@@ -41,7 +41,7 @@
         },
         {
           "type": "text",
-          "text": " template! This template integrates "
+          "text": " 템플릿에 오신 것을 환영합니다! 이 템플릿은 "
         },
         {
           "type": "text",
@@ -50,11 +50,11 @@
               "type": "bold"
             }
           ],
-          "text": "open source"
+          "text": "오픈 소스"
         },
         {
           "type": "text",
-          "text": " UI components and Tiptap extensions licensed under "
+          "text": " UI 컴포넌트와 Tiptap 확장 기능을 "
         },
         {
           "type": "text",
@@ -63,11 +63,11 @@
               "type": "bold"
             }
           ],
-          "text": "MIT"
+          "text": "MIT 라이선스"
         },
         {
           "type": "text",
-          "text": "."
+          "text": " 하에 통합합니다."
         }
       ]
     },
@@ -79,26 +79,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Integrate it by following the "
-        },
-        {
-          "type": "text",
-          "marks": [
-            {
-              "type": "link",
-              "attrs": {
-                "href": "https://tiptap.dev/docs/ui-components/templates/simple-editor",
-                "target": "_blank",
-                "rel": "noopener noreferrer nofollow",
-                "class": null
-              }
-            }
-          ],
-          "text": "Tiptap UI Components docs"
-        },
-        {
-          "type": "text",
-          "text": " or using our CLI tool."
+          "text": "Tiptap UI Components 문서를 따라 통합하거나 CLI 도구를 사용하세요."
         }
       ]
     },
@@ -123,7 +104,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Features"
+          "text": "주요 기능"
         }
       ]
     },
@@ -143,7 +124,7 @@
                   "type": "italic"
                 }
               ],
-              "text": "A fully responsive rich text editor with built-in support for common formatting and layout tools. Type markdown "
+              "text": "일반적인 서식 및 레이아웃 도구에 대한 내장 지원을 갖춘 완전 반응형 리치 텍스트 에디터입니다. 마크다운 "
             },
             {
               "type": "text",
@@ -161,7 +142,7 @@
                   "type": "italic"
                 }
               ],
-              "text": " or use keyboard shortcuts "
+              "text": " 를 입력하거나 키보드 단축키 "
             },
             {
               "type": "text",
@@ -174,7 +155,7 @@
             },
             {
               "type": "text",
-              "text": " for "
+              "text": " 를 사용하여 "
             },
             {
               "type": "text",
@@ -183,11 +164,11 @@
                   "type": "strike"
                 }
               ],
-              "text": "most"
+              "text": "대부분의"
             },
             {
               "type": "text",
-              "text": " all common markdown marks. 🪄"
+              "text": " 일반적인 마크다운 마크를 적용할 수 있습니다. 🪄"
             }
           ]
         }
@@ -201,7 +182,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Add images, customize alignment, and apply "
+          "text": "이미지를 추가하고, 정렬을 사용자 정의하며, "
         },
         {
           "type": "text",
@@ -213,11 +194,11 @@
               }
             }
           ],
-          "text": "advanced formatting"
+          "text": "고급 서식"
         },
         {
           "type": "text",
-          "text": " to make your writing more engaging and professional."
+          "text": " 을 적용하여 글쓰기를 더욱 매력적이고 전문적으로 만드세요."
         }
       ]
     },
@@ -248,7 +229,7 @@
                       "type": "bold"
                     }
                   ],
-                  "text": "Superscript"
+                  "text": "위첨자"
                 },
                 {
                   "type": "text",
@@ -265,7 +246,7 @@
                 },
                 {
                   "type": "text",
-                  "text": ") and "
+                  "text": ") 및 "
                 },
                 {
                   "type": "text",
@@ -274,7 +255,7 @@
                       "type": "bold"
                     }
                   ],
-                  "text": "Subscript"
+                  "text": "아래첨자"
                 },
                 {
                   "type": "text",
@@ -291,7 +272,7 @@
                 },
                 {
                   "type": "text",
-                  "text": "O) for precision."
+                  "text": "O) 정밀도를 위한 기능."
                 }
               ]
             }
@@ -313,11 +294,11 @@
                       "type": "bold"
                     }
                   ],
-                  "text": "Typographic conversion"
+                  "text": "타이포그래피 변환"
                 },
                 {
                   "type": "text",
-                  "text": ": automatically convert to "
+                  "text": ": 자동으로 "
                 },
                 {
                   "type": "text",
@@ -330,7 +311,7 @@
                 },
                 {
                   "type": "text",
-                  "text": " an arrow "
+                  "text": " 를 화살표 "
                 },
                 {
                   "type": "text",
@@ -343,7 +324,7 @@
                 },
                 {
                   "type": "text",
-                  "text": "."
+                  "text": " 로 변환."
                 }
               ]
             }
@@ -379,7 +360,7 @@
               }
             }
           ],
-          "text": "Learn more"
+          "text": "더 알아보기"
         }
       ]
     },
@@ -395,7 +376,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Make it your own"
+          "text": "나만의 스타일로 만들기"
         }
       ]
     },
@@ -407,7 +388,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Switch between light and dark modes, and tailor the editor's appearance with customizable CSS to match your style."
+          "text": "라이트 모드와 다크 모드 간 전환하고, 사용자 정의 CSS로 에디터의 외관을 조정하여 스타일에 맞게 조정하세요."
         }
       ]
     },
@@ -428,7 +409,7 @@
               "content": [
                 {
                   "type": "text",
-                  "text": "Test template"
+                  "text": "템플릿 테스트"
                 }
               ]
             }
@@ -459,7 +440,7 @@
                       }
                     }
                   ],
-                  "text": "Integrate the free template"
+                  "text": "무료 템플릿 통합하기"
                 }
               ]
             }

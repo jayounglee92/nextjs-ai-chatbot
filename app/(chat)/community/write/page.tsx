@@ -17,8 +17,12 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="border rounded-sm w-full max-w-3xl mx-auto">
+    <div className="flex flex-col items-center justify-center ">
       <SimpleEditor />
+
+      {/* <div className="border rounded-sm w-full max-w-3xl mx-auto px-4 py-8 my-16">
+        <Tiptap />
+      </div> */}
     </div>
   );
 }

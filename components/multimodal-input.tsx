@@ -401,11 +401,11 @@ function PureMultimodalInput({
       {/* 왼쪽 하단: 첨부파일 버튼 + 모델 선택기 */}
       <div className="absolute bottom-0 flex  flex-row justify-between gap-2 p-2 w-full pr-12">
         <AttachmentsButton fileInputRef={fileInputRef} status={status} />
-        {/* <ModelSelector
+        <ModelSelector
           session={session}
           selectedModelId={selectedModelId}
           className="h-fit"
-        /> */}
+        />
       </div>
 
       {/* 오른쪽 하단: 전송/중지 버튼 */}

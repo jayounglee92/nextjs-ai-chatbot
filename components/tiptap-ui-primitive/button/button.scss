@@ -1,9 +1,7 @@
 .tiptap-button {
   font-size: 0.875rem;
   font-weight: 500;
-  font-feature-settings:
-    "salt" on,
-    "cv01" on;
+  font-feature-settings: "salt" on, "cv01" on;
   line-height: 1.15;
   height: 2rem;
   min-width: 2rem;
@@ -13,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--tt-radius-lg, 0.75rem);
+  border-radius: var(--tt-radius-xs, 0.75rem);
   transition-property: background, color, opacity;
   transition-duration: var(--tt-transition-duration-default);
   transition-timing-function: var(--tt-transition-easing-default);
@@ -27,7 +25,7 @@
   &[data-focus-visible="true"] {
     background-color: var(--tt-button-hover-bg-color);
     color: var(--tt-button-hover-text-color);
-    // outline: 2px solid var(--tt-button-active-icon-color);
+    outline: 2px solid var(--tt-button-active-icon-color);
   }
 
   &[data-weight="small"] {
