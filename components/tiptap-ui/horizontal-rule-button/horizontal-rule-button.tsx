@@ -5,6 +5,7 @@ import { useTiptapEditor } from '@/hooks/use-tiptap-editor'
 import { Button } from '@/components/tiptap-ui-primitive/button'
 import type { ButtonProps } from '@/components/tiptap-ui-primitive/button'
 import { MinusIcon } from 'lucide-react'
+import { useHorizontalRule } from './use-horizontal-rule'
 
 export interface HorizontalRuleButtonProps extends Omit<ButtonProps, 'type'> {
   /**
@@ -21,13 +22,9 @@ export const HorizontalRuleButton = React.forwardRef<
   HorizontalRuleButtonProps
 >(({ tooltip = '수평선', ...buttonProps }, ref) => {
   const { editor } = useTiptapEditor()
-
-  const handleClick = React.useCallback(() => {
-    if (!editor) return
-
-    // Insert a horizontal rule using the setHorizontalRule command
-    editor.chain().focus().setHorizontalRule().run()
-  }, [editor])
+  const { label, isActive, handleInsert, canInsert } = useHorizontalRule({
+    editor,
+  })
 
   if (!editor) return null
 
@@ -35,9 +32,15 @@ export const HorizontalRuleButton = React.forwardRef<
     <Button
       ref={ref}
       type="button"
-      className="tiptap-button"
-      onClick={handleClick}
-      tooltip={tooltip}
+      data-style="ghost"
+      role="button"
+      tabIndex={-1}
+      aria-label={label}
+      tooltip={label}
+      onClick={handleInsert}
+      disabled={!canInsert}
+      data-disabled={!canInsert}
+      data-active-state={isActive ? 'on' : 'off'}
       {...buttonProps}
     >
       <MinusIcon />

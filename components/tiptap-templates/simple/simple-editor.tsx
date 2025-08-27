@@ -68,7 +68,6 @@ import { LinkIcon } from '@/components/tiptap-icons/link-icon'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useWindowSize } from '@/hooks/use-window-size'
 import { useCursorVisibility } from '@/hooks/use-cursor-visibility'
-import { useTable } from '@/components/tiptap-ui/table-button'
 
 // --- Components ---
 import { ThemeToggle } from '@/components/tiptap-templates/simple/theme-toggle'
@@ -139,12 +138,9 @@ const MainToolbarContent = ({
       </ToolbarGroup>
       <ToolbarSeparator />
       <ToolbarGroup>
+        <TableDropdownMenu tooltip="테이블" />
         <BlockquoteButton tooltip="인용구" />
         <CodeBlockButton tooltip="코드 블록" />
-      </ToolbarGroup>
-      <ToolbarSeparator />
-      <ToolbarGroup>
-        <TableDropdownMenu tooltip="테이블" />
       </ToolbarGroup>
       <ToolbarSeparator />
       <ToolbarGroup>

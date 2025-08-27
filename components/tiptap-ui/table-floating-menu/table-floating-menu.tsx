@@ -90,7 +90,6 @@ export const TableFloatingMenu = React.forwardRef<
         <ButtonGroup orientation="horizontal">
           {/* 열 관리 버튼들 */}
           <TableButton type="addColumnBefore" />
-
           <TableButton type="addColumnAfter" />
           <TableButton type="deleteColumn" />
         </ButtonGroup>
@@ -103,18 +102,18 @@ export const TableFloatingMenu = React.forwardRef<
         </ButtonGroup>
         <ToolbarSeparator />
         <ButtonGroup orientation="horizontal">
-          {/* 셀 관리 버튼들 */}
-          {/* <TableButton type="mergeCells" />
-          <TableButton type="splitCell" /> */}
-        </ButtonGroup>
-
-        <ButtonGroup orientation="horizontal">
           {/* 헤더 관리 버튼들 */}
           <TableButton type="toggleHeaderRow" />
           <TableButton type="toggleHeaderColumn" />
           {/* <TableButton type="toggleHeaderCell" /> */}
         </ButtonGroup>
-
+        <ToolbarSeparator />
+        <ButtonGroup orientation="horizontal">
+          {/* 셀 관리 버튼들 */}
+          <TableButton type="mergeCells" />
+          <TableButton type="splitCell" />
+        </ButtonGroup>
+        <ToolbarSeparator />
         <ButtonGroup orientation="horizontal">
           {/* 기타 기능 버튼들 */}
           {/* <TableButton type="mergeOrSplit" /> */}

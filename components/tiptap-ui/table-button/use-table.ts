@@ -17,6 +17,7 @@ import { RowRemoveIcon } from '@/components/tiptap-icons/row-remove-icon'
 import { TableDeleteIcon } from '@/components/tiptap-icons/table-delete-icon'
 import { TableColumnIcon } from '@/components/tiptap-icons/table-column-icon'
 import { TableRowIcon } from '@/components/tiptap-icons/table-row-icon'
+import { TableCellsMergeIcon, TableCellsSplitIcon } from 'lucide-react'
 
 // 테이블 작업 타입 정의
 export type TableActionType =
@@ -27,10 +28,10 @@ export type TableActionType =
   | 'addRowAfter'
   | 'deleteRow'
   | 'deleteTable'
-  //   | 'mergeCells'
-  //   | 'splitCell'
   | 'toggleHeaderColumn'
   | 'toggleHeaderRow'
+  | 'mergeCells'
+  | 'splitCell'
 //   | 'toggleHeaderCell'
 //   | 'mergeOrSplit'
 //   | 'setCellAttribute'
@@ -69,6 +70,8 @@ export const tableIcons = {
   deleteTable: TableDeleteIcon,
   toggleHeaderRow: TableRowIcon,
   toggleHeaderColumn: TableColumnIcon,
+  mergeCells: TableCellsMergeIcon,
+  splitCell: TableCellsSplitIcon,
 }
 
 /**
@@ -243,18 +246,24 @@ export function executeTableAction(
       case 'deleteTable':
         editor.chain().focus().deleteTable().run()
         break
-      // case 'mergeCells':
-      //   editor.chain().focus().mergeCells().run()
-      //   break
-      // case 'splitCell':
-      //   editor.chain().focus().splitCell().run()
-      //   break
+      case 'mergeCells':
+        editor.chain().focus().mergeCells().run()
+        break
+      case 'splitCell':
+        editor.chain().focus().splitCell().run()
+        break
       case 'toggleHeaderColumn':
         editor.chain().focus().toggleHeaderColumn().run()
         break
       case 'toggleHeaderRow':
         editor.chain().focus().toggleHeaderRow().run()
         break
+      // case 'mergeCells':
+      //     editor.chain().focus().mergeCells().run()
+      //     break
+      //   case 'splitCell':
+      //     editor.chain().focus().splitCell().run()
+      //     break
       // case 'toggleHeaderCell':
       //   editor.chain().focus().toggleHeaderCell().run()
       //   break
@@ -296,6 +305,8 @@ export function getFormattedTableActionName(type: TableActionType): string {
     deleteTable: '선택한 테이블 삭제',
     toggleHeaderColumn: '열 헤더 토글',
     toggleHeaderRow: '행 헤더 토글',
+    mergeCells: '셀 병합',
+    splitCell: '셀 분할',
   }
   return actionNames[type]
 }
