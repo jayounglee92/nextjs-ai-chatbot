@@ -77,11 +77,98 @@ export const tableIcons = {
 /**
  * Checks if table operations can be performed in the current editor state
  */
-export function canPerformTableAction(editor: Editor | null): boolean {
+export function canPerformTableAction(
+  editor: Editor | null,
+  type: TableActionType,
+): boolean {
   if (!editor || !editor.isEditable) return false
   if (!isNodeInSchema('table', editor)) return false
 
-  return true
+  try {
+    const { state } = editor.view
+    const { selection } = state
+
+    // 현재 위치에서 테이블 노드와 행/열 노드 찾기
+    let tablePos = -1
+    let tableNode = null
+    let rowPos = -1
+    let rowNode = null
+    let cellPos = -1
+    let cellNode = null
+    let isHeaderRow = false
+    let isHeaderColumn = false
+
+    for (let depth = selection.$anchor.depth; depth >= 0; depth--) {
+      const node = selection.$anchor.node(depth)
+      if (node.type.name === 'table' && tablePos === -1) {
+        tablePos = selection.$anchor.start(depth)
+        tableNode = node
+      }
+      if (node.type.name === 'tableRow' && rowPos === -1) {
+        rowPos = selection.$anchor.start(depth)
+        rowNode = node
+      }
+      if (
+        (node.type.name === 'tableCell' || node.type.name === 'tableHeader') &&
+        cellPos === -1
+      ) {
+        cellPos = selection.$anchor.start(depth)
+        cellNode = node
+      }
+    }
+
+    // HeaderRow가 선택된 경우 특정 작업 제한
+    if (rowNode && tableNode) {
+      // 현재 행이 첫 번째 행이고 모든 셀이 헤더 셀인지 확인
+      const isFirstRow = tableNode.firstChild === rowNode
+      if (isFirstRow) {
+        let allHeaderCells = true
+        for (let i = 0; i < rowNode.childCount; i++) {
+          const cell = rowNode.child(i)
+          if (!cell || cell.type.name !== 'tableHeader') {
+            allHeaderCells = false
+            break
+          }
+        }
+        isHeaderRow = allHeaderCells
+      }
+    }
+
+    // HeaderColumn이 선택된 경우 특정 작업 제한
+    if (cellNode && tableNode && rowNode) {
+      // 현재 셀이 첫 번째 열에 있는지 확인
+      const isFirstColumn = rowNode.firstChild === cellNode
+      if (isFirstColumn) {
+        // 모든 행의 첫 번째 셀이 헤더 셀인지 확인
+        let allHeaderCells = true
+        for (let i = 0; i < tableNode.childCount; i++) {
+          const row = tableNode.child(i)
+          if (row && row.type.name === 'tableRow') {
+            const firstCell = row.firstChild
+            if (!firstCell || firstCell.type.name !== 'tableHeader') {
+              allHeaderCells = false
+              break
+            }
+          }
+        }
+        isHeaderColumn = allHeaderCells
+      }
+    }
+
+    // HeaderRow가 선택된 경우 "바로 앞에 행추가" 비활성화
+    if (isHeaderRow && type === 'addRowBefore') {
+      return false
+    }
+
+    // HeaderColumn이 선택된 경우 "맨앞에 열추가" 비활성화
+    if (isHeaderColumn && type === 'addColumnBefore') {
+      return false
+    }
+
+    return true
+  } catch {
+    return true // 에러 발생 시 기본적으로 활성화
+  }
 }
 
 /**
@@ -90,12 +177,44 @@ export function canPerformTableAction(editor: Editor | null): boolean {
 export function isTableActive(editor: Editor | null): boolean {
   if (!editor || !editor.isEditable) return false
 
-  return (
-    editor.isActive('table') ||
-    editor.isActive('tableRow') ||
-    editor.isActive('tableCell') ||
-    editor.isActive('tableHeader')
-  )
+  try {
+    const { state } = editor.view
+    const { selection } = state
+
+    // 현재 위치에서 테이블 노드 찾기
+    let tablePos = -1
+    let tableNode = null
+
+    for (let depth = selection.$anchor.depth; depth >= 0; depth--) {
+      const node = selection.$anchor.node(depth)
+      if (node.type.name === 'table') {
+        tablePos = selection.$anchor.start(depth)
+        tableNode = node
+        break
+      }
+    }
+
+    // 테이블 내부에 있거나 테이블이 선택된 경우
+    if (tablePos !== -1 && tableNode) {
+      return true
+    }
+
+    // 기존 방식으로도 확인
+    return (
+      editor.isActive('table') ||
+      editor.isActive('tableRow') ||
+      editor.isActive('tableCell') ||
+      editor.isActive('tableHeader')
+    )
+  } catch {
+    // 에러 발생 시 기존 방식으로 fallback
+    return (
+      editor.isActive('table') ||
+      editor.isActive('tableRow') ||
+      editor.isActive('tableCell') ||
+      editor.isActive('tableHeader')
+    )
+  }
 }
 
 /**
@@ -200,14 +319,15 @@ export function isActiveHeaderColumn(editor: Editor | null): boolean {
 export function shouldShowTableButton(props: {
   editor: Editor | null
   hideWhenUnavailable: boolean
+  type?: TableActionType
 }): boolean {
-  const { editor, hideWhenUnavailable } = props
+  const { editor, hideWhenUnavailable, type } = props
 
   if (!editor || !editor.isEditable) return false
   if (!isNodeInSchema('table', editor)) return false
 
   if (hideWhenUnavailable) {
-    return canPerformTableAction(editor)
+    return canPerformTableAction(editor, type || 'addColumnBefore')
   }
 
   return true
@@ -221,7 +341,7 @@ export function executeTableAction(
   type: TableActionType,
 ): boolean {
   if (!editor || !editor.isEditable) return false
-  if (!canPerformTableAction(editor)) return false
+  if (!canPerformTableAction(editor, type)) return false
 
   try {
     switch (type) {
@@ -258,12 +378,6 @@ export function executeTableAction(
       case 'toggleHeaderRow':
         editor.chain().focus().toggleHeaderRow().run()
         break
-      // case 'mergeCells':
-      //     editor.chain().focus().mergeCells().run()
-      //     break
-      //   case 'splitCell':
-      //     editor.chain().focus().splitCell().run()
-      //     break
       // case 'toggleHeaderCell':
       //   editor.chain().focus().toggleHeaderCell().run()
       //   break
@@ -366,8 +480,8 @@ export function useTable(config: UseTableConfig) {
 
   const { editor } = useTiptapEditor(providedEditor)
   const [isVisible, setIsVisible] = React.useState<boolean>(true)
-  const canPerformAction = canPerformTableAction(editor)
-  const isActive = isTableActive(editor)
+  const [isActiveState, setIsActiveState] = React.useState<boolean>(false)
+  const canPerformAction = canPerformTableAction(editor, type)
   const isActiveHeaderRowState = isActiveHeaderRow(editor)
   const isActiveHeaderColumnState = isActiveHeaderColumn(editor)
 
@@ -375,7 +489,15 @@ export function useTable(config: UseTableConfig) {
     if (!editor) return
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowTableButton({ editor, hideWhenUnavailable }))
+      const shouldShow = shouldShowTableButton({
+        editor,
+        hideWhenUnavailable,
+        type,
+      })
+      const tableActive = isTableActive(editor)
+
+      setIsVisible(shouldShow)
+      setIsActiveState(tableActive)
     }
 
     handleSelectionUpdate()
@@ -385,7 +507,7 @@ export function useTable(config: UseTableConfig) {
     return () => {
       editor.off('selectionUpdate', handleSelectionUpdate)
     }
-  }, [editor, hideWhenUnavailable])
+  }, [editor, hideWhenUnavailable, type])
 
   const handleTableAction = React.useCallback(() => {
     if (!editor) return false
@@ -399,7 +521,7 @@ export function useTable(config: UseTableConfig) {
 
   return {
     isVisible,
-    isActive,
+    isActive: isActiveState,
     isActiveHeaderRow: isActiveHeaderRowState,
     isActiveHeaderColumn: isActiveHeaderColumnState,
     handleTableAction,
