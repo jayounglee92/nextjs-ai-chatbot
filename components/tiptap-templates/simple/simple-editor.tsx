@@ -14,10 +14,9 @@ import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 import { Selection } from '@tiptap/extensions'
 import { TableKit } from '@tiptap/extension-table'
-import { BubbleMenu } from '@tiptap/react/menus'
 
 // --- UI Primitives ---
-import { Button, ButtonGroup } from '@/components/tiptap-ui-primitive/button'
+import { Button } from '@/components/tiptap-ui-primitive/button'
 import {
   Toolbar,
   ToolbarGroup,
@@ -45,7 +44,7 @@ import { BlockquoteButton } from '@/components/tiptap-ui/blockquote-button'
 import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button'
 import { HorizontalRuleButton } from '@/components/tiptap-ui/horizontal-rule-button'
 import { TableDropdownMenu } from '@/components/tiptap-ui/table-dropdown-menu'
-import { TablePopover } from '@/components/tiptap-ui/table-popover'
+import { TableFloatingMenu } from '@/components/tiptap-ui/table-floating-menu'
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverContent,
@@ -69,13 +68,13 @@ import { LinkIcon } from '@/components/tiptap-icons/link-icon'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useWindowSize } from '@/hooks/use-window-size'
 import { useCursorVisibility } from '@/hooks/use-cursor-visibility'
+import { useTable } from '@/components/tiptap-ui/table-button'
 
 // --- Components ---
 import { ThemeToggle } from '@/components/tiptap-templates/simple/theme-toggle'
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils'
-import { FloatingElement } from '@/components/tiptap-ui-utils/floating-element'
 
 // --- Styles ---
 import '@/components/tiptap-templates/simple/simple-editor.scss'
@@ -96,41 +95,62 @@ const MainToolbarContent = ({
       {/* <UndoRedoButton action="undo" tooltip="실행 취소" />
       <UndoRedoButton action="redo" tooltip="다시 실행" />
       <ToolbarSeparator /> */}
-      <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={isMobile} />
+      <ToolbarGroup>
+        <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={isMobile} />
+        <ToolbarSeparator />
+      </ToolbarGroup>
+      <ToolbarGroup>
+        <MarkButton type="bold" tooltip="굵게" />
+        <MarkButton type="italic" tooltip="기울임꼴" />
+        <MarkButton type="underline" tooltip="밑줄" />
+        <MarkButton type="strike" tooltip="취소선" />
+        <MarkButton type="code" tooltip="인라인 코드" />
+      </ToolbarGroup>
       <ToolbarSeparator />
-      <MarkButton type="bold" tooltip="굵게" />
-      <MarkButton type="italic" tooltip="기울임꼴" />
-      <MarkButton type="underline" tooltip="밑줄" />
-      <MarkButton type="strike" tooltip="취소선" />
-      <MarkButton type="code" tooltip="인라인 코드" />
+      <ToolbarGroup>
+        {!isMobile ? (
+          <ColorHighlightPopover />
+        ) : (
+          <ColorHighlightPopoverButton onClick={onHighlighterClick} />
+        )}
+      </ToolbarGroup>
       <ToolbarSeparator />
-      {!isMobile ? (
-        <ColorHighlightPopover />
-      ) : (
-        <ColorHighlightPopoverButton onClick={onHighlighterClick} />
-      )}
-
+      <ToolbarGroup>
+        <TextAlignButton align="left" tooltip="왼쪽 정렬" />
+        <TextAlignButton align="center" tooltip="가운데 정렬" />
+        <TextAlignButton align="right" tooltip="오른쪽 정렬" />
+        <TextAlignButton align="justify" tooltip="양쪽 정렬" />
+      </ToolbarGroup>
       <ToolbarSeparator />
-      <TextAlignButton align="left" tooltip="왼쪽 정렬" />
-      <TextAlignButton align="center" tooltip="가운데 정렬" />
-      <TextAlignButton align="right" tooltip="오른쪽 정렬" />
-      <TextAlignButton align="justify" tooltip="양쪽 정렬" />
+      <ToolbarGroup>
+        <MarkButton type="superscript" tooltip="위 첨자" />
+        <MarkButton type="subscript" tooltip="아래 첨자" />
+      </ToolbarGroup>
       <ToolbarSeparator />
-      <ListDropdownMenu
-        types={listOptions.map((option) => option.type)}
-        portal={isMobile}
-      />
+      <ToolbarGroup>
+        <ListDropdownMenu
+          types={listOptions.map((option) => option.type)}
+          portal={isMobile}
+        />
+      </ToolbarGroup>
       <ToolbarSeparator />
-      <HorizontalRuleButton tooltip="수평선" />
-
+      <ToolbarGroup>
+        <HorizontalRuleButton tooltip="수평선" />
+      </ToolbarGroup>
       <ToolbarSeparator />
-      <BlockquoteButton tooltip="인용구" />
-      <CodeBlockButton tooltip="코드 블록" />
+      <ToolbarGroup>
+        <BlockquoteButton tooltip="인용구" />
+        <CodeBlockButton tooltip="코드 블록" />
+      </ToolbarGroup>
       <ToolbarSeparator />
-      <TableDropdownMenu tooltip="테이블" />
+      <ToolbarGroup>
+        <TableDropdownMenu tooltip="테이블" />
+      </ToolbarGroup>
       <ToolbarSeparator />
-      {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
-      <ImageUploadButton text="" tooltip="이미지 추가" />
+      <ToolbarGroup>
+        {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
+        <ImageUploadButton text="" tooltip="이미지 추가" />
+      </ToolbarGroup>
       {isMobile && <ToolbarSeparator />}
     </div>
   )
@@ -171,7 +191,6 @@ export function SimpleEditor() {
   const [mobileView, setMobileView] = React.useState<
     'main' | 'highlighter' | 'link'
   >('main')
-  const [isTableSelected, setIsTableSelected] = React.useState(false)
   const toolbarRef = React.useRef<HTMLDivElement>(null)
 
   const editor = useEditor({
@@ -213,23 +232,7 @@ export function SimpleEditor() {
         type: 'image',
       }),
       TableKit.configure({
-        table: {
-          resizable: true,
-          HTMLAttributes: {
-            onclick: () => {
-              console.log('table clicked')
-              setIsTableSelected(true)
-            },
-          },
-        },
-        tableCell: {
-          HTMLAttributes: {
-            onclick: () => {
-              console.log('tableCell clicked')
-              setIsTableSelected(true)
-            },
-          },
-        },
+        table: { resizable: true },
       }),
     ],
     content,
@@ -273,20 +276,13 @@ export function SimpleEditor() {
             />
           )}
         </Toolbar>
-        {isTableSelected.toString()}
         <EditorContent
           editor={editor}
           role="presentation"
           className="simple-editor-content"
         />
-        <FloatingElement editor={editor}>
-          <Toolbar variant="floating">
-            <ButtonGroup orientation="horizontal">
-              <MarkButton type="bold" />
-              <MarkButton type="italic" />
-            </ButtonGroup>
-          </Toolbar>
-        </FloatingElement>
+
+        <TableFloatingMenu editor={editor} />
       </EditorContext.Provider>
     </div>
   )

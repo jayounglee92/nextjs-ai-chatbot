@@ -1,28 +1,28 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { type Editor } from "@tiptap/react"
+import * as React from 'react'
+import type { Editor } from '@tiptap/react'
 import {
   flip,
   offset,
   shift,
   useMergeRefs,
   type UseFloatingOptions,
-} from "@floating-ui/react"
-import { Selection } from "@tiptap/pm/state"
+} from '@floating-ui/react'
+import { Selection } from '@tiptap/pm/state'
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
-import { useFloatingElement } from "@/hooks/use-floating-element"
+import { useTiptapEditor } from '@/hooks/use-tiptap-editor'
+import { useFloatingElement } from '@/hooks/use-floating-element'
 
 // --- Lib ---
 import {
   getSelectionBoundingRect,
   isSelectionValid,
-} from "@/lib/tiptap-collab-utils"
+} from '@/lib/tiptap-collab-utils'
 
-import { isElementWithinEditor } from "./floating-element-utils"
-import { isValidPosition } from "@/lib/tiptap-utils"
+import { isElementWithinEditor } from './floating-element-utils'
+import { isValidPosition } from '@/lib/tiptap-utils'
 
 export interface FloatingElementProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -93,13 +93,13 @@ export const FloatingElement = React.forwardRef<
       style: propStyle,
       ...props
     },
-    forwardedRef
+    forwardedRef,
   ) => {
     const [open, setOpen] = React.useState<boolean>(
-      shouldShow !== undefined ? shouldShow : false
+      shouldShow !== undefined ? shouldShow : false,
     )
     const [selectionRect, setSelectionRect] = React.useState<DOMRect | null>(
-      null
+      null,
     )
 
     const floatingElementRef = React.useRef<HTMLDivElement | null>(null)
@@ -113,7 +113,7 @@ export const FloatingElement = React.forwardRef<
         onOpenChange?.(newOpen)
         setOpen(newOpen)
       },
-      [onOpenChange]
+      [onOpenChange],
     )
 
     const handleFloatingOpenChange = (open: boolean) => {
@@ -122,7 +122,7 @@ export const FloatingElement = React.forwardRef<
         // This lets the user place the cursor again and ensures the drag handle reappears,
         // as it's intentionally hidden during valid text selections.
         const tr = editor.state.tr.setSelection(
-          Selection.near(editor.state.doc.resolve(0))
+          Selection.near(editor.state.doc.resolve(0)),
         )
         editor.view.dispatch(tr)
       }
@@ -139,7 +139,7 @@ export const FloatingElement = React.forwardRef<
       selectionRect,
       zIndex,
       {
-        placement: "top",
+        placement: 'top',
         middleware: [shift(), flip(), offset(4)],
         onOpenChange: handleFloatingOpenChange,
         dismissOptions: {
@@ -153,7 +153,7 @@ export const FloatingElement = React.forwardRef<
           },
         },
         ...floatingOptions,
-      }
+      },
     )
 
     const updateSelectionState = React.useCallback(() => {
@@ -188,16 +188,16 @@ export const FloatingElement = React.forwardRef<
       if (!editor || !closeOnEscape) return
 
       const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === "Escape" && open) {
+        if (event.key === 'Escape' && open) {
           handleOpenChange(false)
           return true
         }
         return false
       }
 
-      editor.view.dom.addEventListener("keydown", handleKeyDown)
+      editor.view.dom.addEventListener('keydown', handleKeyDown)
       return () => {
-        editor.view.dom.removeEventListener("keydown", handleKeyDown)
+        editor.view.dom.removeEventListener('keydown', handleKeyDown)
       }
     }, [editor, open, closeOnEscape, handleOpenChange])
 
@@ -226,9 +226,9 @@ export const FloatingElement = React.forwardRef<
         }
       }
 
-      editor.view.dom.addEventListener("blur", handleBlur)
+      editor.view.dom.addEventListener('blur', handleBlur)
       return () => {
-        editor.view.dom.removeEventListener("blur", handleBlur)
+        editor.view.dom.removeEventListener('blur', handleBlur)
       }
     }, [editor, handleOpenChange, open])
 
@@ -241,12 +241,12 @@ export const FloatingElement = React.forwardRef<
         }
       }
 
-      editor.view.dom.addEventListener("dragstart", handleDrag)
-      editor.view.dom.addEventListener("dragover", handleDrag)
+      editor.view.dom.addEventListener('dragstart', handleDrag)
+      editor.view.dom.addEventListener('dragover', handleDrag)
 
       return () => {
-        editor.view.dom.removeEventListener("dragstart", handleDrag)
-        editor.view.dom.removeEventListener("dragover", handleDrag)
+        editor.view.dom.removeEventListener('dragstart', handleDrag)
+        editor.view.dom.removeEventListener('dragover', handleDrag)
       }
     }, [editor, open, handleOpenChange])
 
@@ -272,7 +272,7 @@ export const FloatingElement = React.forwardRef<
         if (!nodeBefore || nodeBefore.isBlock) return
 
         const tr = state.tr.setSelection(
-          Selection.near(state.doc.resolve(posCoords.pos))
+          Selection.near(state.doc.resolve(posCoords.pos)),
         )
         view.dispatch(tr)
       }
@@ -284,12 +284,12 @@ export const FloatingElement = React.forwardRef<
         }
       }
 
-      editor.view.dom.addEventListener("mousedown", handleMouseDown)
-      editor.view.root.addEventListener("mouseup", handleMouseUp)
+      editor.view.dom.addEventListener('mousedown', handleMouseDown)
+      editor.view.root.addEventListener('mouseup', handleMouseUp)
 
       return () => {
-        editor.view.dom.removeEventListener("mousedown", handleMouseDown)
-        editor.view.root.removeEventListener("mouseup", handleMouseUp)
+        editor.view.dom.removeEventListener('mousedown', handleMouseDown)
+        editor.view.root.removeEventListener('mouseup', handleMouseUp)
       }
     }, [editor, updateSelectionState])
 
@@ -300,19 +300,19 @@ export const FloatingElement = React.forwardRef<
         if (open) updateSelectionState()
       }
 
-      editor.on("selectionUpdate", updateSelectionState)
-      window.addEventListener("resize", updateIfOpen)
+      editor.on('selectionUpdate', updateSelectionState)
+      window.addEventListener('resize', updateIfOpen)
 
       if (updateOnScroll) {
-        editor.view.root.addEventListener("scroll", updateIfOpen, true)
+        editor.view.root.addEventListener('scroll', updateIfOpen, true)
       }
 
       return () => {
-        editor.off("selectionUpdate", updateSelectionState)
-        window.removeEventListener("resize", updateIfOpen)
+        editor.off('selectionUpdate', updateSelectionState)
+        window.removeEventListener('resize', updateIfOpen)
 
         if (updateOnScroll) {
-          editor.view.root.removeEventListener("scroll", updateIfOpen, true)
+          editor.view.root.removeEventListener('scroll', updateIfOpen, true)
         }
       }
     }, [editor, open, updateOnScroll, updateSelectionState])
@@ -325,7 +325,7 @@ export const FloatingElement = React.forwardRef<
     const finalStyle = React.useMemo(
       () =>
         propStyle && Object.keys(propStyle).length > 0 ? propStyle : style,
-      [propStyle, style]
+      [propStyle, style],
     )
     const mergedRef = useMergeRefs([ref, forwardedRef, floatingElementRef])
 
@@ -341,7 +341,7 @@ export const FloatingElement = React.forwardRef<
         {children}
       </div>
     )
-  }
+  },
 )
 
-FloatingElement.displayName = "FloatingElement"
+FloatingElement.displayName = 'FloatingElement'

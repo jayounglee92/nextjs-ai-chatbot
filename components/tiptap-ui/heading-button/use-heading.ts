@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useHotkeys } from "react-hotkeys-hook"
-import { type Editor } from "@tiptap/react"
-import { NodeSelection, TextSelection } from "@tiptap/pm/state"
+import * as React from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+import type { Editor } from '@tiptap/react'
+import { NodeSelection, TextSelection } from '@tiptap/pm/state'
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useTiptapEditor } from '@/hooks/use-tiptap-editor'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 // --- Lib ---
 import {
@@ -15,15 +15,15 @@ import {
   isNodeInSchema,
   isNodeTypeSelected,
   isValidPosition,
-} from "@/lib/tiptap-utils"
+} from '@/lib/tiptap-utils'
 
 // --- Icons ---
-import { HeadingOneIcon } from "@/components/tiptap-icons/heading-one-icon"
-import { HeadingTwoIcon } from "@/components/tiptap-icons/heading-two-icon"
-import { HeadingThreeIcon } from "@/components/tiptap-icons/heading-three-icon"
-import { HeadingFourIcon } from "@/components/tiptap-icons/heading-four-icon"
-import { HeadingFiveIcon } from "@/components/tiptap-icons/heading-five-icon"
-import { HeadingSixIcon } from "@/components/tiptap-icons/heading-six-icon"
+import { HeadingOneIcon } from '@/components/tiptap-icons/heading-one-icon'
+import { HeadingTwoIcon } from '@/components/tiptap-icons/heading-two-icon'
+import { HeadingThreeIcon } from '@/components/tiptap-icons/heading-three-icon'
+import { HeadingFourIcon } from '@/components/tiptap-icons/heading-four-icon'
+import { HeadingFiveIcon } from '@/components/tiptap-icons/heading-five-icon'
+import { HeadingSixIcon } from '@/components/tiptap-icons/heading-six-icon'
 
 export type Level = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -60,12 +60,12 @@ export const headingIcons = {
 }
 
 export const HEADING_SHORTCUT_KEYS: Record<Level, string> = {
-  1: "ctrl+alt+1",
-  2: "ctrl+alt+2",
-  3: "ctrl+alt+3",
-  4: "ctrl+alt+4",
-  5: "ctrl+alt+5",
-  6: "ctrl+alt+6",
+  1: 'ctrl+alt+1',
+  2: 'ctrl+alt+2',
+  3: 'ctrl+alt+3',
+  4: 'ctrl+alt+4',
+  5: 'ctrl+alt+5',
+  6: 'ctrl+alt+6',
 }
 
 /**
@@ -74,19 +74,19 @@ export const HEADING_SHORTCUT_KEYS: Record<Level, string> = {
 export function canToggle(
   editor: Editor | null,
   level?: Level,
-  turnInto: boolean = true
+  turnInto = true,
 ): boolean {
   if (!editor || !editor.isEditable) return false
   if (
-    !isNodeInSchema("heading", editor) ||
-    isNodeTypeSelected(editor, ["image"])
+    !isNodeInSchema('heading', editor) ||
+    isNodeTypeSelected(editor, ['image'])
   )
     return false
 
   if (!turnInto) {
     return level
-      ? editor.can().setNode("heading", { level })
-      : editor.can().setNode("heading")
+      ? editor.can().setNode('heading', { level })
+      : editor.can().setNode('heading')
   }
 
   try {
@@ -113,17 +113,17 @@ export function canToggle(
  */
 export function isHeadingActive(
   editor: Editor | null,
-  level?: Level | Level[]
+  level?: Level | Level[],
 ): boolean {
   if (!editor || !editor.isEditable) return false
 
   if (Array.isArray(level)) {
-    return level.some((l) => editor.isActive("heading", { level: l }))
+    return level.some((l) => editor.isActive('heading', { level: l }))
   }
 
   return level
-    ? editor.isActive("heading", { level })
-    : editor.isActive("heading")
+    ? editor.isActive('heading', { level })
+    : editor.isActive('heading')
 }
 
 /**
@@ -131,7 +131,7 @@ export function isHeadingActive(
  */
 export function toggleHeading(
   editor: Editor | null,
-  level: Level | Level[]
+  level: Level | Level[],
 ): boolean {
   if (!editor || !editor.isEditable) return false
 
@@ -178,12 +178,12 @@ export function toggleHeading(
     }
 
     const isActive = levels.some((l) =>
-      editor.isActive("heading", { level: l })
+      editor.isActive('heading', { level: l }),
     )
 
     const toggle = isActive
-      ? chain.setNode("paragraph")
-      : chain.setNode("heading", { level: toggleLevel })
+      ? chain.setNode('paragraph')
+      : chain.setNode('heading', { level: toggleLevel })
 
     toggle.run()
 
@@ -206,9 +206,9 @@ export function shouldShowButton(props: {
   const { editor, level, hideWhenUnavailable } = props
 
   if (!editor || !editor.isEditable) return false
-  if (!isNodeInSchema("heading", editor)) return false
+  if (!isNodeInSchema('heading', editor)) return false
 
-  if (hideWhenUnavailable && !editor.isActive("code")) {
+  if (hideWhenUnavailable && !editor.isActive('code')) {
     if (Array.isArray(level)) {
       return level.some((l) => canToggle(editor, l))
     }
@@ -287,10 +287,10 @@ export function useHeading(config: UseHeadingConfig) {
 
     handleSelectionUpdate()
 
-    editor.on("selectionUpdate", handleSelectionUpdate)
+    editor.on('selectionUpdate', handleSelectionUpdate)
 
     return () => {
-      editor.off("selectionUpdate", handleSelectionUpdate)
+      editor.off('selectionUpdate', handleSelectionUpdate)
     }
   }, [editor, level, hideWhenUnavailable])
 
@@ -314,7 +314,7 @@ export function useHeading(config: UseHeadingConfig) {
       enabled: isVisible && canToggleState,
       enableOnContentEditable: !isMobile,
       enableOnFormTags: true,
-    }
+    },
   )
 
   return {

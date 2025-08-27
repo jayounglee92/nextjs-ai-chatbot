@@ -37,7 +37,7 @@ export const HorizontalRuleButton = React.forwardRef<
       type="button"
       className="tiptap-button"
       onClick={handleClick}
-      title={tooltip}
+      tooltip={tooltip}
       {...buttonProps}
     >
       <MinusIcon />
