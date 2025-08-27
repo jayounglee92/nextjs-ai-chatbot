@@ -11,7 +11,6 @@ import {
 } from '@/components/tiptap-ui-primitive/popover'
 import type { ButtonProps } from '@/components/tiptap-ui-primitive/button'
 import { Card, CardBody } from '@/components/tiptap-ui-primitive/card'
-import { TableColumnDeleteIcon } from '@/components/tiptap-icons/table-column-delete-icon'
 
 export interface TablePopoverProps extends Omit<ButtonProps, 'type'> {
   /**
@@ -196,7 +195,6 @@ export const TablePopover = React.forwardRef<
                       className="w-full text-xs"
                     >
                       열 삭제
-                      <TableColumnDeleteIcon />
                     </Button>
                   </div>
                 </div>

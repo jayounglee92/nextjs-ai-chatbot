@@ -43,6 +43,7 @@ import { ListDropdownMenu } from '@/components/tiptap-ui/list-dropdown-menu'
 import { listOptions } from '@/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu'
 import { BlockquoteButton } from '@/components/tiptap-ui/blockquote-button'
 import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button'
+import { HorizontalRuleButton } from '@/components/tiptap-ui/horizontal-rule-button'
 import { TableDropdownMenu } from '@/components/tiptap-ui/table-dropdown-menu'
 import { TablePopover } from '@/components/tiptap-ui/table-popover'
 import {
@@ -92,35 +93,43 @@ const MainToolbarContent = ({
 }) => {
   return (
     <div className="flex flex-wrap p-1 items-center">
-      <UndoRedoButton action="undo" tooltip="실행 취소" />
+      {/* <UndoRedoButton action="undo" tooltip="실행 취소" />
       <UndoRedoButton action="redo" tooltip="다시 실행" />
-      <ToolbarSeparator />
+      <ToolbarSeparator /> */}
       <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={isMobile} />
-      <ListDropdownMenu
-        types={listOptions.map((option) => option.type)}
-        portal={isMobile}
-      />
-      <BlockquoteButton tooltip="인용구" />
-      <CodeBlockButton tooltip="코드 블록" />
-      <TableDropdownMenu tooltip="테이블" />
       <ToolbarSeparator />
       <MarkButton type="bold" tooltip="굵게" />
       <MarkButton type="italic" tooltip="기울임꼴" />
+      <MarkButton type="underline" tooltip="밑줄" />
       <MarkButton type="strike" tooltip="취소선" />
       <MarkButton type="code" tooltip="인라인 코드" />
-      <MarkButton type="underline" tooltip="밑줄" />
+      <ToolbarSeparator />
       {!isMobile ? (
         <ColorHighlightPopover />
       ) : (
         <ColorHighlightPopoverButton onClick={onHighlighterClick} />
       )}
-      {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
+
       <ToolbarSeparator />
       <TextAlignButton align="left" tooltip="왼쪽 정렬" />
       <TextAlignButton align="center" tooltip="가운데 정렬" />
       <TextAlignButton align="right" tooltip="오른쪽 정렬" />
       <TextAlignButton align="justify" tooltip="양쪽 정렬" />
       <ToolbarSeparator />
+      <ListDropdownMenu
+        types={listOptions.map((option) => option.type)}
+        portal={isMobile}
+      />
+      <ToolbarSeparator />
+      <HorizontalRuleButton tooltip="수평선" />
+
+      <ToolbarSeparator />
+      <BlockquoteButton tooltip="인용구" />
+      <CodeBlockButton tooltip="코드 블록" />
+      <ToolbarSeparator />
+      <TableDropdownMenu tooltip="테이블" />
+      <ToolbarSeparator />
+      {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
       <ImageUploadButton text="" tooltip="이미지 추가" />
       {isMobile && <ToolbarSeparator />}
     </div>
@@ -177,7 +186,6 @@ export function SimpleEditor() {
         class: 'simple-editor',
       },
     },
-    onFocus: ({ editor }) => {},
     extensions: [
       StarterKit.configure({
         horizontalRule: false,

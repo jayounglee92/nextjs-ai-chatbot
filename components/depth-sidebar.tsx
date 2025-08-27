@@ -1,37 +1,36 @@
-'use client';
+'use client'
 
-import type { User } from 'next-auth';
-import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useWindowSize } from 'usehooks-ts';
+import type { User } from 'next-auth'
+import { useRouter, usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-import { SidebarHistory } from '@/components/sidebar-history';
-import { SidebarUserNav } from '@/components/sidebar-user-nav';
-import { Button } from '@/components/ui/button';
-import { useSidebar } from '@/components/ui/sidebar';
-import Link from 'next/link';
-import { UsersIcon, HomeIcon, OrbitIcon } from 'lucide-react';
-import { PlusIcon } from './icons';
-import Image from 'next/image';
-import logo from '@/public/images/logo.png';
+import { SidebarHistory } from '@/components/sidebar-history'
+import { SidebarUserNav } from '@/components/sidebar-user-nav'
+import { Button } from '@/components/ui/button'
+import { useSidebar } from '@/components/ui/sidebar'
+import Link from 'next/link'
+import { UsersIcon, HomeIcon, OrbitIcon, FlaskConicalIcon } from 'lucide-react'
+import { PlusIcon } from './icons'
+import Image from 'next/image'
+import logo from '@/public/images/logo.png'
 
 // 메뉴 타입 정의
-type MenuType = 'home' | 'space' | 'community' | null;
+type MenuType = 'home' | 'space' | 'community' | 'ai-lab' | null
 
 interface DepthSidebarProps {
-  user: User | undefined;
+  user: User | undefined
 }
 
 export function DepthSidebar({ user }: DepthSidebarProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { setOpenMobile, open, setOpen, isMobile, openMobile } = useSidebar();
-  const [hoveredMenu, setHoveredMenu] = useState<MenuType>(null);
-  const [activeMenu, setActiveMenu] = useState<MenuType>('home');
+  const router = useRouter()
+  const pathname = usePathname()
+  const { setOpenMobile, open, setOpen, isMobile, openMobile } = useSidebar()
+  const [hoveredMenu, setHoveredMenu] = useState<MenuType>(null)
+  const [activeMenu, setActiveMenu] = useState<MenuType>('home')
 
   // 현재 사이드바가 열려있는지 확인 (모바일/데스크톱 상태에 따라)
-  const isOpen = isMobile ? openMobile : open;
+  const isOpen = isMobile ? openMobile : open
 
   // 메뉴 아이템 설정
   const menuItems = [
@@ -48,41 +47,49 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
       hasSubmenu: false,
     },
     {
+      id: 'ai-lab' as const,
+      label: 'AI Lab',
+      icon: FlaskConicalIcon,
+      hasSubmenu: false,
+    },
+    {
       id: 'community' as const,
       label: '커뮤니티',
       icon: UsersIcon,
       hasSubmenu: false,
     },
-  ];
+  ]
 
   const handleMenuClick = (menuId: MenuType) => {
-    if (menuId === 'community' || menuId === 'space') {
-      setActiveMenu(menuId);
+    if (menuId === 'community' || menuId === 'space' || menuId === 'ai-lab') {
+      setActiveMenu(menuId)
       if (menuId === 'community') {
-        router.push('/community');
+        router.push('/community')
       } else if (menuId === 'space') {
-        router.push('/space');
+        router.push('/space')
+      } else if (menuId === 'ai-lab') {
+        router.push('/ai-lab')
       }
     } else {
-      setActiveMenu(menuId);
+      setActiveMenu(menuId)
       if (menuId === 'home') {
-        router.push('/');
+        router.push('/')
       }
     }
     // 모바일에서만 사이드바 닫기
     if (isMobile) {
-      setOpenMobile(false);
+      setOpenMobile(false)
     }
-  };
+  }
 
   const handleNewChat = () => {
     // 모바일에서만 사이드바 닫기
     if (isMobile) {
-      setOpenMobile(false);
+      setOpenMobile(false)
     }
-    router.push('/');
-    router.refresh();
-  };
+    router.push('/')
+    router.refresh()
+  }
 
   return (
     <>
@@ -112,9 +119,9 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                   href="/"
                   onClick={() => {
                     if (isMobile) {
-                      setOpenMobile(false);
+                      setOpenMobile(false)
                     }
-                    setActiveMenu('home');
+                    setActiveMenu('home')
                   }}
                   className="flex h-14 w-14 items-center justify-center rounded-lg  text-lg font-bold text-primary-foreground hover:bg-secondary hover:text-primary-foreground"
                 >
@@ -138,8 +145,8 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                   className="rounded-full flex flex-col h-12 w-12 gap-1 p-0 text-md text-left text-gray-700"
                   onClick={() => {
                     // 홈페이지로 이동하여 새 채팅 시작
-                    router.push('/');
-                    router.refresh(); // 페이지 새로고침으로 상태 초기화
+                    router.push('/')
+                    router.refresh() // 페이지 새로고침으로 상태 초기화
                   }}
                 >
                   <PlusIcon />
@@ -183,14 +190,14 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
             onMouseEnter={() => setHoveredMenu(hoveredMenu)}
             onMouseLeave={(e) => {
               // 마우스가 서브메뉴 영역을 벗어났는지 확인
-              const relatedTarget = e.relatedTarget as HTMLElement;
+              const relatedTarget = e.relatedTarget as HTMLElement
 
               // html 요소로 이동한 경우 (드롭다운 메뉴 클릭 시 발생) 닫지 않음
               if (relatedTarget?.tagName === 'HTML') {
-                return;
+                return
               }
 
-              setHoveredMenu(null);
+              setHoveredMenu(null)
             }}
           >
             <div className="flex h-full w-full flex-col">
@@ -210,5 +217,5 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
         )}
       </AnimatePresence>
     </>
-  );
+  )
 }
