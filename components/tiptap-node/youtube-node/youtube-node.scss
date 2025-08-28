@@ -1,0 +1,78 @@
+/* =====================
+   YOUTUBE VIDEO STYLES
+   ===================== */
+.tiptap.ProseMirror {
+  // YouTube iframe 기본 스타일
+  iframe[src*="youtube.com"],
+  iframe[src*="youtu.be"] {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 2rem auto; // 중앙 정렬을 위한 auto margin
+    border: none;
+    outline: 0.125rem solid transparent;
+    transition: outline-color 0.2s ease;
+  }
+
+  // YouTube 컨테이너 스타일 (div[data-youtube-video])
+  div[data-youtube-video] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    width: 100%;
+    cursor: grabbing;
+
+    iframe {
+      margin: 0; // 컨테이너에서 이미 중앙 정렬하므로 iframe margin 제거
+    }
+  }
+
+  // 선택된 YouTube 비디오 스타일
+  iframe[src*="youtube.com"].ProseMirror-selectednode,
+  iframe[src*="youtu.be"].ProseMirror-selectednode,
+
+
+  // Thread YouTube 비디오 처리
+  .tiptap-thread:has(div[data-youtube-video]),
+  .tiptap-thread:has(iframe[src*="youtube.com"]),
+  .tiptap-thread:has(iframe[src*="youtu.be"]) {
+    margin: 2rem 0;
+
+    iframe {
+      outline: 0.125rem solid transparent;
+    }
+
+    div[data-youtube-video] {
+      margin: 0;
+    }
+  }
+
+  // 반응형 YouTube 비디오
+  @media (max-width: 768px) {
+    iframe[src*="youtube.com"],
+    iframe[src*="youtu.be"] {
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 16 / 9;
+    }
+
+    div[data-youtube-video] iframe {
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  // 작은 화면에서의 추가 조정
+  @media (max-width: 480px) {
+    div[data-youtube-video] {
+      margin: 1rem 0;
+    }
+
+    iframe[src*="youtube.com"],
+    iframe[src*="youtu.be"] {
+      margin: 1rem auto;
+    }
+  }
+}

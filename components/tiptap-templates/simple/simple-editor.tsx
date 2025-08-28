@@ -13,6 +13,7 @@ import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 import { Selection } from '@tiptap/extensions'
 import { TableKit } from '@tiptap/extension-table'
+import Youtube from '@tiptap/extension-youtube'
 
 // --- UI Primitives ---
 import { Button } from '@/components/tiptap-ui-primitive/button'
@@ -35,6 +36,7 @@ import '@/components/tiptap-node/enhanced-image-node/enhanced-image-node.scss'
 import '@/components/tiptap-node/heading-node/heading-node.scss'
 import '@/components/tiptap-node/paragraph-node/paragraph-node.scss'
 import '@/components/tiptap-node/table-node/table-node.scss'
+import '@/components/tiptap-node/youtube-node/youtube-node.scss'
 
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from '@/components/tiptap-ui/heading-dropdown-menu'
@@ -58,12 +60,17 @@ import {
 } from '@/components/tiptap-ui/link-popover'
 import { MarkButton } from '@/components/tiptap-ui/mark-button'
 import { TextAlignButton } from '@/components/tiptap-ui/text-align-button'
-import { UndoRedoButton } from '@/components/tiptap-ui/undo-redo-button'
+import {
+  YoutubePopover,
+  YoutubeButton,
+  YoutubeContent,
+} from '@/components/tiptap-ui/youtube-popover'
 
 // --- Icons ---
 import { ArrowLeftIcon } from '@/components/tiptap-icons/arrow-left-icon'
 import { HighlighterIcon } from '@/components/tiptap-icons/highlighter-icon'
 import { LinkIcon } from '@/components/tiptap-icons/link-icon'
+import { YoutubeIcon } from '@/components/tiptap-icons/youtube-icon'
 
 // --- Hooks ---
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -71,7 +78,6 @@ import { useWindowSize } from '@/hooks/use-window-size'
 import { useCursorVisibility } from '@/hooks/use-cursor-visibility'
 
 // --- Components ---
-import { ThemeToggle } from '@/components/tiptap-templates/simple/theme-toggle'
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils'
@@ -84,14 +90,16 @@ import content from '@/components/tiptap-templates/simple/data/content.json'
 const MainToolbarContent = ({
   onHighlighterClick,
   onLinkClick,
+  onYoutubeClick,
   isMobile,
 }: {
   onHighlighterClick: () => void
   onLinkClick: () => void
+  onYoutubeClick: () => void
   isMobile: boolean
 }) => {
   return (
-    <div className="flex flex-wrap p-1 items-center">
+    <div className="flex flex-nowrap p-1 items-center sm:flex-wrap">
       {/* <UndoRedoButton action="undo" tooltip="실행 취소" />
       <UndoRedoButton action="redo" tooltip="다시 실행" />
       <ToolbarSeparator /> */}
@@ -147,6 +155,11 @@ const MainToolbarContent = ({
       <ToolbarGroup>
         {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
         <ImageUploadButton text="" tooltip="이미지 추가" />
+        {!isMobile ? (
+          <YoutubePopover />
+        ) : (
+          <YoutubeButton onClick={onYoutubeClick} tooltip="유튜브 추가" />
+        )}
       </ToolbarGroup>
       {isMobile && <ToolbarSeparator />}
     </div>
@@ -157,7 +170,7 @@ const MobileToolbarContent = ({
   type,
   onBack,
 }: {
-  type: 'highlighter' | 'link'
+  type: 'highlighter' | 'link' | 'youtube'
   onBack: () => void
 }) => (
   <>
@@ -166,8 +179,10 @@ const MobileToolbarContent = ({
         <ArrowLeftIcon className="tiptap-button-icon" />
         {type === 'highlighter' ? (
           <HighlighterIcon className="tiptap-button-icon" />
-        ) : (
+        ) : type === 'link' ? (
           <LinkIcon className="tiptap-button-icon" />
+        ) : (
+          <YoutubeIcon className="tiptap-button-icon" />
         )}
       </Button>
     </ToolbarGroup>
@@ -186,7 +201,7 @@ export function SimpleEditor() {
   const isMobile = useIsMobile()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = React.useState<
-    'main' | 'highlighter' | 'link'
+    'main' | 'highlighter' | 'link' | 'youtube'
   >('main')
   const toolbarRef = React.useRef<HTMLDivElement>(null)
 
@@ -231,6 +246,10 @@ export function SimpleEditor() {
       TableKit.configure({
         table: { resizable: true },
       }),
+      Youtube.configure({
+        controls: false,
+        nocookie: true,
+      }),
     ],
     content,
   })
@@ -264,11 +283,18 @@ export function SimpleEditor() {
             <MainToolbarContent
               onHighlighterClick={() => setMobileView('highlighter')}
               onLinkClick={() => setMobileView('link')}
+              onYoutubeClick={() => setMobileView('youtube')}
               isMobile={isMobile}
             />
           ) : (
             <MobileToolbarContent
-              type={mobileView === 'highlighter' ? 'highlighter' : 'link'}
+              type={
+                mobileView === 'highlighter'
+                  ? 'highlighter'
+                  : mobileView === 'link'
+                    ? 'link'
+                    : 'youtube'
+              }
               onBack={() => setMobileView('main')}
             />
           )}

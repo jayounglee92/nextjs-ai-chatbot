@@ -11,7 +11,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center ">
+    <div className="flex flex-col items-center justify-center px-16 pb-32">
       <SimpleEditor />
 
       {/* <div className="border rounded-sm w-full max-w-3xl mx-auto px-4 py-8 my-16">
