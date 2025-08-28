@@ -5,7 +5,6 @@ import { EditorContent, EditorContext, useEditor } from '@tiptap/react'
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from '@tiptap/starter-kit'
-import { Image } from '@tiptap/extension-image'
 import { TaskItem, TaskList } from '@tiptap/extension-list'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Typography } from '@tiptap/extension-typography'
@@ -25,12 +24,14 @@ import {
 
 // --- Tiptap Node ---
 import { ImageUploadNode } from '@/components/tiptap-node/image-upload-node/image-upload-node-extension'
+import { EnhancedImageNode } from '@/components/tiptap-node/enhanced-image-node/enhanced-image-node-extension'
 import { HorizontalRule } from '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension'
 import '@/components/tiptap-node/blockquote-node/blockquote-node.scss'
 import '@/components/tiptap-node/code-block-node/code-block-node.scss'
 import '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss'
 import '@/components/tiptap-node/list-node/list-node.scss'
 import '@/components/tiptap-node/image-node/image-node.scss'
+import '@/components/tiptap-node/enhanced-image-node/enhanced-image-node.scss'
 import '@/components/tiptap-node/heading-node/heading-node.scss'
 import '@/components/tiptap-node/paragraph-node/paragraph-node.scss'
 import '@/components/tiptap-node/table-node/table-node.scss'
@@ -214,7 +215,7 @@ export function SimpleEditor() {
       TaskList,
       TaskItem.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
-      Image,
+      EnhancedImageNode,
       Typography,
       Superscript,
       Subscript,
@@ -224,8 +225,8 @@ export function SimpleEditor() {
         maxSize: MAX_FILE_SIZE,
         limit: 3,
         upload: handleImageUpload,
-        onError: (error) => console.error('Upload failed:', error),
-        type: 'image',
+        onError: (error: Error) => console.error('Upload failed:', error),
+        type: 'image', // EnhancedImageNode와 동일한 타입
       }),
       TableKit.configure({
         table: { resizable: true },

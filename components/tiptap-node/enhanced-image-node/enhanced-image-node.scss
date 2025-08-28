@@ -1,0 +1,35 @@
+.tiptap.ProseMirror {
+  .enhanced-image-wrapper {
+    display: grid;
+    margin: 2rem 0;
+
+    &.enhanced-image-left {
+      justify-self: start;
+    }
+
+    &.enhanced-image-center {
+      justify-self: center;
+    }
+
+    &.enhanced-image-right {
+      justify-self: end;
+    }
+
+    .enhanced-image {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      outline: 0.125rem solid transparent;
+      cursor: pointer;
+      transition: outline-color 0.2s ease;
+
+      &:hover {
+        outline-color: var(--tt-brand-color-300, #93c5fd);
+      }
+    }
+
+    &.ProseMirror-selectednode .enhanced-image {
+      outline-color: var(--tt-brand-color-500, #3b82f6);
+    }
+  }
+}

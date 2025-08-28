@@ -72,7 +72,7 @@ export function TableDropdownMenu({
     return null
   }
 
-  const maxRows = 8
+  const maxRows = 10
   const maxCols = 10
 
   return (
@@ -111,8 +111,9 @@ export function TableDropdownMenu({
                     const isSelected = row < selectedRows && col < selectedCols
 
                     return (
-                      <div
+                      <button
                         key={`${row}-${col}`}
+                        type="button"
                         className={`w-4 h-4 border border-gray-200 cursor-pointer transition-colors ${
                           isSelected ? 'bg-black' : 'bg-white hover:bg-gray-100'
                         }`}

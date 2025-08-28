@@ -36,6 +36,7 @@ export const HorizontalRuleButton = React.forwardRef<
       role="button"
       tabIndex={-1}
       aria-label={label}
+      aria-pressed={isActive}
       tooltip={label}
       onClick={handleInsert}
       disabled={!canInsert}
@@ -43,7 +44,7 @@ export const HorizontalRuleButton = React.forwardRef<
       data-active-state={isActive ? 'on' : 'off'}
       {...buttonProps}
     >
-      <MinusIcon />
+      <MinusIcon className="tiptap-button-icon" />
     </Button>
   )
 })
