@@ -1,5 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/react'
 import { ReactNodeViewRenderer } from '@tiptap/react'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { EnhancedImageNode as EnhancedImageNodeComponent } from './enhanced-image-node'
 
 export type ImageAlignment = 'left' | 'center' | 'right'
@@ -39,6 +40,8 @@ export const EnhancedImageNode = Node.create<EnhancedImageNodeOptions>({
   draggable: true,
 
   atom: true,
+
+  inline: false,
 
   addOptions() {
     return {
@@ -149,6 +152,86 @@ export const EnhancedImageNode = Node.create<EnhancedImageNodeOptions>({
         return false
       },
     }
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      // 드래그 앤 드롭 플러그인
+      new Plugin({
+        key: new PluginKey('imageDragDrop'),
+        props: {
+          handleDOMEvents: {
+            drop: (view, event) => {
+              const coords = view.posAtCoords({
+                left: event.clientX,
+                top: event.clientY,
+              })
+
+              if (!coords) return false
+
+              // 드래그된 이미지 데이터 확인
+              const imageData = event.dataTransfer?.getData(
+                'application/x-tiptap-image',
+              )
+              const draggedPos = event.dataTransfer?.getData('text/plain')
+
+              if (!imageData && !draggedPos) return false
+
+              let sourcePos: number
+              let sourceNode: any
+
+              if (imageData) {
+                try {
+                  const data = JSON.parse(imageData)
+                  sourcePos = data.pos
+                  sourceNode = view.state.doc.nodeAt(sourcePos)
+                } catch {
+                  return false
+                }
+              } else if (draggedPos) {
+                sourcePos = Number.parseInt(draggedPos, 10)
+                sourceNode = view.state.doc.nodeAt(sourcePos)
+              } else {
+                return false
+              }
+
+              if (!sourceNode || sourceNode.type.name !== 'image') return false
+
+              const targetPos = coords.pos
+
+              // 같은 위치면 무시
+              if (Math.abs(sourcePos - targetPos) < sourceNode.nodeSize)
+                return false
+
+              const tr = view.state.tr
+
+              // 원본 위치에서 노드 삭제
+              tr.delete(sourcePos, sourcePos + sourceNode.nodeSize)
+
+              // 삭제로 인한 위치 조정
+              const adjustedTargetPos =
+                targetPos > sourcePos
+                  ? targetPos - sourceNode.nodeSize
+                  : targetPos
+
+              // 새 위치에 노드 삽입 (모든 속성 유지)
+              tr.insert(
+                adjustedTargetPos,
+                sourceNode.copy(sourceNode.content, sourceNode.marks),
+              )
+
+              view.dispatch(tr)
+              event.preventDefault()
+              return true
+            },
+            dragover: (view, event) => {
+              event.preventDefault()
+              return false
+            },
+          },
+        },
+      }),
+    ]
   },
 })
 

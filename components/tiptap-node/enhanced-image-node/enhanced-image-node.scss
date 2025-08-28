@@ -21,15 +21,59 @@
       display: block;
       outline: 0.125rem solid transparent;
       cursor: pointer;
-      transition: outline-color 0.2s ease;
+      transition: outline-color 0.2s ease, opacity 0.2s ease;
 
       &:hover {
         outline-color: var(--tt-brand-color-300, #93c5fd);
+      }
+
+      &:active {
+        cursor: grabbing;
+        opacity: 0.7;
       }
     }
 
     &.ProseMirror-selectednode .enhanced-image {
       outline-color: var(--tt-brand-color-500, #3b82f6);
+    }
+
+    // 드래그 중인 이미지 스타일
+    &[data-drag-handle] {
+      cursor: grab;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+
+    // 드래그 시작 시 시각적 피드백
+    .enhanced-image[draggable="true"] {
+      &:hover {
+        cursor: grab;
+      }
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
+
+  // 드래그 오버 시 에디터 영역 스타일
+  &.ProseMirror-dragover {
+    background-color: var(--tt-brand-color-50, #eff6ff);
+
+    // 드롭 가능한 영역 표시
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 2px dashed var(--tt-brand-color-300, #93c5fd);
+      background-color: var(--tt-brand-color-25, #f8fafc);
+      pointer-events: none;
+      z-index: 10;
     }
   }
 }

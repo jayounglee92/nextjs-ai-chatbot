@@ -142,6 +142,7 @@ export const ImagePopover: React.FC<ImagePopoverProps> = ({
               data-size="sm"
               onClick={() => {
                 onDelete?.()
+                onOpenChange(false)
               }}
               title="이미지 삭제"
               className="tiptap-image-delete-button"

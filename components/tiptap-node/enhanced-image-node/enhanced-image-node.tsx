@@ -21,14 +21,52 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
   }
 
   const handleDelete = () => {
+    // Popover 먼저 닫기
+    setIsPopoverOpen(false)
+
+    // NodeViewProps에서 노드를 삭제하는 방법
     if (props.deleteNode) {
       props.deleteNode()
+    } else {
+      // 대안: editor를 통해 직접 삭제
+      const pos = props.getPos()
+      if (typeof pos === 'number') {
+        props.editor
+          .chain()
+          .focus()
+          .deleteRange({
+            from: pos,
+            to: pos + props.node.nodeSize,
+          })
+          .run()
+      }
     }
   }
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.preventDefault()
     setIsPopoverOpen(true)
+  }
+
+  const handleDragStart = (e: React.DragEvent) => {
+    // 드래그 시작 시 popover 닫기
+    setIsPopoverOpen(false)
+
+    // 드래그 데이터 설정
+    const pos = props.getPos()
+    if (typeof pos === 'number') {
+      // 이미지 노드의 정확한 위치 정보 전달
+      e.dataTransfer.setData('text/plain', pos.toString())
+      e.dataTransfer.setData(
+        'application/x-tiptap-image',
+        JSON.stringify({
+          pos,
+          nodeSize: props.node.nodeSize,
+          attrs: props.node.attrs,
+        }),
+      )
+      e.dataTransfer.effectAllowed = 'move'
+    }
   }
 
   return (
@@ -50,7 +88,8 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
           title={title || ''}
           className="enhanced-image"
           onClick={handleImageClick}
-          draggable={false}
+          draggable={true}
+          onDragStart={handleDragStart}
         />
       </ImagePopover>
     </NodeViewWrapper>

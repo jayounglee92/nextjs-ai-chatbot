@@ -147,10 +147,41 @@ export function useImage({
   )
 
   const deleteImage = React.useCallback(() => {
-    if (!editor || !isImageSelected) return
+    if (!editor) return
 
-    editor.commands.deleteSelection()
-  }, [editor, isImageSelected])
+    // 현재 선택된 노드가 이미지인지 확인
+    const { selection } = editor.state
+    const selectedNode = selection.node
+
+    if (selectedNode && selectedNode.type.name === 'image') {
+      // 선택된 이미지 노드 삭제
+      editor.commands.deleteSelection()
+    } else if (editor.isActive('image')) {
+      // 이미지가 활성화되어 있지만 선택되지 않은 경우
+      editor.commands.deleteSelection()
+    } else {
+      // 대안: 현재 위치에서 이미지 노드 찾아서 삭제
+      const { $from } = selection
+      let depth = $from.depth
+
+      while (depth >= 0) {
+        const node = $from.node(depth)
+        if (node.type.name === 'image') {
+          const pos = $from.before(depth)
+          editor
+            .chain()
+            .focus()
+            .deleteRange({
+              from: pos,
+              to: pos + node.nodeSize,
+            })
+            .run()
+          return
+        }
+        depth--
+      }
+    }
+  }, [editor])
 
   return {
     isVisible,
