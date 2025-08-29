@@ -84,11 +84,9 @@ function PureChatHeader({
           selectedVisibilityType={selectedVisibilityType}
         />
       )}
-      {session && (
-        <div className="ml-auto">
-          <SidebarUserNav user={session.user} />
-        </div>
-      )}
+      <div className="flex flex-col gap-2 p-2 h-14">
+        {session && <SidebarUserNav user={session.user} />}
+      </div>
     </header>
   )
 }

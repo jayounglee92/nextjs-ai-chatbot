@@ -24,6 +24,7 @@ export function LearningSkeleton() {
               {/* 제목 스켈레톤 */}
               <div className="space-y-2">
                 <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-1/2" />
               </div>
 
               {/* 설명 스켈레톤 */}

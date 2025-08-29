@@ -72,10 +72,16 @@ export default function AiUseCasePage() {
   return (
     <div className="flex flex-1 flex-col">
       <div className="space-y-4 flex flex-col mb-8">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold text-foreground">
+        <div className="flex items-center gap-2 justify-between">
+          <h1 className="text-2xl font-semibold text-foreground ">
             AI 활용 사례
           </h1>
+          <Link
+            href="/ai-use-case/write"
+            className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <PencilLineIcon className="w-4 h-4" /> 글쓰기
+          </Link>
         </div>
         <p className="text-muted-foreground">
           사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.

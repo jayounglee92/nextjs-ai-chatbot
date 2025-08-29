@@ -12,7 +12,7 @@ function PureCommonHeader() {
     <header className="z-10 shadow-sm flex sticky top-0 bg-background items-center justify-between px-3 md:pl-2 md:pr-4 gap-2 bg-white">
       {/* 사이드바 열기/닫기 토글 버튼 */}
       <SidebarToggle />
-      <div className="flex flex-col gap-2 p-2">
+      <div className="flex flex-col gap-2 p-2 h-14">
         {session && <SidebarUserNav user={session.user} />}
       </div>
     </header>

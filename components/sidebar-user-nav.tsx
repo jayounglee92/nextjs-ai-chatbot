@@ -58,7 +58,6 @@ export function SidebarUserNav({ user }: { user: User }) {
                 <span data-testid="user-email" className="truncate">
                   {isGuest ? 'Guest' : user?.email}
                 </span>
-                <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
             )}
           </DropdownMenuTrigger>

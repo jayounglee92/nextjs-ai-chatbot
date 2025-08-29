@@ -222,11 +222,6 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                 ))}
               </div>
             </div>
-
-            {/* 푸터 */}
-            <div className="flex flex-col gap-2 p-2">
-              {user && <SidebarUserNav user={user} />}
-            </div>
           </div>
         </div>
       </div>
