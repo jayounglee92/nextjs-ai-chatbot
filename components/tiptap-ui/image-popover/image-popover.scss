@@ -24,12 +24,26 @@
   background-color: var(--tt-border-color, #e2e8f0);
 }
 
+.tiptap-image-size-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tiptap-image-size-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--tt-text-muted, #64748b);
+}
+
 .tiptap-image-delete-section {
   display: flex;
 }
 
 .tiptap-image-alignment-button,
-.tiptap-image-delete-button {
+.tiptap-image-delete-button,
+.tiptap-image-reset-button {
   display: flex;
   align-items: center;
   justify-content: center;

@@ -305,7 +305,7 @@ export function SimpleEditor() {
           className="simple-editor-content"
         />
 
-        <TableFloatingMenu editor={editor} />
+        {/* <TableFloatingMenu editor={editor} /> */}
       </EditorContext.Provider>
     </div>
   )

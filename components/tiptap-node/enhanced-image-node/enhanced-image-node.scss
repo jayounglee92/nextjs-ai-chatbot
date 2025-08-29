@@ -2,6 +2,7 @@
   .enhanced-image-wrapper {
     display: grid;
     margin: 2rem 0;
+    position: relative;
 
     &.enhanced-image-left {
       justify-self: start;
@@ -13,6 +14,15 @@
 
     &.enhanced-image-right {
       justify-self: end;
+    }
+
+    .enhanced-image-container {
+      position: relative;
+      display: inline-block;
+
+      &[data-state="open"] {
+        outline: 0.125rem solid var(--tt-brand-color-300, #93c5fd);
+      }
     }
 
     .enhanced-image {
@@ -35,6 +45,86 @@
 
     &.ProseMirror-selectednode .enhanced-image {
       outline-color: var(--tt-brand-color-500, #3b82f6);
+    }
+
+    // 리사이즈 핸들 컨테이너
+    .resize-handles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .enhanced-image-container[data-state="open"] .resize-handles,
+    &.resizing .resize-handles {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    // 개별 리사이즈 핸들
+    .resize-handle {
+      position: absolute;
+      background: var(--tt-brand-color-500, #3b82f6);
+      border: 2px solid white;
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      z-index: 10;
+      padding: 0;
+      margin: 0;
+      outline: none;
+
+      &:hover {
+        background: var(--tt-brand-color-600, #2563eb);
+        transform: scale(1.2);
+      }
+
+      &:focus {
+        outline: 2px solid var(--tt-brand-color-400, #60a5fa);
+        outline-offset: 2px;
+      }
+
+      // 모서리 핸들
+      &.resize-handle-nw {
+        top: -4px;
+        left: -4px;
+        cursor: nw-resize;
+      }
+
+      &.resize-handle-ne {
+        top: -4px;
+        right: -4px;
+        cursor: ne-resize;
+      }
+
+      &.resize-handle-sw {
+        bottom: -4px;
+        left: -4px;
+        cursor: sw-resize;
+      }
+
+      &.resize-handle-se {
+        bottom: -4px;
+        right: -4px;
+        cursor: se-resize;
+      }
+    }
+
+    // 리사이즈 중일 때 스타일
+    &.resizing {
+      .enhanced-image {
+        pointer-events: none;
+        user-select: none;
+      }
+
+      .resize-handle {
+        background: var(--tt-brand-color-600, #2563eb);
+        transform: scale(1.1);
+      }
     }
 
     // 드래그 중인 이미지 스타일

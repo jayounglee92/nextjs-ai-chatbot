@@ -165,6 +165,7 @@ const YoutubeMain: React.FC<YoutubeMainProps> = ({
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
+              className="w-12"
             />
           </InputGroup>
 

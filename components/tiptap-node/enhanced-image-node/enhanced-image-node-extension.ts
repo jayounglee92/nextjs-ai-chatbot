@@ -23,6 +23,8 @@ declare module '@tiptap/react' {
         alt?: string
         title?: string
         alignment?: ImageAlignment
+        width?: number
+        height?: number
       }) => ReturnType
       setImageAlignment: (alignment: ImageAlignment) => ReturnType
     }
@@ -87,6 +89,32 @@ export const EnhancedImageNode = Node.create<EnhancedImageNodeOptions>({
           element.getAttribute('data-alignment') || 'center',
         renderHTML: (attributes) => {
           return { 'data-alignment': attributes.alignment }
+        },
+      },
+      width: {
+        default: null,
+        parseHTML: (element) => {
+          const width = element.getAttribute('width') || element.style.width
+          return width ? Number.parseInt(width, 10) : null
+        },
+        renderHTML: (attributes) => {
+          if (!attributes.width) {
+            return {}
+          }
+          return { width: attributes.width }
+        },
+      },
+      height: {
+        default: null,
+        parseHTML: (element) => {
+          const height = element.getAttribute('height') || element.style.height
+          return height ? Number.parseInt(height, 10) : null
+        },
+        renderHTML: (attributes) => {
+          if (!attributes.height) {
+            return {}
+          }
+          return { height: attributes.height }
         },
       },
     }

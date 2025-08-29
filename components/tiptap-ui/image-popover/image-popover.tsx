@@ -8,7 +8,7 @@ import {
   PopoverContent,
 } from '@/components/tiptap-ui-primitive/popover'
 import { Button } from '@/components/tiptap-ui-primitive/button'
-import { AlignLeft, AlignCenter, AlignRight, X } from 'lucide-react'
+import { AlignLeft, AlignCenter, AlignRight, X, RotateCcw } from 'lucide-react'
 import { useImage } from './use-image'
 
 export type ImageAlignment = 'left' | 'center' | 'right'
@@ -38,6 +38,15 @@ interface ImagePopoverProps {
    * Callback when delete is clicked (fallback if editor is not available)
    */
   onDelete?: () => void
+  /**
+   * Callback when reset size is clicked (fallback if editor is not available)
+   */
+  onResetSize?: () => void
+  /**
+   * Current width and height for display (fallback if editor is not available)
+   */
+  width?: number
+  height?: number
   /**
    * Trigger element for the popover
    */
@@ -73,6 +82,9 @@ export const ImagePopover: React.FC<ImagePopoverProps> = ({
   alignment: fallbackAlignment,
   onAlignmentChange: fallbackOnAlignmentChange,
   onDelete: fallbackOnDelete,
+  onResetSize: fallbackOnResetSize,
+  width: fallbackWidth,
+  height: fallbackHeight,
   children,
 }) => {
   const {
@@ -89,6 +101,16 @@ export const ImagePopover: React.FC<ImagePopoverProps> = ({
   const alignment = editor ? currentAlignment : fallbackAlignment || 'center'
   const onAlignmentChange = editor ? setAlignment : fallbackOnAlignmentChange
   const onDelete = editor ? deleteImage : fallbackOnDelete
+
+  // Get current image dimensions (fallback to props if editor not available)
+  const currentWidth = fallbackWidth
+  const currentHeight = fallbackHeight
+
+  const handleResetSize = () => {
+    if (fallbackOnResetSize) {
+      fallbackOnResetSize()
+    }
+  }
 
   const handleClick = React.useCallback(
     (value: ImageAlignment) => {
@@ -134,16 +156,35 @@ export const ImagePopover: React.FC<ImagePopoverProps> = ({
               )
             })}
           </div>
+
+          {/* 이미지 크기 정보 및 리셋 */}
+          {(currentWidth || currentHeight) && (
+            <Button
+              type="button"
+              data-style="ghost"
+              role="button"
+              tabIndex={-1}
+              onClick={handleResetSize}
+              tooltip="원본 크기로 리셋"
+              title="원본 크기로 리셋"
+              className="tiptap-image-reset-button"
+            >
+              <RotateCcw className="tiptap-button-icon" />
+            </Button>
+          )}
+
           <div className="tiptap-image-popover-separator" />
           <div className="tiptap-image-delete-section">
             <Button
               type="button"
               data-style="ghost"
-              data-size="sm"
+              role="button"
+              tabIndex={-1}
               onClick={() => {
                 onDelete?.()
                 onOpenChange(false)
               }}
+              tooltip="이미지 삭제"
               title="이미지 삭제"
               className="tiptap-image-delete-button"
             >
