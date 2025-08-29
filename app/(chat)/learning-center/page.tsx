@@ -1,16 +1,26 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { PublicChatList } from '@/components/public-chat-list'
-import type { Chat } from '@/lib/db/schema'
+import { LearningList } from '@/components/learning-list'
+import { LearningSkeleton } from '@/components/learning-skeleton'
+import { learningItems } from '@/lib/data/learning-center'
 
 export default function LearningCenterPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [publicChats, setPublicChats] = useState<Chat[]>([])
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(true)
+
+  // URL 파라미터에서 페이지 번호 읽기
+  const currentPage = Number.parseInt(searchParams.get('page') || '1', 10)
+  const itemsPerPage = 6
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+
+  // 현재 페이지에 해당하는 데이터만 표시
+  const paginatedItems = learningItems.slice(startIndex, endIndex)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -20,34 +30,29 @@ export default function LearningCenterPage() {
       return
     }
 
-    // 공개 채팅 데이터 가져오기
-    const fetchPublicChats = async () => {
-      try {
-        const response = await fetch('/api/history')
-        if (response.ok) {
-          const data = await response.json()
-          // 공개 채팅만 필터링
-          const publicChats = data.chats.filter(
-            (chat: Chat) => chat.visibility === 'public',
-          )
-          setPublicChats(publicChats)
-        }
-      } catch (error) {
-        console.error('공개 채팅을 가져오는데 실패했습니다:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+    // 임시 로딩 시뮬레이션 (나중에 API 호출로 대체)
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1200) // 1.2초 후 로딩 완료
 
-    fetchPublicChats()
+    return () => clearTimeout(timer)
   }, [session, status, router])
 
-  if (status === 'loading' || isLoading) {
+  if (status === 'loading') {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">로딩 중...</p>
+      <div className="flex flex-1 flex-col">
+        <div className="space-y-4 flex flex-col mb-8">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-foreground">학습센터</h1>
+          </div>
+          <p className="text-muted-foreground">
+            최신 개발 트렌드와 기술을 배우고, 실무에 바로 적용할 수 있는
+            인사이트를 얻어보세요.
+          </p>
+        </div>
+
+        <div className="flex-1">
+          <LearningSkeleton />
         </div>
       </div>
     )
@@ -58,18 +63,28 @@ export default function LearningCenterPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col  p-8">
-      <div className="space-y-4  flex flex-col">
+    <div className="flex flex-1 flex-col">
+      <div className="space-y-4 flex flex-col mb-8">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-semibold text-foreground">학습센터</h1>
         </div>
-        <p className="text-muted-foreground">학습센터 목록입니다.</p>
+        <p className="text-muted-foreground">
+          최신 개발 트렌드와 기술을 배우고, 실무에 바로 적용할 수 있는
+          인사이트를 얻어보세요.
+        </p>
       </div>
+
       <div className="flex-1">
-        <div className="mb-6">
-          <h2 className="text-lg font-medium mb-4">학습센터 목록</h2>
-          <PublicChatList chats={publicChats} />
-        </div>
+        {isLoading ? (
+          <LearningSkeleton />
+        ) : (
+          <LearningList
+            items={paginatedItems}
+            totalItems={learningItems.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+          />
+        )}
       </div>
     </div>
   )

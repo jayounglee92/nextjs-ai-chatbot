@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { ChevronUp } from 'lucide-react';
-import Image from 'next/image';
-import type { User } from 'next-auth';
-import { signOut, useSession } from 'next-auth/react';
-import { useTheme } from 'next-themes';
+import { ChevronUp } from 'lucide-react'
+import Image from 'next/image'
+import type { User } from 'next-auth'
+import { signOut, useSession } from 'next-auth/react'
+import { useTheme } from 'next-themes'
 
 import {
   DropdownMenu,
@@ -12,23 +12,23 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
-import { useRouter } from 'next/navigation';
-import { toast } from './toast';
-import { LoaderIcon } from './icons';
-import { guestRegex } from '@/lib/constants';
+} from '@/components/ui/sidebar'
+import { useRouter } from 'next/navigation'
+import { toast } from './toast'
+import { LoaderIcon, UserIcon } from './icons'
+import { guestRegex } from '@/lib/constants'
 
 export function SidebarUserNav({ user }: { user: User }) {
-  const router = useRouter();
-  const { data, status } = useSession();
-  const { setTheme, resolvedTheme } = useTheme();
+  const router = useRouter()
+  const { data, status } = useSession()
+  const { setTheme, resolvedTheme } = useTheme()
 
-  const isGuest = guestRegex.test(data?.user?.email ?? '');
+  const isGuest = guestRegex.test(data?.user?.email ?? '')
 
   return (
     <SidebarMenu>
@@ -36,7 +36,7 @@ export function SidebarUserNav({ user }: { user: User }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             {status === 'loading' ? (
-              <SidebarMenuButton className="h-10 justify-between bg-background data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+              <SidebarMenuButton className="h-10 justify-between data-[state=open]:text-sidebar-accent-foreground !hover:bg-none">
                 <div className="flex flex-row gap-2">
                   <div className="size-6 animate-pulse rounded-full bg-zinc-500/30" />
                   <span className="animate-pulse rounded-md bg-zinc-500/30 text-transparent">
@@ -50,15 +50,11 @@ export function SidebarUserNav({ user }: { user: User }) {
             ) : (
               <SidebarMenuButton
                 data-testid="user-nav-button"
-                className="h-10 bg-background data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className="h-10 data-[state=open]:text-sidebar-accent-foreground hover:bg-none!"
               >
-                <Image
-                  src={`https://avatar.vercel.sh/${user.email}`}
-                  alt={user.email ?? 'User Avatar'}
-                  width={24}
-                  height={24}
-                  className="rounded-full"
-                />
+                <div className="bg-muted rounded-full size-8 flex items-center justify-center">
+                  J
+                </div>
                 <span data-testid="user-email" className="truncate">
                   {isGuest ? 'Guest' : user?.email}
                 </span>
@@ -91,17 +87,17 @@ export function SidebarUserNav({ user }: { user: User }) {
                       type: 'error',
                       description:
                         '인증 상태를 확인하는 중입니다. 다시 시도해주세요!',
-                    });
+                    })
 
-                    return;
+                    return
                   }
 
                   if (isGuest) {
-                    router.push('/login');
+                    router.push('/login')
                   } else {
                     signOut({
                       redirectTo: '/',
-                    });
+                    })
                   }
                 }}
               >
@@ -112,5 +108,5 @@ export function SidebarUserNav({ user }: { user: User }) {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }

@@ -156,6 +156,7 @@ const YoutubeMain: React.FC<YoutubeMainProps> = ({
           {/* URL Input */}
           <InputGroup>
             <Input
+              id="youtube-url"
               type="url"
               placeholder="YouTube URL을 입력하세요..."
               value={url}
@@ -165,7 +166,6 @@ const YoutubeMain: React.FC<YoutubeMainProps> = ({
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
-              className="w-12"
             />
           </InputGroup>
 

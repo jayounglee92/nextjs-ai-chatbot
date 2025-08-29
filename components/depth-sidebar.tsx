@@ -2,7 +2,7 @@
 
 import type { User } from 'next-auth'
 import { useRouter, usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { SidebarHistory } from '@/components/sidebar-history'
@@ -42,6 +42,23 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
   const { setOpenMobile, open, setOpen, isMobile, openMobile } = useSidebar()
   const [hoveredMenu, setHoveredMenu] = useState<MenuType>(null)
   const [activeMenu, setActiveMenu] = useState<MenuType>('home')
+
+  // 현재 경로에 따라 activeMenu 설정
+  useEffect(() => {
+    if (pathname === '/') {
+      setActiveMenu('home')
+    } else if (pathname.startsWith('/ai-use-case')) {
+      setActiveMenu('ai-use-case')
+    } else if (pathname.startsWith('/space')) {
+      setActiveMenu('space')
+    } else if (pathname.startsWith('/ai-lab')) {
+      setActiveMenu('ai-lab')
+    } else if (pathname.startsWith('/news-letter')) {
+      setActiveMenu('news-letter')
+    } else if (pathname.startsWith('/learning-center')) {
+      setActiveMenu('learning-center')
+    }
+  }, [pathname])
 
   // 현재 사이드바가 열려있는지 확인 (모바일/데스크톱 상태에 따라)
   const isOpen = isMobile ? openMobile : open

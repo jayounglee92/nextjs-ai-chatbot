@@ -1,6 +1,6 @@
 import { CommonHeader } from '@/components/common-header'
 
-export default function NewsLetterLayout({
+export default function AiLabLayout({
   children,
 }: {
   children: React.ReactNode

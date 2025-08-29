@@ -1,4 +1,4 @@
-import { CommunityHeader } from '@/components/community-header'
+import { CommonHeader } from '@/components/common-header'
 
 export default function AiUseCaseLayout({
   children,
@@ -7,8 +7,8 @@ export default function AiUseCaseLayout({
 }) {
   return (
     <>
-      <CommunityHeader />
-      <main className="p-8">{children}</main>
+      <CommonHeader />
+      <main className="p-3 md:p-8">{children}</main>
     </>
   )
 }

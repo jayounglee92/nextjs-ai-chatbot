@@ -408,10 +408,10 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   )
 }
 
-const DropZoneContent: React.FC<{ maxSize: number; limit: number }> = ({
-  maxSize,
-  limit,
-}) => (
+const DropZoneContent: React.FC<{
+  maxSize: number
+  limit: number
+}> = ({ maxSize, limit }) => (
   <>
     <div className="tiptap-image-upload-dropzone">
       <FileIcon />
@@ -436,6 +436,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
   const { accept, limit, maxSize } = props.node.attrs
   const inputRef = React.useRef<HTMLInputElement>(null)
   const extension = props.extension
+  const [showDropZone, setShowDropZone] = React.useState(true)
 
   const uploadOptions: UploadOptions = {
     maxSize,
@@ -507,8 +508,20 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
       tabIndex={0}
       onClick={handleClick}
     >
-      {!hasFiles && (
+      {!hasFiles && showDropZone && (
         <ImageUploadDragArea onFile={handleUpload}>
+          <Button
+            type="button"
+            data-style="ghost"
+            aria-label="닫기"
+            className="absolute top-2 right-2 !rounded-full"
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowDropZone(false)
+            }}
+          >
+            <CloseIcon className="w-4 h-4 text-gray-600" />
+          </Button>
           <DropZoneContent maxSize={maxSize} limit={limit} />
         </ImageUploadDragArea>
       )}

@@ -133,6 +133,7 @@ const LinkMain: React.FC<LinkMainProps> = ({
         <CardItemGroup orientation="horizontal">
           <InputGroup>
             <Input
+              id="link-url"
               type="url"
               placeholder="링크를 입력하세요"
               value={url}

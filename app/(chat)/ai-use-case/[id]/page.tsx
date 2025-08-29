@@ -8,7 +8,7 @@ import { aiUseCases, type AiUseCase } from '@/lib/data/ai-use-cases'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
-  ArrowLeft,
+  ChevronLeft,
   Clock,
   Calendar,
   User,
@@ -91,9 +91,7 @@ export default function AiUseCaseDetailPage() {
           <p className="text-muted-foreground mb-4">
             요청하신 ID의 AI 활용 사례가 존재하지 않습니다.
           </p>
-          <Button onClick={() => router.push('/ai-use-case')}>
-            목록으로 돌아가기
-          </Button>
+          <Button onClick={() => router.push('/ai-use-case')}>목록으로</Button>
         </div>
       </div>
     )
@@ -103,12 +101,12 @@ export default function AiUseCaseDetailPage() {
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* 뒤로가기 버튼 */}
       <Button
-        variant="ghost"
+        variant="link"
         onClick={() => router.push('/ai-use-case')}
-        className="mb-6"
+        className="mb-6 -ml-4"
       >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        목록으로 돌아가기
+        <ChevronLeft className="h-4 w-4" />
+        목록으로
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

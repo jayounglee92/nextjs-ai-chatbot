@@ -1,14 +1,15 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation';
-import { useWindowSize } from 'usehooks-ts';
+import { useRouter } from 'next/navigation'
+import { useWindowSize } from 'usehooks-ts'
 
-import { SidebarToggle } from '@/components/sidebar-toggle';
-import { useSidebar } from './ui/sidebar';
-import { memo } from 'react';
-import { type VisibilityType, VisibilitySelector } from './visibility-selector';
-import type { Session } from 'next-auth';
-import { ModelSelector } from './model-selector';
+import { SidebarToggle } from '@/components/sidebar-toggle'
+import { useSidebar } from './ui/sidebar'
+import { memo } from 'react'
+import { type VisibilityType, VisibilitySelector } from './visibility-selector'
+import type { Session } from 'next-auth'
+import { ModelSelector } from './model-selector'
+import { SidebarUserNav } from './sidebar-user-nav'
 
 /**
  * 채팅 헤더의 순수 컴포넌트 (메모이제이션 최적화를 위해 분리)
@@ -27,26 +28,25 @@ function PureChatHeader({
   isReadonly,
   session,
 }: {
-  chatId: string; // 현재 채팅방의 고유 ID
-  selectedModelId: string; // 현재 선택된 AI 모델 ID
-  selectedVisibilityType: VisibilityType; // 채팅 가시성 설정 (public/private)
-  isReadonly: boolean; // 읽기 전용 모드 여부 (공유된 채팅 등)
-  session: Session; // 사용자 세션 정보
+  chatId: string // 현재 채팅방의 고유 ID
+  selectedModelId: string // 현재 선택된 AI 모델 ID
+  selectedVisibilityType: VisibilityType // 채팅 가시성 설정 (public/private)
+  isReadonly: boolean // 읽기 전용 모드 여부 (공유된 채팅 등)
+  session: Session // 사용자 세션 정보
 }) {
   // 페이지 네비게이션을 위한 라우터
-  const router = useRouter();
+  const router = useRouter()
 
   // 사이드바 열림/닫힘 상태
-  const { open } = useSidebar();
+  const { open } = useSidebar()
 
   // 현재 브라우저 창 크기 (반응형 UI를 위해)
-  const { width: windowWidth } = useWindowSize();
+  const { width: windowWidth } = useWindowSize()
 
   return (
-    <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
+    <header className="flex sticky shadow-sm top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2 bg-white">
       {/* 사이드바 열기/닫기 토글 버튼 */}
       <SidebarToggle />
-
       {/* 새 채팅 시작 버튼 - 조건부 표시 */}
       {/* 사이드바가 닫혀있거나 모바일 화면일 때만 표시 */}
       {(!open || windowWidth < 768) &&
@@ -69,7 +69,6 @@ function PureChatHeader({
         //   <TooltipContent>새 채팅</TooltipContent>
         // </Tooltip>
         null}
-
       {/* AI 모델 선택기 - 편집 가능한 채팅에서만 표시 */}
       {/* {!isReadonly && (
         <ModelSelector
@@ -78,17 +77,20 @@ function PureChatHeader({
           className="order-1 md:order-2" 
         />
       )} */}
-
       {/* 채팅 가시성 선택기 (Public/Private) - 편집 가능한 채팅에서만 표시 */}
       {!isReadonly && (
         <VisibilitySelector
           chatId={chatId}
           selectedVisibilityType={selectedVisibilityType}
-          className="order-1 md:order-2" // 반응형 순서 조정
         />
       )}
+      {session && (
+        <div className="ml-auto">
+          <SidebarUserNav user={session.user} />
+        </div>
+      )}
     </header>
-  );
+  )
 }
 
 /**
@@ -104,5 +106,5 @@ function PureChatHeader({
  * - 전체 앱 성능 향상에 기여
  */
 export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return prevProps.selectedModelId === nextProps.selectedModelId;
-});
+  return prevProps.selectedModelId === nextProps.selectedModelId
+})

@@ -1,4 +1,4 @@
-import { CommunityHeader } from '@/components/community-header'
+import { CommonHeader } from '@/components/common-header'
 
 export default function LearningCenterLayout({
   children,
@@ -7,8 +7,8 @@ export default function LearningCenterLayout({
 }) {
   return (
     <>
-      <CommunityHeader />
-      <main>{children}</main>
+      <CommonHeader />
+      <main className="p-3 md:p-8">{children}</main>
     </>
   )
 }
