@@ -101,7 +101,7 @@ export const aiUseCases: AiUseCase[] = [
   },
   {
     id: '10',
-    title: '왜 질나가는 기업은 "인터널 브랜딩"부터 챙길까?',
+    title: '왜 잘 나가는 기업은 "인터널 브랜딩"부터 챙길까?',
     readingTime: '10분',
     publicationDate: '2025.03.20.',
     description:
