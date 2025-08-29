@@ -10,13 +10,27 @@ import { SidebarUserNav } from '@/components/sidebar-user-nav'
 import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
 import Link from 'next/link'
-import { UsersIcon, HomeIcon, OrbitIcon, FlaskConicalIcon } from 'lucide-react'
+import {
+  WandSparklesIcon,
+  HomeIcon,
+  OrbitIcon,
+  FlaskConicalIcon,
+  NewspaperIcon,
+  SchoolIcon,
+} from 'lucide-react'
 import { PlusIcon } from './icons'
 import Image from 'next/image'
 import logo from '@/public/images/logo.png'
 
 // 메뉴 타입 정의
-type MenuType = 'home' | 'space' | 'community' | 'ai-lab' | null
+type MenuType =
+  | 'home'
+  | 'space'
+  | 'ai-use-case'
+  | 'ai-lab'
+  | 'news-letter'
+  | 'learning-center'
+  | null
 
 interface DepthSidebarProps {
   user: User | undefined
@@ -53,22 +67,44 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
       hasSubmenu: false,
     },
     {
-      id: 'community' as const,
-      label: '커뮤니티',
-      icon: UsersIcon,
+      id: 'ai-use-case' as const,
+      label: 'AI 활용 사례',
+      icon: WandSparklesIcon,
+      hasSubmenu: false,
+    },
+    {
+      id: 'news-letter' as const,
+      label: '뉴스레터',
+      icon: NewspaperIcon,
+      hasSubmenu: false,
+    },
+    {
+      id: 'learning-center' as const,
+      label: '학습센터',
+      icon: SchoolIcon,
       hasSubmenu: false,
     },
   ]
 
   const handleMenuClick = (menuId: MenuType) => {
-    if (menuId === 'community' || menuId === 'space' || menuId === 'ai-lab') {
+    if (
+      menuId === 'ai-use-case' ||
+      menuId === 'space' ||
+      menuId === 'ai-lab' ||
+      menuId === 'news-letter' ||
+      menuId === 'learning-center'
+    ) {
       setActiveMenu(menuId)
-      if (menuId === 'community') {
-        router.push('/community')
+      if (menuId === 'ai-use-case') {
+        router.push('/ai-use-case')
       } else if (menuId === 'space') {
         router.push('/space')
       } else if (menuId === 'ai-lab') {
         router.push('/ai-lab')
+      } else if (menuId === 'news-letter') {
+        router.push('/news-letter')
+      } else if (menuId === 'learning-center') {
+        router.push('/learning-center')
       }
     } else {
       setActiveMenu(menuId)

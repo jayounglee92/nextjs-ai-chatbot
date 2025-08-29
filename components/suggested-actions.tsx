@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
-import { memo } from 'react';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { VisibilityType } from './visibility-selector';
-import type { ChatMessage } from '@/lib/types';
+import { motion } from 'framer-motion'
+import { Button } from './ui/button'
+import { memo } from 'react'
+import type { UseChatHelpers } from '@ai-sdk/react'
+import type { VisibilityType } from './visibility-selector'
+import type { ChatMessage } from '@/lib/types'
 
 interface SuggestedActionsProps {
-  chatId: string;
-  sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
-  selectedVisibilityType: VisibilityType;
+  chatId: string
+  sendMessage: UseChatHelpers<ChatMessage>['sendMessage']
+  selectedVisibilityType: VisibilityType
 }
 
 function PureSuggestedActions({
@@ -18,29 +18,6 @@ function PureSuggestedActions({
   sendMessage,
   selectedVisibilityType,
 }: SuggestedActionsProps) {
-  // const suggestedActions = [
-  //   {
-  //     title: 'What are the advantages',
-  //     label: 'of using Next.js?',
-  //     action: 'What are the advantages of using Next.js?',
-  //   },
-  //   {
-  //     title: 'Write code to',
-  //     label: `demonstrate djikstra's algorithm`,
-  //     action: `Write code to demonstrate djikstra's algorithm`,
-  //   },
-  //   {
-  //     title: 'Help me write an essay',
-  //     label: `about silicon valley`,
-  //     action: `Help me write an essay about silicon valley`,
-  //   },
-  //   {
-  //     title: 'What is the weather',
-  //     label: 'in San Francisco?',
-  //     action: 'What is the weather in San Francisco?',
-  //   },
-  // ];
-
   const suggestedActions = [
     {
       title: 'Next.js 의',
@@ -62,7 +39,7 @@ function PureSuggestedActions({
       label: '날씨는 어떤가요?',
       action: 'San Francisco의 날씨는 어떤가요?',
     },
-  ];
+  ]
   return (
     <div
       data-testid="suggested-actions"
@@ -80,12 +57,12 @@ function PureSuggestedActions({
           <Button
             variant="ghost"
             onClick={async () => {
-              window.history.replaceState({}, '', `/chat/${chatId}`);
+              window.history.replaceState({}, '', `/chat/${chatId}`)
 
               sendMessage({
                 role: 'user',
                 parts: [{ type: 'text', text: suggestedAction.action }],
-              });
+              })
             }}
             className="h-auto w-full flex-1 items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
           >
@@ -97,16 +74,16 @@ function PureSuggestedActions({
         </motion.div>
       ))}
     </div>
-  );
+  )
 }
 
 export const SuggestedActions = memo(
   PureSuggestedActions,
   (prevProps, nextProps) => {
-    if (prevProps.chatId !== nextProps.chatId) return false;
+    if (prevProps.chatId !== nextProps.chatId) return false
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
-      return false;
+      return false
 
-    return true;
+    return true
   },
-);
+)
