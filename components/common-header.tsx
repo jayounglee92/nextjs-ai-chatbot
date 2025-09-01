@@ -9,9 +9,9 @@ function PureCommonHeader() {
   const { data: session, status } = useSession()
 
   return (
-    <header className="z-10 shadow-sm flex sticky top-0 bg-background items-center p-2 gap-2">
+    <header className="z-10 shadow-sm flex sticky top-0 bg-background items-center justify-between p-2 gap-2">
       <SidebarToggle />
-      <div className="ml-auto">
+      <div className="place-items-end">
         {session && <SidebarUserNav user={session.user} />}
       </div>
     </header>

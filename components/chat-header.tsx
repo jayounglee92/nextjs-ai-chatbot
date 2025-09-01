@@ -69,14 +69,6 @@ function PureChatHeader({
         //   <TooltipContent>새 채팅</TooltipContent>
         // </Tooltip>
         null}
-      {/* AI 모델 선택기 - 편집 가능한 채팅에서만 표시 */}
-      {/* {!isReadonly && (
-        <ModelSelector
-          session={session}
-          selectedModelId={selectedModelId}
-          className="order-1 md:order-2" 
-        />
-      )} */}
       {/* 채팅 가시성 선택기 (Public/Private) - 편집 가능한 채팅에서만 표시 */}
       {!isReadonly && (
         <VisibilitySelector
@@ -84,7 +76,9 @@ function PureChatHeader({
           selectedVisibilityType={selectedVisibilityType}
         />
       )}
-      {session && <SidebarUserNav user={session.user} />}
+      <div className="ml-auto">
+        {session && <SidebarUserNav user={session.user} />}
+      </div>
     </header>
   )
 }

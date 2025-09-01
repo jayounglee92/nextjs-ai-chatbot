@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
 
 export default function CommunityPage() {
   const { data: session } = useSession()
@@ -82,17 +83,26 @@ export default function CommunityPage() {
       </div>
 
       {/* 저장 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-3 z-50">
-        <div className="max-w-6xl mx-auto flex justify-end">
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !title.trim() || !content.trim()}
-            className="px-6"
-          >
-            {isSubmitting ? '저장 중...' : '저장하기'}
-          </Button>
-        </div>
-      </div>
+      <FixedBottomButtons
+        buttons={[
+          {
+            onClick: () => {
+              if (confirm('정말로 취소하시겠습니까?')) {
+                router.push(`/ai-use-case`)
+              }
+            },
+            text: '취소',
+            variant: 'outline',
+          },
+          {
+            onClick: handleSubmit,
+            disabled: isSubmitting || !title.trim() || !content.trim(),
+            isLoading: isSubmitting,
+            loadingText: '저장중...',
+            text: '저장하기',
+          },
+        ]}
+      />
     </div>
   )
 }
