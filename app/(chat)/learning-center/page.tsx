@@ -38,7 +38,7 @@ export default function LearningCenterPage() {
     return () => clearTimeout(timer)
   }, [session, status, router])
 
-  if (status === 'loading') {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="flex flex-1 flex-col">
         <div className="space-y-4 flex flex-col mb-8">

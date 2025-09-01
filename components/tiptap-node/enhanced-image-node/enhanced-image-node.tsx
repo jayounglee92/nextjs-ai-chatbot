@@ -18,6 +18,9 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
   const imageRef = React.useRef<HTMLImageElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
 
+  // 에디터가 뷰 모드인지 확인
+  const isViewMode = !props.editor.isEditable
+
   const handleAlignmentChange = (newAlignment: ImageAlignment) => {
     if (props.updateAttributes) {
       props.updateAttributes({ alignment: newAlignment })
@@ -123,12 +126,19 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    if (!isResizing) {
+    // 뷰 모드에서는 팝오버 비활성화
+    if (!isResizing && !isViewMode) {
       setIsPopoverOpen(true)
     }
   }
 
   const handleDragStart = (e: React.DragEvent) => {
+    // 뷰 모드에서는 드래그 비활성화
+    if (isViewMode) {
+      e.preventDefault()
+      return
+    }
+
     // 드래그 시작 시 popover 닫기
     setIsPopoverOpen(false)
 
@@ -160,21 +170,67 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
       className={`enhanced-image-wrapper enhanced-image-${alignment} ${isResizing ? 'resizing' : ''}`}
       data-alignment={alignment}
     >
-      <ImagePopover
-        editor={props.editor}
-        open={isPopoverOpen && !isResizing}
-        onOpenChange={setIsPopoverOpen}
-        alignment={alignment}
-        onAlignmentChange={handleAlignmentChange}
-        onDelete={handleDelete}
-        onResetSize={handleResetSize}
-        width={width}
-        height={height}
-      >
-        <div
-          className="enhanced-image-container"
-          data-state={isPopoverOpen ? 'open' : 'closed'}
+      {/* 뷰 모드에서는 ImagePopover와 리사이즈 핸들 제거 */}
+      {!isViewMode ? (
+        <ImagePopover
+          editor={props.editor}
+          open={isPopoverOpen && !isResizing}
+          onOpenChange={setIsPopoverOpen}
+          alignment={alignment}
+          onAlignmentChange={handleAlignmentChange}
+          onDelete={handleDelete}
+          onResetSize={handleResetSize}
+          width={width}
+          height={height}
         >
+          <div
+            className="enhanced-image-container"
+            data-state={isPopoverOpen ? 'open' : 'closed'}
+          >
+            <img
+              ref={imageRef}
+              src={src}
+              alt={alt || ''}
+              title={title || ''}
+              className="enhanced-image"
+              style={imageStyle}
+              onClick={handleImageClick}
+              draggable={!isResizing}
+              onDragStart={handleDragStart}
+            />
+
+            {/* 리사이즈 핸들들 - 모서리 4개만 */}
+            <div className="resize-handles">
+              <button
+                type="button"
+                className="resize-handle resize-handle-nw"
+                onMouseDown={(e) => handleMouseDown(e, 'nw')}
+                aria-label="좌상단 리사이즈"
+              />
+              <button
+                type="button"
+                className="resize-handle resize-handle-ne"
+                onMouseDown={(e) => handleMouseDown(e, 'ne')}
+                aria-label="우상단 리사이즈"
+              />
+              <button
+                type="button"
+                className="resize-handle resize-handle-sw"
+                onMouseDown={(e) => handleMouseDown(e, 'sw')}
+                aria-label="좌하단 리사이즈"
+              />
+              <button
+                type="button"
+                className="resize-handle resize-handle-se"
+                onMouseDown={(e) => handleMouseDown(e, 'se')}
+                aria-label="우하단 리사이즈"
+              />
+            </div>
+          </div>
+        </ImagePopover>
+      ) : (
+        /* 뷰 모드: 단순한 이미지만 표시 */
+        <div className="enhanced-image-container enhanced-image-viewmode">
           <img
             ref={imageRef}
             src={src}
@@ -182,40 +238,10 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
             title={title || ''}
             className="enhanced-image"
             style={imageStyle}
-            onClick={handleImageClick}
-            draggable={!isResizing}
-            onDragStart={handleDragStart}
+            draggable={false}
           />
-
-          {/* 리사이즈 핸들들 - 모서리 4개만 */}
-          <div className="resize-handles">
-            <button
-              type="button"
-              className="resize-handle resize-handle-nw"
-              onMouseDown={(e) => handleMouseDown(e, 'nw')}
-              aria-label="좌상단 리사이즈"
-            />
-            <button
-              type="button"
-              className="resize-handle resize-handle-ne"
-              onMouseDown={(e) => handleMouseDown(e, 'ne')}
-              aria-label="우상단 리사이즈"
-            />
-            <button
-              type="button"
-              className="resize-handle resize-handle-sw"
-              onMouseDown={(e) => handleMouseDown(e, 'sw')}
-              aria-label="좌하단 리사이즈"
-            />
-            <button
-              type="button"
-              className="resize-handle resize-handle-se"
-              onMouseDown={(e) => handleMouseDown(e, 'se')}
-              aria-label="우하단 리사이즈"
-            />
-          </div>
         </div>
-      </ImagePopover>
+      )}
     </NodeViewWrapper>
   )
 }

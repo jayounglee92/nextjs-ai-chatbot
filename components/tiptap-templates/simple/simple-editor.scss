@@ -81,3 +81,15 @@ body,
     padding: 1rem 1.5rem 30vh;
   }
 }
+
+// viewmode
+.simple-editor-wrapper-viewmode {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+
+  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 0;
+  }
+}

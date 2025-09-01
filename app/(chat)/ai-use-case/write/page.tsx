@@ -3,7 +3,6 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
@@ -40,9 +39,6 @@ export default function CommunityPage() {
     try {
       const response = await fetch('/api/ai-use-case', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
@@ -65,17 +61,6 @@ export default function CommunityPage() {
 
   return (
     <div className="pb-24">
-      {/* 뒤로가기 버튼 */}
-      <Button
-        type="button"
-        variant="link"
-        onClick={() => router.push('/ai-use-case')}
-        className="mb-6 flex items-center pl-0"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        <span>목록으로</span>
-      </Button>
-
       {/* 제목 입력 필드 */}
       <div className="mb-6">
         <Label htmlFor="title" className="sr-only">
@@ -92,7 +77,9 @@ export default function CommunityPage() {
       </div>
 
       {/* 에디터 */}
-      <SimpleEditor onContentChange={handleContentChange} />
+      <div className="border">
+        <SimpleEditor onContentChange={handleContentChange} />
+      </div>
 
       {/* 저장 버튼 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-3 z-50">
@@ -100,7 +87,7 @@ export default function CommunityPage() {
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !title.trim() || !content.trim()}
-            className="px-6 -mr-4"
+            className="px-6"
           >
             {isSubmitting ? '저장 중...' : '저장하기'}
           </Button>

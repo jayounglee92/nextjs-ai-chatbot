@@ -1,4 +1,4 @@
-import type { InferSelectModel } from 'drizzle-orm';
+import type { InferSelectModel } from 'drizzle-orm'
 import {
   pgTable,
   varchar,
@@ -9,15 +9,15 @@ import {
   primaryKey,
   foreignKey,
   boolean,
-} from 'drizzle-orm/pg-core';
+} from 'drizzle-orm/pg-core'
 
 export const user = pgTable('User', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   email: varchar('email', { length: 64 }).notNull(),
   password: varchar('password', { length: 64 }),
-});
+})
 
-export type User = InferSelectModel<typeof user>;
+export type User = InferSelectModel<typeof user>
 
 export const chat = pgTable('Chat', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
@@ -29,9 +29,9 @@ export const chat = pgTable('Chat', {
   visibility: varchar('visibility', { enum: ['public', 'private'] })
     .notNull()
     .default('private'),
-});
+})
 
-export type Chat = InferSelectModel<typeof chat>;
+export type Chat = InferSelectModel<typeof chat>
 
 // DEPRECATED: The following schema is deprecated and will be removed in the future.
 // Read the migration guide at https://chat-sdk.dev/docs/migration-guides/message-parts
@@ -43,9 +43,9 @@ export const messageDeprecated = pgTable('Message', {
   role: varchar('role').notNull(),
   content: json('content').notNull(),
   createdAt: timestamp('createdAt').notNull(),
-});
+})
 
-export type MessageDeprecated = InferSelectModel<typeof messageDeprecated>;
+export type MessageDeprecated = InferSelectModel<typeof messageDeprecated>
 
 export const message = pgTable('Message_v2', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
@@ -56,9 +56,9 @@ export const message = pgTable('Message_v2', {
   parts: json('parts').notNull(),
   attachments: json('attachments').notNull(),
   createdAt: timestamp('createdAt').notNull(),
-});
+})
 
-export type DBMessage = InferSelectModel<typeof message>;
+export type DBMessage = InferSelectModel<typeof message>
 
 // DEPRECATED: The following schema is deprecated and will be removed in the future.
 // Read the migration guide at https://chat-sdk.dev/docs/migration-guides/message-parts
@@ -76,11 +76,11 @@ export const voteDeprecated = pgTable(
   (table) => {
     return {
       pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-    };
+    }
   },
-);
+)
 
-export type VoteDeprecated = InferSelectModel<typeof voteDeprecated>;
+export type VoteDeprecated = InferSelectModel<typeof voteDeprecated>
 
 export const vote = pgTable(
   'Vote_v2',
@@ -96,11 +96,11 @@ export const vote = pgTable(
   (table) => {
     return {
       pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-    };
+    }
   },
-);
+)
 
-export type Vote = InferSelectModel<typeof vote>;
+export type Vote = InferSelectModel<typeof vote>
 
 export const document = pgTable(
   'Document',
@@ -119,11 +119,11 @@ export const document = pgTable(
   (table) => {
     return {
       pk: primaryKey({ columns: [table.id, table.createdAt] }),
-    };
+    }
   },
-);
+)
 
-export type Document = InferSelectModel<typeof document>;
+export type Document = InferSelectModel<typeof document>
 
 export const suggestion = pgTable(
   'Suggestion',
@@ -147,9 +147,9 @@ export const suggestion = pgTable(
       foreignColumns: [document.id, document.createdAt],
     }),
   }),
-);
+)
 
-export type Suggestion = InferSelectModel<typeof suggestion>;
+export type Suggestion = InferSelectModel<typeof suggestion>
 
 export const stream = pgTable(
   'Stream',
@@ -165,6 +165,19 @@ export const stream = pgTable(
       foreignColumns: [chat.id],
     }),
   }),
-);
+)
 
-export type Stream = InferSelectModel<typeof stream>;
+export type Stream = InferSelectModel<typeof stream>
+
+export const aiUseCase = pgTable('AiUseCase', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
+})
+
+export type AiUseCase = InferSelectModel<typeof aiUseCase>

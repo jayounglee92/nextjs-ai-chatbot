@@ -9,10 +9,9 @@ function PureCommonHeader() {
   const { data: session, status } = useSession()
 
   return (
-    <header className="z-10 shadow-sm flex sticky top-0 bg-background items-center justify-between px-3 md:pl-2 md:pr-4 gap-2 bg-white">
-      {/* 사이드바 열기/닫기 토글 버튼 */}
+    <header className="z-10 shadow-sm flex sticky top-0 bg-background items-center p-2 gap-2">
       <SidebarToggle />
-      <div className="flex flex-col gap-2 p-2 h-14">
+      <div className="ml-auto">
         {session && <SidebarUserNav user={session.user} />}
       </div>
     </header>

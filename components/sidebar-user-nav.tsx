@@ -50,10 +50,10 @@ export function SidebarUserNav({ user }: { user: User }) {
             ) : (
               <SidebarMenuButton
                 data-testid="user-nav-button"
-                className="h-10 data-[state=open]:text-sidebar-accent-foreground hover:bg-none!"
+                className="h-10 data-[state=open]:text-sidebar-accent-foreground hover:bg-none! "
               >
-                <div className="bg-muted rounded-full size-8 flex items-center justify-center">
-                  J
+                <div className="bg-muted rounded-full size-8 flex items-center justify-center font-bold">
+                  {isGuest ? 'G' : user?.name?.charAt(0)}
                 </div>
                 <span data-testid="user-email" className="truncate">
                   {isGuest ? 'Guest' : user?.email}
@@ -66,7 +66,7 @@ export function SidebarUserNav({ user }: { user: User }) {
             side="top"
             className="w-[--radix-popper-anchor-width]"
           >
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               data-testid="user-nav-item-theme"
               className="cursor-pointer"
               onSelect={() =>
@@ -75,7 +75,7 @@ export function SidebarUserNav({ user }: { user: User }) {
             >
               {`${resolvedTheme === 'light' ? '다크' : '라이트'} 모드로 변경`}
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
               <button
                 type="button"

@@ -47,20 +47,6 @@ export function AiUseCaseSkeleton() {
           </Card>
         ))}
       </div>
-
-      {/* 페이지네이션 스켈레톤 */}
-      <div className="flex items-center justify-center space-x-2">
-        <Skeleton className="h-9 w-16" />
-        <div className="flex items-center space-x-1">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton
-              key={generateId('skeleton-page', index)}
-              className="h-9 w-10"
-            />
-          ))}
-        </div>
-        <Skeleton className="h-9 w-16" />
-      </div>
     </div>
   )
 }

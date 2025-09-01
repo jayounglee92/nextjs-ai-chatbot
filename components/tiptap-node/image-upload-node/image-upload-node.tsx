@@ -438,6 +438,13 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
   const extension = props.extension
   const [showDropZone, setShowDropZone] = React.useState(true)
 
+  // 뷰 모드에서는 업로드 노드를 표시하지 않음
+  const isViewMode = !props.editor.isEditable
+
+  if (isViewMode) {
+    return null
+  }
+
   const uploadOptions: UploadOptions = {
     maxSize,
     limit,

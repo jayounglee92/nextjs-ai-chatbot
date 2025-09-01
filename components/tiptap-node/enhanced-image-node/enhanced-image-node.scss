@@ -43,6 +43,22 @@
       }
     }
 
+    // 뷰 모드 스타일
+    .enhanced-image-viewmode {
+      .enhanced-image {
+        cursor: default;
+
+        &:hover {
+          outline-color: transparent;
+        }
+
+        &:active {
+          cursor: default;
+          opacity: 1;
+        }
+      }
+    }
+
     &.ProseMirror-selectednode .enhanced-image {
       outline-color: var(--tt-brand-color-500, #3b82f6);
     }

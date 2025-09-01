@@ -47,7 +47,7 @@ import { BlockquoteButton } from '@/components/tiptap-ui/blockquote-button'
 import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button'
 import { HorizontalRuleButton } from '@/components/tiptap-ui/horizontal-rule-button'
 import { TableDropdownMenu } from '@/components/tiptap-ui/table-dropdown-menu'
-import { TableFloatingMenu } from '@/components/tiptap-ui/table-floating-menu'
+
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverContent,
@@ -63,7 +63,6 @@ import { TextAlignButton } from '@/components/tiptap-ui/text-align-button'
 import {
   YoutubePopover,
   YoutubeButton,
-  YoutubeContent,
 } from '@/components/tiptap-ui/youtube-popover'
 
 // --- Icons ---
@@ -100,9 +99,6 @@ const MainToolbarContent = ({
 }) => {
   return (
     <div className="flex flex-nowrap p-1 items-center sm:flex-wrap">
-      {/* <UndoRedoButton action="undo" tooltip="실행 취소" />
-      <UndoRedoButton action="redo" tooltip="다시 실행" />
-      <ToolbarSeparator /> */}
       <ToolbarGroup>
         <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={isMobile} />
         <ToolbarSeparator />
@@ -199,7 +195,13 @@ const MobileToolbarContent = ({
 
 export function SimpleEditor({
   onContentChange,
-}: { onContentChange?: (content: string) => void }) {
+  viewMode = false,
+  initialContent,
+}: {
+  onContentChange?: (content: string) => void
+  viewMode?: boolean
+  initialContent?: string
+}) {
   const isMobile = useIsMobile()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = React.useState<
@@ -210,21 +212,24 @@ export function SimpleEditor({
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
+    editable: !viewMode, // 뷰 모드 설정
     editorProps: {
       attributes: {
         autocomplete: 'off',
         autocorrect: 'off',
         autocapitalize: 'off',
-        'aria-label': 'Main content area, start typing to enter text.',
-        class: 'simple-editor',
+        'aria-label': viewMode
+          ? 'Content viewer'
+          : 'Main content area, start typing to enter text.',
+        class: `simple-editor`,
       },
     },
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
         link: {
-          openOnClick: false,
-          enableClickSelection: true,
+          openOnClick: viewMode, // 뷰 모드일 때만 링크 클릭 가능
+          enableClickSelection: !viewMode,
         },
       }),
       HorizontalRule,
@@ -237,25 +242,30 @@ export function SimpleEditor({
       Superscript,
       Subscript,
       Selection,
-      ImageUploadNode.configure({
-        accept: 'image/*',
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-        onError: (error: Error) => console.error('Upload failed:', error),
-        type: 'image', // EnhancedImageNode와 동일한 타입
-      }),
+      // 뷰 모드에서는 이미지 업로드 비활성화
+      ...(viewMode
+        ? []
+        : [
+            ImageUploadNode.configure({
+              accept: 'image/*',
+              maxSize: MAX_FILE_SIZE,
+              limit: 3,
+              upload: handleImageUpload,
+              onError: (error: Error) => console.error('Upload failed:', error),
+              type: 'image', // EnhancedImageNode와 동일한 타입
+            }),
+          ]),
       TableKit.configure({
-        table: { resizable: true },
+        table: { resizable: !viewMode }, // 뷰 모드에서는 테이블 크기 조절 비활성화
       }),
       Youtube.configure({
         controls: false,
         nocookie: true,
       }),
     ],
-    content,
+    content: initialContent || content,
     onUpdate: ({ editor }) => {
-      if (onContentChange) {
+      if (onContentChange && !viewMode) {
         onContentChange(editor.getHTML())
       }
     },
@@ -273,46 +283,54 @@ export function SimpleEditor({
   }, [isMobile, mobileView])
 
   return (
-    <div className="simple-editor-wrapper border">
+    <div
+      className={
+        viewMode ? 'simple-editor-wrapper-viewmode' : 'simple-editor-wrapper'
+      }
+    >
       <EditorContext.Provider value={{ editor }}>
-        <Toolbar
-          ref={toolbarRef}
-          className="overflow-visible"
-          style={{
-            ...(isMobile
-              ? {
-                  bottom: `calc(100% - ${height - rect.y}px)`,
+        {/* 뷰 모드에서는 툴바 숨김 */}
+        {!viewMode && (
+          <Toolbar
+            ref={toolbarRef}
+            className="overflow-visible"
+            style={{
+              ...(isMobile
+                ? {
+                    bottom: `calc(100% - ${height - rect.y}px)`,
+                  }
+                : {}),
+            }}
+          >
+            {mobileView === 'main' ? (
+              <MainToolbarContent
+                onHighlighterClick={() => setMobileView('highlighter')}
+                onLinkClick={() => setMobileView('link')}
+                onYoutubeClick={() => setMobileView('youtube')}
+                isMobile={isMobile}
+              />
+            ) : (
+              <MobileToolbarContent
+                type={
+                  mobileView === 'highlighter'
+                    ? 'highlighter'
+                    : mobileView === 'link'
+                      ? 'link'
+                      : 'youtube'
                 }
-              : {}),
-          }}
-        >
-          {mobileView === 'main' ? (
-            <MainToolbarContent
-              onHighlighterClick={() => setMobileView('highlighter')}
-              onLinkClick={() => setMobileView('link')}
-              onYoutubeClick={() => setMobileView('youtube')}
-              isMobile={isMobile}
-            />
-          ) : (
-            <MobileToolbarContent
-              type={
-                mobileView === 'highlighter'
-                  ? 'highlighter'
-                  : mobileView === 'link'
-                    ? 'link'
-                    : 'youtube'
-              }
-              onBack={() => setMobileView('main')}
-            />
-          )}
-        </Toolbar>
+                onBack={() => setMobileView('main')}
+              />
+            )}
+          </Toolbar>
+        )}
         <EditorContent
           editor={editor}
           role="presentation"
-          className="simple-editor-content"
+          className={`simple-editor-content`}
         />
 
-        {/* <TableFloatingMenu editor={editor} /> */}
+        {/* 뷰 모드에서는 테이블 플로팅 메뉴 숨김 */}
+        {/* {!viewMode && <TableFloatingMenu editor={editor} />} */}
       </EditorContext.Provider>
     </div>
   )
