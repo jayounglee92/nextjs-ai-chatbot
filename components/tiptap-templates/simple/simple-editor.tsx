@@ -11,7 +11,7 @@ import { Typography } from '@tiptap/extension-typography'
 import { Highlight } from '@tiptap/extension-highlight'
 import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
-import { Selection } from '@tiptap/extensions'
+import { CharacterCount, Placeholder, Selection } from '@tiptap/extensions'
 import { TableKit } from '@tiptap/extension-table'
 import Youtube from '@tiptap/extension-youtube'
 
@@ -83,6 +83,7 @@ import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils'
 
 // --- Styles ---
 import '@/components/tiptap-templates/simple/simple-editor.scss'
+import { pretendard } from '@/lib/constants'
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -243,6 +244,9 @@ export function SimpleEditor({
       Superscript,
       Subscript,
       Selection,
+      CharacterCount.configure({
+        limit: 10000,
+      }),
       // 뷰 모드에서는 이미지 업로드 비활성화
       ...(viewMode
         ? []
@@ -262,6 +266,9 @@ export function SimpleEditor({
       Youtube.configure({
         controls: false,
         nocookie: true,
+      }),
+      Placeholder.configure({
+        placeholder: '내용을 입력하세요',
       }),
     ],
     content: initialContent,
@@ -284,55 +291,64 @@ export function SimpleEditor({
   }, [isMobile, mobileView])
 
   return (
-    <div
-      className={
-        viewMode ? 'simple-editor-wrapper-viewmode' : 'simple-editor-wrapper'
-      }
-    >
-      <EditorContext.Provider value={{ editor }}>
-        {/* 뷰 모드에서는 툴바 숨김 */}
-        {!viewMode && (
-          <Toolbar
-            ref={toolbarRef}
-            className="overflow-visible"
-            style={{
-              ...(isMobile
-                ? {
-                    bottom: `calc(100% - ${height - rect.y}px)`,
+    <div className="flex flex-col">
+      <div
+        className={
+          viewMode ? 'simple-editor-wrapper-viewmode' : 'simple-editor-wrapper'
+        }
+      >
+        <EditorContext.Provider value={{ editor }}>
+          {/* 뷰 모드에서는 툴바 숨김 */}
+          {!viewMode && (
+            <Toolbar
+              ref={toolbarRef}
+              className="overflow-visible"
+              style={{
+                ...(isMobile
+                  ? {
+                      bottom: `calc(100% - ${height - rect.y}px)`,
+                    }
+                  : {}),
+              }}
+            >
+              {mobileView === 'main' ? (
+                <MainToolbarContent
+                  onHighlighterClick={() => setMobileView('highlighter')}
+                  onLinkClick={() => setMobileView('link')}
+                  onYoutubeClick={() => setMobileView('youtube')}
+                  isMobile={isMobile}
+                />
+              ) : (
+                <MobileToolbarContent
+                  type={
+                    mobileView === 'highlighter'
+                      ? 'highlighter'
+                      : mobileView === 'link'
+                        ? 'link'
+                        : 'youtube'
                   }
-                : {}),
-            }}
-          >
-            {mobileView === 'main' ? (
-              <MainToolbarContent
-                onHighlighterClick={() => setMobileView('highlighter')}
-                onLinkClick={() => setMobileView('link')}
-                onYoutubeClick={() => setMobileView('youtube')}
-                isMobile={isMobile}
-              />
-            ) : (
-              <MobileToolbarContent
-                type={
-                  mobileView === 'highlighter'
-                    ? 'highlighter'
-                    : mobileView === 'link'
-                      ? 'link'
-                      : 'youtube'
-                }
-                onBack={() => setMobileView('main')}
-              />
-            )}
-          </Toolbar>
-        )}
-        <EditorContent
-          editor={editor}
-          role="presentation"
-          className={`simple-editor-content`}
-        />
+                  onBack={() => setMobileView('main')}
+                />
+              )}
+            </Toolbar>
+          )}
+          <EditorContent
+            editor={editor}
+            role="presentation"
+            className={`simple-editor-content ${pretendard.variable}`}
+          />
 
-        {/* 뷰 모드에서는 테이블 플로팅 메뉴 숨김 */}
-        {/* {!viewMode && <TableFloatingMenu editor={editor} />} */}
-      </EditorContext.Provider>
+          {/* 뷰 모드에서는 테이블 플로팅 메뉴 숨김 */}
+          {/* {!viewMode && <TableFloatingMenu editor={editor} />} */}
+        </EditorContext.Provider>
+      </div>
+
+      {/* Character Count 표시 - 에디터 외부로 이동 */}
+      {!viewMode && editor && (
+        <div className="flex justify-end text-sm text-muted-foreground mt-2 px-2">
+          {editor.storage.characterCount.characters()}/10,000자
+        </div>
+      )}
     </div>
   )
 }

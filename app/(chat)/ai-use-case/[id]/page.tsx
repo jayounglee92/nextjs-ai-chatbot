@@ -33,9 +33,9 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
     return (
       <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
+          <h1 className="text-xl font-semibold text-foreground mb-2">
             AI 활용 사례를 찾을 수 없습니다
-          </h2>
+          </h1>
           <p className="text-muted-foreground mb-4">
             요청하신 ID의 AI 활용 사례가 존재하지 않습니다.
           </p>
@@ -51,7 +51,7 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-6">
+    <div className="max-w-4xl mx-auto py-6">
       <div className="grid grid-cols-1">
         {/* 제목 */}
         <div>

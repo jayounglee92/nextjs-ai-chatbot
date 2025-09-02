@@ -8,7 +8,7 @@ export default function AiUseCaseLayout({
   return (
     <>
       <CommonHeader />
-      <main className="p-3 md:p-8">{children}</main>
+      <div className="p-3 md:p-8 mb-20">{children}</div>
     </>
   )
 }

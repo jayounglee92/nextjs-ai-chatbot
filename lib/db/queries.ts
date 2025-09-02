@@ -576,11 +576,13 @@ export async function saveAiUseCase({
   id,
   title,
   content,
+  thumbnailUrl,
   userId,
 }: {
   id: string
   title: string
   content: string
+  thumbnailUrl?: string
   userId: string
 }) {
   try {
@@ -591,6 +593,7 @@ export async function saveAiUseCase({
         id,
         title,
         content,
+        thumbnailUrl,
         userId,
         createdAt: now,
         updatedAt: now,
@@ -645,11 +648,13 @@ export async function updateAiUseCase({
   id,
   title,
   content,
+  thumbnailUrl,
   userId,
 }: {
   id: string
   title?: string
   content?: string
+  thumbnailUrl?: string
   userId: string
 }) {
   try {
@@ -659,6 +664,7 @@ export async function updateAiUseCase({
 
     if (title !== undefined) updateData.title = title
     if (content !== undefined) updateData.content = content
+    if (thumbnailUrl !== undefined) updateData.thumbnailUrl = thumbnailUrl
 
     return await db
       .update(aiUseCase)

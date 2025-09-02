@@ -2,66 +2,104 @@
 
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
-import { Button } from '@/components/ui/button'
+import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
+import { useSWRConfig } from 'swr'
+import {
+  handleFetchError,
+  handleApiError,
+  showSuccessToast,
+} from '@/lib/toast-utils'
+import type { AiUseCase } from '@/lib/db/schema'
+import { validateAiUseCaseCreate } from '@/lib/validators/ai-use-case'
+import { formatValidationErrors, getTextLengthFromHtml } from '@/lib/utils'
+import { handleImageUpload } from '@/lib/tiptap-utils'
+import { toast } from 'sonner'
 
 export default function CommunityPage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const { mutate } = useSWRConfig()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!session) {
     return <div />
   }
 
-  const handleContentChange = (newContent: string) => {
-    setContent(newContent)
-  }
-
   const handleSubmit = async () => {
-    if (!title.trim()) {
-      alert('제목을 입력해주세요.')
-      return
-    }
+    // 유효성 검사
+    const validation = validateAiUseCaseCreate({
+      title: title.trim(),
+      content: content.trim(),
+      thumbnailUrl: thumbnailUrl || '',
+    })
 
-    if (!content.trim()) {
-      alert('내용을 입력해주세요.')
+    if (!validation.success) {
+      alert(formatValidationErrors(validation.errors || ['유효성 검사 실패']))
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/ai-use-case', {
-        method: 'POST',
-        body: JSON.stringify({
-          title: title.trim(),
-          content: content.trim(),
-        }),
-      })
+      // SWR mutate를 사용한 낙관적 업데이트
+      await mutate(
+        '/api/ai-use-case',
+        async (currentData: AiUseCase[] | undefined) => {
+          // 서버에 POST 요청
+          const response = await fetch('/api/ai-use-case', {
+            method: 'POST',
+            body: JSON.stringify({
+              title: title.trim(),
+              content: content.trim(),
+              thumbnailUrl: thumbnailUrl || undefined,
+            }),
+          })
 
-      if (response.ok) {
-        alert('성공적으로 저장되었습니다!')
-        router.push('/ai-use-case')
-      } else {
-        throw new Error('저장에 실패했습니다.')
-      }
+          if (!response.ok) {
+            await handleApiError(response, router, {
+              forbiddenMessage: '로그인이 필요합니다',
+              validationMessage:
+                '제목과 내용을 올바르게 입력했는지 확인해보세요',
+            })
+            // 에러 시 기존 데이터 유지
+            return currentData
+          }
+
+          const newAiUseCase = await response.json()
+
+          // ✅ 성공 케이스
+          showSuccessToast('성공적으로 저장되었습니다!')
+          router.push('/ai-use-case')
+
+          // 새로운 데이터를 캐시에 추가 (낙관적 업데이트)
+          if (Array.isArray(currentData)) {
+            return [newAiUseCase, ...currentData]
+          }
+          return currentData
+        },
+        {
+          // 자동 재검증 활성화 (서버에서 최신 데이터 가져오기)
+          revalidate: true,
+        },
+      )
     } catch (error) {
-      console.error('저장 오류:', error)
-      alert('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
+      // 네트워크 오류나 기타 런타임 오류 처리
+      handleFetchError(error, router, '저장')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="pb-24">
+    <div className="max-w-4xl mx-auto">
       {/* 제목 입력 필드 */}
       <div className="mb-6">
         <Label htmlFor="title" className="sr-only">
@@ -79,7 +117,33 @@ export default function CommunityPage() {
 
       {/* 에디터 */}
       <div className="border">
-        <SimpleEditor onContentChange={handleContentChange} />
+        <SimpleEditor
+          onContentChange={(newContent) => setContent(newContent)}
+        />
+      </div>
+
+      {/* 썸네일 업로드 */}
+      <div className="flex gap-4 mt-6">
+        <Label className="text-sm font-medium block break-keep">
+          썸네일 이미지 <span className="text-red-500">*</span>
+        </Label>
+        <ThumbnailUpload
+          imageUrl={thumbnailUrl || undefined}
+          onImageChange={setThumbnailUrl}
+          uploadOptions={{
+            maxSize: 5 * 1024 * 1024, // 5MB
+            limit: 1,
+            accept: 'image/jpeg,image/jng,image/png,image/webp',
+            upload: handleImageUpload,
+            onSuccess: (url) => {
+              setThumbnailUrl(url)
+            },
+            onError: (error) => {
+              console.error('이미지 업로드 실패:', error)
+              toast.error(`이미지 업로드에 실패했습니다.\n ${error.message}`)
+            },
+          }}
+        />
       </div>
 
       {/* 저장 버튼 */}
@@ -87,16 +151,19 @@ export default function CommunityPage() {
         buttons={[
           {
             onClick: () => {
-              if (confirm('정말로 취소하시겠습니까?')) {
-                router.push(`/ai-use-case`)
-              }
+              if (confirm('정말로 취소하시겠습니까?') === false) return
+              router.push(`/ai-use-case`)
             },
             text: '취소',
             variant: 'outline',
           },
           {
             onClick: handleSubmit,
-            disabled: isSubmitting || !title.trim() || !content.trim(),
+            disabled:
+              isSubmitting ||
+              !title?.trim() ||
+              getTextLengthFromHtml(content || '') === 0 ||
+              !thumbnailUrl,
             isLoading: isSubmitting,
             loadingText: '저장중...',
             text: '저장하기',

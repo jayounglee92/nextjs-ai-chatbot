@@ -82,7 +82,7 @@ export interface UploadOptions {
 /**
  * Custom hook for managing multiple file uploads with progress tracking and cancellation
  */
-function useFileUpload(options: UploadOptions) {
+export function useFileUpload(options: UploadOptions) {
   const [fileItems, setFileItems] = React.useState<FileItem[]>([])
 
   const uploadFile = async (file: File): Promise<string | null> => {

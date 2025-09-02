@@ -173,6 +173,7 @@ export const aiUseCase = pgTable('AiUseCase', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   title: text('title').notNull(),
   content: text('content').notNull(),
+  thumbnailUrl: text('thumbnailUrl'),
   userId: uuid('userId')
     .notNull()
     .references(() => user.id),

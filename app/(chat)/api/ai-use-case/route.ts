@@ -11,7 +11,7 @@ import { generateUUID } from '@/lib/utils'
 import { postRequestBodySchema, putRequestBodySchema } from './schema'
 
 export async function POST(request: Request) {
-  let requestBody: { title: string; content: string }
+  let requestBody: { title: string; content: string; thumbnailUrl: string }
 
   try {
     const json = await request.json()
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title, content } = requestBody
+    const { title, content, thumbnailUrl } = requestBody
 
     const session = await auth()
 
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       id: generateUUID(),
       title,
       content,
+      thumbnailUrl,
       userId: session.user.id,
     })
 
@@ -90,7 +91,7 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  let requestBody: { title?: string; content?: string }
+  let requestBody: { title?: string; content?: string; thumbnailUrl: string }
 
   try {
     const json = await request.json()
@@ -116,7 +117,7 @@ export async function PUT(request: Request) {
       return new ChatSDKError('unauthorized:ai_use_case').toResponse()
     }
 
-    const { title, content } = requestBody
+    const { title, content, thumbnailUrl } = requestBody
 
     // 기존 AI use case 존재 확인
     const existingAiUseCase = await getAiUseCaseById({ id })
@@ -133,6 +134,7 @@ export async function PUT(request: Request) {
       id,
       title,
       content,
+      thumbnailUrl,
       userId: session.user.id,
     })
 

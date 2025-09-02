@@ -1,0 +1,1 @@
+ALTER TABLE "AiUseCase" ADD COLUMN "thumbnailUrl" text;

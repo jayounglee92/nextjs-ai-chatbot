@@ -19,7 +19,7 @@ interface ButtonConfig {
   icon?: ReactNode
 }
 
-interface FixedBottomButtonProps {
+interface FixedBottomButtonsProps {
   buttons: ButtonConfig[]
   align?: 'left' | 'center' | 'right' | 'between'
   className?: string
@@ -29,7 +29,7 @@ export const FixedBottomButtons = ({
   buttons,
   align = 'right',
   className = '',
-}: FixedBottomButtonProps) => {
+}: FixedBottomButtonsProps) => {
   const getAlignmentClass = () => {
     switch (align) {
       case 'left':
@@ -49,7 +49,7 @@ export const FixedBottomButtons = ({
       <div
         className={`max-w-6xl mx-auto flex ${getAlignmentClass()} gap-3 ${className}`}
       >
-        {buttons.map((button, index) => (
+        {buttons.map((button) => (
           <Button
             key={button.text}
             onClick={button.onClick}
