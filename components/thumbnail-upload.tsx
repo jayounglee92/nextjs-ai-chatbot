@@ -163,8 +163,9 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
               <CloudUploadIcon />
             </div>
             <p className="text-xs text-gray-600 mb-2 break-keep">
-              <em>클릭하거나</em> 드래그 앤 드롭하여 썸네일 이미지를
-              업로드하세요
+              <em>클릭하거나</em> 드래그 앤 드롭으로
+              <br />
+              썸네일 이미지를 업로드하세요
             </p>
             <p className="text-xs text-gray-500">
               1개, 최대 {uploadOptions.maxSize / 1024 / 1024}MB
@@ -200,7 +201,6 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
 
                 <Button
                   type="button"
-                  //   data-style="ghost"
                   className="absolute top-1 right-1 !rounded-full !bg-white/50 !hover:bg-white"
                   onClick={(e) => {
                     e.stopPropagation()
