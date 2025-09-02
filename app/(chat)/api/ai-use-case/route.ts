@@ -1,7 +1,7 @@
 import { auth } from '@/app/(auth)/auth'
 import {
   saveAiUseCase,
-  getAiUseCasesByUserId,
+  getAllAiUseCases,
   getAiUseCaseById,
   updateAiUseCase,
   deleteAiUseCaseById,
@@ -50,8 +50,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
-    const limit = searchParams.get('limit')
-    const offset = searchParams.get('offset')
+    const itemsPerPage = searchParams.get('itemsPerPage')
+    const page = searchParams.get('page')
 
     const session = await auth()
 
@@ -74,14 +74,36 @@ export async function GET(request: Request) {
       return Response.json(aiUseCase, { status: 200 })
     }
 
-    // 사용자의 모든 AI use case 조회
-    const aiUseCases = await getAiUseCasesByUserId({
-      userId: session.user.id,
-      limit: limit ? Number.parseInt(limit) : undefined,
-      offset: offset ? Number.parseInt(offset) : undefined,
+    // 페이지네이션 파라미터 처리
+    const limit = itemsPerPage ? Number.parseInt(itemsPerPage) : 6
+    const currentPage = page ? Number.parseInt(page) : 1
+    const offset = (currentPage - 1) * limit
+
+    // 전체 AI use case 조회 (페이지네이션 적용)
+    const { data: aiUseCases, totalCount } = await getAllAiUseCases({
+      limit,
+      offset,
     })
 
-    return Response.json(aiUseCases, { status: 200 })
+    // 페이지네이션 메타데이터 계산
+    const totalPages = Math.ceil(totalCount / limit)
+    const hasNextPage = currentPage < totalPages
+    const hasPrevPage = currentPage > 1
+
+    return Response.json(
+      {
+        data: aiUseCases,
+        pagination: {
+          currentPage,
+          totalPages,
+          totalCount,
+          itemsPerPage: limit,
+          hasNextPage,
+          hasPrevPage,
+        },
+      },
+      { status: 200 },
+    )
   } catch (error) {
     if (error instanceof ChatSDKError) {
       return error.toResponse()

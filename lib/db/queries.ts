@@ -614,17 +614,64 @@ export async function getAiUseCasesByUserId({
   offset?: number
 }) {
   try {
-    return await db
-      .select()
-      .from(aiUseCase)
-      .where(eq(aiUseCase.userId, userId))
-      .orderBy(desc(aiUseCase.createdAt))
-      .limit(limit)
-      .offset(offset)
+    // 데이터와 총 개수를 동시에 조회
+    const [data, totalCountResult] = await Promise.all([
+      db
+        .select()
+        .from(aiUseCase)
+        .where(eq(aiUseCase.userId, userId))
+        .orderBy(desc(aiUseCase.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: count() })
+        .from(aiUseCase)
+        .where(eq(aiUseCase.userId, userId)),
+    ])
+
+    const totalCount = totalCountResult[0]?.count || 0
+
+    return {
+      data,
+      totalCount,
+    }
   } catch (error) {
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to get AI use cases by user id',
+    )
+  }
+}
+
+export async function getAllAiUseCases({
+  limit = 50,
+  offset = 0,
+}: {
+  limit?: number
+  offset?: number
+}) {
+  try {
+    // 데이터와 총 개수를 동시에 조회
+    const [data, totalCountResult] = await Promise.all([
+      db
+        .select()
+        .from(aiUseCase)
+        .orderBy(desc(aiUseCase.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db.select({ count: count() }).from(aiUseCase),
+    ])
+
+    const totalCount = totalCountResult[0]?.count || 0
+
+    return {
+      data,
+      totalCount,
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get all AI use cases',
     )
   }
 }

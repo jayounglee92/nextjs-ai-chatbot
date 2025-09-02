@@ -9,7 +9,7 @@ import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { errorPage } from '@/components/error-page'
+import { ErrorPage } from '@/components/error-page'
 import { LoadingPage } from '@/components/loading-page'
 import {
   handleFetchError,
@@ -157,7 +157,7 @@ export default function AiUseCaseEditPage() {
   }
 
   if (error) {
-    return errorPage({
+    return ErrorPage({
       title: '오류가 발생했습니다',
       description: error.message || 'AI 활용사례를 불러오는데 실패했습니다.',
       actions: (
@@ -167,7 +167,7 @@ export default function AiUseCaseEditPage() {
   }
 
   if (!aiUseCase) {
-    return errorPage({
+    return ErrorPage({
       title: 'AI 활용 사례를 찾을 수 없습니다',
       description: '요청하신 ID의 AI 활용 사례가 존재하지 않습니다.',
       actions: (

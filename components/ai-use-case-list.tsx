@@ -1,22 +1,24 @@
-'use client'
-
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Clock, Calendar, User } from 'lucide-react'
 import Link from 'next/link'
-import { Pagination } from '@/components/pagination'
+import { Pagination } from './pagination'
 import type { AiUseCase as DbAiUseCase } from '@/lib/db/schema'
 import {
   calculateReadingTime,
   getRelativeTimeString,
   stripHtmlTags,
 } from '@/lib/utils'
+import { EmptyPage } from './empty-page'
 
 interface AiUseCaseListProps {
   useCases: DbAiUseCase[]
   totalItems: number
   itemsPerPage: number
   currentPage: number
+  totalPages?: number
+  hasNextPage?: boolean
+  hasPrevPage?: boolean
 }
 
 export function AiUseCaseList({
@@ -24,7 +26,19 @@ export function AiUseCaseList({
   totalItems,
   itemsPerPage,
   currentPage,
+  totalPages,
+  hasNextPage,
+  hasPrevPage,
 }: AiUseCaseListProps) {
+  if (useCases.length === 0) {
+    return (
+      <EmptyPage
+        title="목록이 비어있습니다."
+        description="새로운 사용 사례를 작성해주세요."
+      />
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -99,6 +113,9 @@ export function AiUseCaseList({
         totalItems={totalItems}
         itemsPerPage={itemsPerPage}
         currentPage={currentPage}
+        totalPages={totalPages}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
       />
     </div>
   )

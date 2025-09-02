@@ -8,17 +8,24 @@ interface PaginationProps {
   totalItems: number
   itemsPerPage: number
   currentPage: number
+  totalPages?: number
+  hasNextPage?: boolean
+  hasPrevPage?: boolean
 }
 
 export function Pagination({
   totalItems,
   itemsPerPage,
   currentPage,
+  totalPages: serverTotalPages,
+  hasNextPage,
+  hasPrevPage,
 }: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  // 서버에서 받은 totalPages가 있으면 사용, 없으면 클라이언트에서 계산
+  const totalPages = serverTotalPages || Math.ceil(totalItems / itemsPerPage)
 
   // 페이지 변경 함수
   const changePage = (page: number) => {
@@ -61,7 +68,7 @@ export function Pagination({
         variant="ghost"
         size="sm"
         onClick={() => changePage(currentPage - 1)}
-        disabled={currentPage === 1}
+        disabled={hasPrevPage === false || currentPage === 1}
         className="flex items-center gap-1"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -87,7 +94,7 @@ export function Pagination({
         variant="ghost"
         size="sm"
         onClick={() => changePage(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={hasNextPage === false || currentPage === totalPages}
         className="flex items-center gap-1"
       >
         <ChevronRight className="h-4 w-4" />
