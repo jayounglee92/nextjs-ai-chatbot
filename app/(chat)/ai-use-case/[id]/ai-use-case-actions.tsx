@@ -75,13 +75,18 @@ export function AiUseCaseActions({ useCase }: Props) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem asChild>
-            <Link href={`/ai-use-case/${useCase.id}/edit`}>수정</Link>
+            <Link
+              href={`/ai-use-case/${useCase.id}/edit`}
+              className="cursor-pointer"
+            >
+              수정
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <button
               type="button"
               onClick={handleDelete}
-              className="w-full text-left"
+              className="w-full text-left cursor-pointer"
             >
               삭제
             </button>

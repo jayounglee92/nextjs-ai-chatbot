@@ -1,16 +1,16 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import type { Editor } from "@tiptap/react"
+import * as React from 'react'
+import type { Editor } from '@tiptap/react'
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from '@/hooks/use-tiptap-editor'
 
 // --- Icons ---
-import { LinkIcon } from "@/components/tiptap-icons/link-icon"
+import { LinkIcon } from '@/components/tiptap-icons/link-icon'
 
 // --- Lib ---
-import { isMarkInSchema, sanitizeUrl } from "@/lib/tiptap-utils"
+import { isMarkInSchema, sanitizeUrl } from '@/lib/tiptap-utils'
 
 /**
  * Configuration for the link popover functionality
@@ -50,7 +50,7 @@ export interface LinkHandlerProps {
  */
 export function canSetLink(editor: Editor | null): boolean {
   if (!editor || !editor.isEditable) return false
-  return editor.can().setMark("link")
+  return editor.can().setMark('link')
 }
 
 /**
@@ -58,7 +58,7 @@ export function canSetLink(editor: Editor | null): boolean {
  */
 export function isLinkActive(editor: Editor | null): boolean {
   if (!editor || !editor.isEditable) return false
-  return editor.isActive("link")
+  return editor.isActive('link')
 }
 
 /**
@@ -70,13 +70,13 @@ export function shouldShowLinkButton(props: {
 }): boolean {
   const { editor, hideWhenUnavailable } = props
 
-  const linkInSchema = isMarkInSchema("link", editor)
+  const linkInSchema = isMarkInSchema('link', editor)
 
   if (!linkInSchema || !editor) {
     return false
   }
 
-  if (hideWhenUnavailable && !editor.isActive("code")) {
+  if (hideWhenUnavailable && !editor.isActive('code')) {
     return canSetLink(editor)
   }
 
@@ -89,15 +89,17 @@ export function shouldShowLinkButton(props: {
 export function useLinkHandler(props: LinkHandlerProps) {
   const { editor, onSetLink } = props
   const [url, setUrl] = React.useState<string | null>(null)
+  const [openInNewTab, setOpenInNewTab] = React.useState<boolean>(false) // 기본값 false (_self)
 
   React.useEffect(() => {
     if (!editor) return
 
-    // Get URL immediately on mount
-    const { href } = editor.getAttributes("link")
+    // Get URL and target immediately on mount
+    const { href, target } = editor.getAttributes('link')
 
     if (isLinkActive(editor) && url === null) {
-      setUrl(href || "")
+      setUrl(href || '')
+      setOpenInNewTab(target === '_blank')
     }
   }, [editor, url])
 
@@ -105,13 +107,14 @@ export function useLinkHandler(props: LinkHandlerProps) {
     if (!editor) return
 
     const updateLinkState = () => {
-      const { href } = editor.getAttributes("link")
-      setUrl(href || "")
+      const { href, target } = editor.getAttributes('link')
+      setUrl(href || '')
+      setOpenInNewTab(target === '_blank')
     }
 
-    editor.on("selectionUpdate", updateLinkState)
+    editor.on('selectionUpdate', updateLinkState)
     return () => {
-      editor.off("selectionUpdate", updateLinkState)
+      editor.off('selectionUpdate', updateLinkState)
     }
   }, [editor])
 
@@ -123,10 +126,15 @@ export function useLinkHandler(props: LinkHandlerProps) {
 
     let chain = editor.chain().focus()
 
-    chain = chain.extendMarkRange("link").setLink({ href: url })
+    const linkAttributes: { href: string; target: string } = {
+      href: url,
+      target: openInNewTab ? '_blank' : '_self',
+    }
+
+    chain = chain.extendMarkRange('link').setLink(linkAttributes)
 
     if (isEmpty) {
-      chain = chain.insertContent({ type: "text", text: url })
+      chain = chain.insertContent({ type: 'text', text: url })
     }
 
     chain.run()
@@ -134,38 +142,41 @@ export function useLinkHandler(props: LinkHandlerProps) {
     setUrl(null)
 
     onSetLink?.()
-  }, [editor, onSetLink, url])
+  }, [editor, onSetLink, url, openInNewTab])
 
   const removeLink = React.useCallback(() => {
     if (!editor) return
     editor
       .chain()
       .focus()
-      .extendMarkRange("link")
+      .extendMarkRange('link')
       .unsetLink()
-      .setMeta("preventAutolink", true)
+      .setMeta('preventAutolink', true)
       .run()
-    setUrl("")
+    setUrl('')
   }, [editor])
 
-  const openLink = React.useCallback(
-    (target: string = "_blank", features: string = "noopener,noreferrer") => {
-      if (!url) return
+  const openLink = React.useCallback(() => {
+    if (!url) return
 
-      const safeUrl = sanitizeUrl(url, window.location.href)
-      if (safeUrl !== "#") {
-        window.open(safeUrl, target, features)
+    const safeUrl = sanitizeUrl(url, window.location.href)
+    if (safeUrl !== '#') {
+      if (openInNewTab) {
+        window.open(safeUrl, '_blank', 'noopener,noreferrer')
+      } else {
+        window.location.href = safeUrl
       }
-    },
-    [url]
-  )
+    }
+  }, [url, openInNewTab])
 
   return {
-    url: url || "",
+    url: url || '',
     setUrl,
     setLink,
     removeLink,
     openLink,
+    openInNewTab,
+    setOpenInNewTab,
   }
 }
 
@@ -191,16 +202,16 @@ export function useLinkState(props: {
         shouldShowLinkButton({
           editor,
           hideWhenUnavailable,
-        })
+        }),
       )
     }
 
     handleSelectionUpdate()
 
-    editor.on("selectionUpdate", handleSelectionUpdate)
+    editor.on('selectionUpdate', handleSelectionUpdate)
 
     return () => {
-      editor.off("selectionUpdate", handleSelectionUpdate)
+      editor.off('selectionUpdate', handleSelectionUpdate)
     }
   }, [editor, hideWhenUnavailable])
 
@@ -271,7 +282,7 @@ export function useLinkPopover(config?: UseLinkPopoverConfig) {
     isVisible,
     canSet,
     isActive,
-    label: "Link",
+    label: 'Link',
     Icon: LinkIcon,
     ...linkHandler,
   }

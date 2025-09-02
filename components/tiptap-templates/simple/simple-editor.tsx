@@ -228,6 +228,9 @@ export function SimpleEditor({
         link: {
           openOnClick: viewMode, // 뷰 모드일 때만 링크 클릭 가능
           enableClickSelection: !viewMode,
+          HTMLAttributes: {
+            target: '_self', // 기본값
+          },
         },
       }),
       HorizontalRule,

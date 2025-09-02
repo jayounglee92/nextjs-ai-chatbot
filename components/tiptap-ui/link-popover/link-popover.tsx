@@ -8,10 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { useTiptapEditor } from '@/hooks/use-tiptap-editor'
 
 // --- Icons ---
-import { CornerDownLeftIcon } from '@/components/tiptap-icons/corner-down-left-icon'
-import { ExternalLinkIcon } from '@/components/tiptap-icons/external-link-icon'
 import { LinkIcon } from '@/components/tiptap-icons/link-icon'
-import { TrashIcon } from '@/components/tiptap-icons/trash-icon'
 
 // --- Tiptap UI ---
 import type { UseLinkPopoverConfig } from '@/components/tiptap-ui/link-popover'
@@ -19,19 +16,22 @@ import { useLinkPopover } from '@/components/tiptap-ui/link-popover'
 
 // --- UI Primitives ---
 import type { ButtonProps } from '@/components/tiptap-ui-primitive/button'
-import { Button, ButtonGroup } from '@/components/tiptap-ui-primitive/button'
+import { Button as TiptapButton } from '@/components/tiptap-ui-primitive/button'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/tiptap-ui-primitive/popover'
-import { Separator } from '@/components/tiptap-ui-primitive/separator'
 import {
   Card,
   CardBody,
   CardItemGroup,
 } from '@/components/tiptap-ui-primitive/card'
-import { Input, InputGroup } from '@/components/tiptap-ui-primitive/input'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { InputGroup } from '@/components/tiptap-ui-primitive/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Button } from '@/components/ui/button'
 
 export interface LinkMainProps {
   /**
@@ -58,6 +58,14 @@ export interface LinkMainProps {
    * Whether the link is currently active in the editor.
    */
   isActive: boolean
+  /**
+   * Whether the link should open in a new tab.
+   */
+  openInNewTab: boolean
+  /**
+   * Function to update the openInNewTab state.
+   */
+  setOpenInNewTab: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export interface LinkPopoverProps
@@ -80,7 +88,7 @@ export interface LinkPopoverProps
 export const LinkButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <Button
+      <TiptapButton
         type="button"
         className={className}
         data-style="ghost"
@@ -92,7 +100,7 @@ export const LinkButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {children || <LinkIcon className="tiptap-button-icon" />}
-      </Button>
+      </TiptapButton>
     )
   },
 )
@@ -109,6 +117,8 @@ const LinkMain: React.FC<LinkMainProps> = ({
   removeLink,
   openLink,
   isActive,
+  openInNewTab,
+  setOpenInNewTab,
 }) => {
   const isMobile = useIsMobile()
 
@@ -119,18 +129,16 @@ const LinkMain: React.FC<LinkMainProps> = ({
     }
   }
 
+  const handleCheckboxChange = (checked: boolean) => {
+    setOpenInNewTab(checked)
+  }
+
   return (
-    <Card
-      style={{
-        ...(isMobile ? { boxShadow: 'none', border: 0 } : {}),
-      }}
-    >
-      <CardBody
-        style={{
-          ...(isMobile ? { padding: 0 } : {}),
-        }}
-      >
+    <Card className={isMobile ? 'shadow-none border-0' : ''}>
+      <CardBody className={`space-y-2 ${isMobile ? 'p-0' : ''}`}>
         <CardItemGroup orientation="horizontal">
+          {/* URL 입력 필드 */}
+
           <InputGroup>
             <Input
               id="link-url"
@@ -143,44 +151,41 @@ const LinkMain: React.FC<LinkMainProps> = ({
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
+              className="w-full min-w-[260px]"
             />
           </InputGroup>
+        </CardItemGroup>
 
-          <ButtonGroup orientation="horizontal">
-            <Button
-              type="button"
-              onClick={setLink}
-              title="Apply link"
-              disabled={!url && !isActive}
-              data-style="ghost"
-            >
-              <CornerDownLeftIcon className="tiptap-button-icon" />
-            </Button>
-          </ButtonGroup>
-
-          <Separator />
-
-          <ButtonGroup orientation="horizontal">
-            <Button
-              type="button"
-              onClick={openLink}
-              title="Open in new window"
-              disabled={!url && !isActive}
-              data-style="ghost"
-            >
-              <ExternalLinkIcon className="tiptap-button-icon" />
-            </Button>
-
-            <Button
-              type="button"
-              onClick={removeLink}
-              title="Remove link"
-              disabled={!url && !isActive}
-              data-style="ghost"
-            >
-              <TrashIcon className="tiptap-button-icon" />
-            </Button>
-          </ButtonGroup>
+        <CardItemGroup orientation="horizontal">
+          <div className="flex items-center space-x-2 mr-auto">
+            <Checkbox
+              id="open-in-new-tab"
+              checked={openInNewTab}
+              onCheckedChange={(checked: boolean) =>
+                handleCheckboxChange(checked)
+              }
+            />
+            <Label htmlFor="open-in-new-tab">새 창에서 열기</Label>
+          </div>
+          <Button
+            type="button"
+            onClick={setLink}
+            title="저장하기"
+            disabled={!url && !isActive}
+            size="sm"
+          >
+            저장
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={removeLink}
+            title="링크 제거"
+            disabled={!url && !isActive}
+            size="sm"
+          >
+            제거
+          </Button>
         </CardItemGroup>
       </CardBody>
     </Card>
@@ -234,6 +239,8 @@ export const LinkPopover = React.forwardRef<
       setLink,
       removeLink,
       openLink,
+      openInNewTab,
+      setOpenInNewTab,
       label,
       Icon,
     } = useLinkPopover({
@@ -299,6 +306,8 @@ export const LinkPopover = React.forwardRef<
             removeLink={removeLink}
             openLink={openLink}
             isActive={isActive}
+            openInNewTab={openInNewTab}
+            setOpenInNewTab={setOpenInNewTab}
           />
         </PopoverContent>
       </Popover>
