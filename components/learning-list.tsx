@@ -5,14 +5,17 @@ import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import type { LearningCenter } from '@/lib/db/schema'
 
-// API에서 받는 데이터 타입 (tags가 배열로 변환됨)
+// API에서 받는 데이터 타입 (tags가 배열로 변환됨, userEmail 필드 추가)
 interface ProcessedLearningCenter extends Omit<LearningCenter, 'tags'> {
   tags: string[]
+  userEmail: string
 }
 import { LearningVideoDialog } from './learning-video-dialog'
 import { Badge } from './ui/badge'
 import { Pagination } from './pagination'
 import { EmptyPage } from './empty-page'
+import { LearningListActions } from './learning-list-actions'
+import { MAX_TAGS_COUNT } from '@/app/(chat)/api/learning-center/schema'
 
 interface LearningListProps {
   learningItems: ProcessedLearningCenter[]
@@ -62,10 +65,10 @@ export function LearningList({
         {learningItems.map((item) => (
           <Card
             key={item.id}
-            className="group shadow-none cursor-pointer"
+            className="group shadow-none cursor-pointer flex flex-col h-full"
             onClick={() => handleItemClick(item)}
           >
-            <CardContent className="p-0">
+            <CardContent className="flex flex-col p-0 flex-1">
               {/* 썸네일 영역 */}
               <div className="relative">
                 <div className="aspect-video w-full overflow-hidden rounded-t-lg">
@@ -91,30 +94,35 @@ export function LearningList({
                 {/* 플레이 버튼 오버레이 */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div className="size-16 bg-black/70 rounded-full flex items-center justify-center">
-                    <div className="size-0 border-l-[12px] border-l-white border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1" />
+                    <div className="size-0 border-l-[12px] border-l-white border-y-8 border-y-transparent ml-1" />
                   </div>
                 </div>
               </div>
 
               {/* 콘텐츠 영역 */}
-              <div className="p-4 space-y-3">
+              <div className="pt-4 px-4 space-y-2 relative flex-1 flex flex-col pb-2">
                 {/* 제목 */}
-                <h3 className="text-lg font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-200">
+                <h3 className="text-lg font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-200 h-11">
                   {item.title}
                 </h3>
 
                 {/* 설명 */}
-                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                <p className="text-sm text-muted-foreground h-11 leading-relaxed line-clamp-2">
                   {item.description}
                 </p>
 
                 {/* 태그들 */}
-                <div className="flex flex-wrap gap-1">
-                  {item.tags.slice(0, 3).map((tag: string) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
+                <div className="flex flex-wrap gap-1 h-11 overflow-y-hidden">
+                  {item.tags.slice(0, MAX_TAGS_COUNT).map((tag: string) => (
+                    <Badge key={tag} variant="outline" className="text-xs h-5">
                       {tag}
                     </Badge>
                   ))}
+                </div>
+
+                {/* 액션 버튼들 */}
+                <div className="flex justify-end mt-auto -mb-4">
+                  <LearningListActions id={item.id} />
                 </div>
               </div>
             </CardContent>

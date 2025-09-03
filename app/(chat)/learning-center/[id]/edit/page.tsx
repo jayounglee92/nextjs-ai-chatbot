@@ -1,14 +1,15 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import * as React from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
+import { ErrorPage } from '@/components/error-page'
+import { LoadingPage } from '@/components/loading-page'
 import {
   Select,
   SelectContent,
@@ -16,28 +17,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useSWRConfig } from 'swr'
 import {
   handleFetchError,
   handleApiError,
   showSuccessToast,
 } from '@/lib/toast-utils'
-import type { LearningCenter } from '@/lib/db/schema'
-import { validateLearningCenterCreate } from '@/lib/validators/learning-center'
-import { formatValidationErrors } from '@/lib/utils'
+import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
+import useSWR, { useSWRConfig } from 'swr'
+import { fetcher, formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
+import type { LearningCenter } from '@/lib/db/schema'
+import { validateLearningCenterUpdate } from '@/lib/validators/learning-center'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { ChevronRightIcon, XIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { MAX_TAGS_COUNT } from '../../api/learning-center/schema'
+import { MAX_TAGS_COUNT } from '@/app/(chat)/api/learning-center/schema'
 import {
   isValidYouTubeVideoIdFormat,
   getYouTubeEmbedUrl,
   getYouTubeThumbnailUrl,
   checkVideoExistsViaIframe,
 } from '@/lib/youtube-utils'
+import * as React from 'react'
 
 // 카테고리 옵션들
 const CATEGORY_OPTIONS = [
@@ -54,23 +56,99 @@ const CATEGORY_OPTIONS = [
   'Other',
 ]
 
-export default function LearningCenterWritePage() {
-  const { data: session } = useSession()
+export default function LearningCenterEditPage() {
+  const { data: session, status } = useSession()
   const router = useRouter()
+  const params = useParams()
   const { mutate } = useSWRConfig()
 
   // 폼 상태
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('')
+  const [title, setTitle] = useState<string | null>(null)
+  const [description, setDescription] = useState<string | null>(null)
+  const [category, setCategory] = useState<string | null>(null)
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
-  const [videoId, setVideoId] = useState('')
-  const [tags, setTags] = useState<string[]>([])
+  const [videoId, setVideoId] = useState<string | null>(null)
+  const [tags, setTags] = useState<string[] | null>(null)
   const [tagInput, setTagInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [videoIdError, setVideoIdError] = useState<string | null>(null)
   const [isCheckingVideo, setIsCheckingVideo] = useState(false)
   const [videoExists, setVideoExists] = useState<boolean | null>(null)
+
+  // SWR을 사용하여 학습센터 데이터 조회
+  const {
+    data: learningCenter,
+    error,
+    isLoading,
+  } = useSWR(
+    session && params.id ? `/api/learning-center?id=${params.id}` : null,
+    fetcher,
+    {
+      onSuccess: async (data) => {
+        // 초기값 설정 시에만 서버 데이터를 사용
+        if (title === null) {
+          setTitle(data.title || '')
+        }
+        if (description === null) {
+          setDescription(data.description || '')
+        }
+        if (category === null) {
+          setCategory(data.category || '')
+        }
+        if (thumbnailUrl === null) {
+          setThumbnailUrl(data.thumbnail || '')
+        }
+        if (videoId === null) {
+          setVideoId(data.videoId || '')
+          // 기존 비디오 ID가 있으면 존재 여부 확인
+          if (data.videoId && isValidYouTubeVideoIdFormat(data.videoId)) {
+            setIsCheckingVideo(true)
+            try {
+              const exists = await checkVideoExistsViaIframe(data.videoId)
+              setVideoExists(exists)
+              if (!exists) {
+                setVideoIdError('이 동영상은 볼 수 없습니다.')
+              }
+            } catch (error) {
+              console.error('비디오 존재 여부 확인 중 오류:', error)
+              setVideoExists(false)
+              setVideoIdError('비디오 확인 중 오류가 발생했습니다.')
+            } finally {
+              setIsCheckingVideo(false)
+            }
+          }
+        }
+        if (tags === null) {
+          setTags(data.tags || [])
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to fetch learning center:', error)
+      },
+    },
+  )
+
+  // 실제 사용할 값들 계산
+  const currentTitle = title !== null ? title : learningCenter?.title
+  const currentDescription =
+    description !== null ? description : learningCenter?.description
+  const currentCategory =
+    category !== null ? category : learningCenter?.category
+  const currentThumbnailUrl =
+    thumbnailUrl !== null ? thumbnailUrl : learningCenter?.thumbnail
+  const currentVideoId = videoId !== null ? videoId : learningCenter?.videoId
+  const currentTags = tags !== null ? tags : learningCenter?.tags || []
+
+  // 유효성 검사
+  const isDisabledSaveButton =
+    isSubmitting ||
+    !currentTitle?.trim() ||
+    !currentDescription?.trim() ||
+    !currentCategory?.trim() ||
+    !currentThumbnailUrl ||
+    !currentVideoId?.trim() ||
+    !!videoIdError
 
   // 태그 입력 핸들러
   const addTag = React.useCallback(() => {
@@ -81,16 +159,16 @@ export default function LearningCenterWritePage() {
 
     if (
       trimmedTag &&
-      !tags.includes(trimmedTag) &&
-      tags.length < MAX_TAGS_COUNT
+      !currentTags.includes(trimmedTag) &&
+      currentTags.length < MAX_TAGS_COUNT
     ) {
-      setTags([...tags, trimmedTag])
+      setTags([...currentTags, trimmedTag])
       setTagInput('')
     }
-  }, [tagInput, tags])
+  }, [tagInput, currentTags])
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove))
+    setTags(currentTags.filter((tag: string) => tag !== tagToRemove))
   }
 
   const handleTagInputKeyUp = (e: React.KeyboardEvent) => {
@@ -137,29 +215,15 @@ export default function LearningCenterWritePage() {
     }
   }
 
-  // 유효성 검사
-  const isDisabledSaveButton =
-    isSubmitting ||
-    !title?.trim() ||
-    !description?.trim() ||
-    !category?.trim() ||
-    !thumbnailUrl ||
-    !videoId?.trim() ||
-    !!videoIdError
-
-  if (!session) {
-    return <div />
-  }
-
   const handleSubmit = async () => {
     // 유효성 검사
-    const validation = validateLearningCenterCreate({
-      title: title.trim(),
-      description: description.trim(),
-      category: category.trim(),
-      thumbnail: thumbnailUrl || '',
-      videoId: videoId.trim(),
-      tags: tags,
+    const validation = validateLearningCenterUpdate({
+      title: currentTitle?.trim() || '',
+      description: currentDescription?.trim() || '',
+      category: currentCategory?.trim() || '',
+      thumbnail: currentThumbnailUrl || '',
+      videoId: currentVideoId?.trim() || '',
+      tags: currentTags,
     })
 
     if (!validation.success) {
@@ -172,53 +236,125 @@ export default function LearningCenterWritePage() {
     try {
       // SWR mutate를 사용한 낙관적 업데이트
       await mutate(
-        '/api/learning-center',
-        async (currentData: LearningCenter[] | undefined) => {
-          // 서버에 POST 요청
-          const response = await fetch('/api/learning-center', {
-            method: 'POST',
+        `/api/learning-center?id=${params.id}`,
+        async (currentData: LearningCenter | undefined) => {
+          // 서버에 PUT 요청
+          const response = await fetch(`/api/learning-center?id=${params.id}`, {
+            method: 'PUT',
             body: JSON.stringify({
-              title: title.trim(),
-              description: description.trim(),
-              category: category.trim(),
-              thumbnail: thumbnailUrl || undefined,
-              videoId: videoId.trim(),
-              tags: tags,
+              title: currentTitle?.trim() || '',
+              description: currentDescription?.trim() || '',
+              category: currentCategory?.trim() || '',
+              thumbnail: currentThumbnailUrl || undefined,
+              videoId: currentVideoId?.trim() || '',
+              tags: currentTags,
             }),
           })
 
           if (!response.ok) {
             await handleApiError(response, router, {
-              forbiddenMessage: '로그인이 필요합니다',
+              forbiddenMessage:
+                '본인이 작성한 학습센터 항목만 수정할 수 있습니다',
+              notFoundMessage: '삭제되었거나 존재하지 않는 학습센터 항목입니다',
               validationMessage: '모든 필드를 올바르게 입력했는지 확인해보세요',
             })
             // 에러 시 기존 데이터 유지
             return currentData
           }
 
-          const newLearningCenter = await response.json()
+          const updatedLearningCenter = await response.json()
 
           // ✅ 성공 케이스
-          showSuccessToast('성공적으로 저장되었습니다!')
-          router.push('/learning-center')
+          showSuccessToast('성공적으로 수정되었습니다!')
+          router.push(`/learning-center`)
 
-          // 새로운 데이터를 캐시에 추가 (낙관적 업데이트)
-          if (Array.isArray(currentData)) {
-            return [newLearningCenter, ...currentData]
-          }
-          return currentData
+          // 업데이트된 데이터를 캐시에 반영 (낙관적 업데이트)
+          return updatedLearningCenter
         },
         {
-          // 자동 재검증 활성화 (서버에서 최신 데이터 가져오기)
+          // 자동 재검증 활성화 (서버에서 최신 데이터 확인)
           revalidate: true,
         },
       )
+
+      // 목록 캐시도 업데이트 (수정된 항목이 목록에서도 반영되도록)
+      mutate('/api/learning-center')
     } catch (error) {
       // 네트워크 오류나 기타 런타임 오류 처리
-      handleFetchError(error, router, '저장')
+      handleFetchError(error, router, '수정')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('정말로 삭제하시겠습니까?')) return
+
+    setIsDeleting(true)
+
+    try {
+      const response = await fetch(`/api/learning-center?id=${params.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        showSuccessToast('학습센터 항목이 삭제되었습니다!')
+        // 목록 캐시 업데이트
+        mutate('/api/learning-center')
+        router.push('/learning-center')
+      } else {
+        await handleApiError(response, router, {
+          forbiddenMessage: '본인이 작성한 학습센터 항목만 삭제할 수 있습니다',
+          notFoundMessage:
+            '이미 삭제되었거나 존재하지 않는 학습센터 항목입니다',
+        })
+      }
+    } catch (error) {
+      handleFetchError(error, router, '삭제')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  useEffect(() => {
+    if (status === 'loading') return
+
+    if (!session) {
+      router.push('/login')
+      return
+    }
+  }, [session, status, router])
+
+  if (status === 'loading' || isLoading) {
+    return <LoadingPage />
+  }
+
+  if (!session) {
+    return <div />
+  }
+
+  if (error) {
+    return ErrorPage({
+      title: '오류가 발생했습니다',
+      description: error.message || '학습센터 항목을 불러오는데 실패했습니다.',
+      actions: (
+        <Button onClick={() => router.push('/learning-center')}>
+          목록으로
+        </Button>
+      ),
+    })
+  }
+
+  if (!learningCenter) {
+    return ErrorPage({
+      title: '학습센터 항목을 찾을 수 없습니다',
+      description: '요청하신 ID의 학습센터 항목이 존재하지 않습니다.',
+      actions: (
+        <Button onClick={() => router.push('/learning-center')}>
+          목록으로
+        </Button>
+      ),
+    })
   }
 
   return (
@@ -232,7 +368,7 @@ export default function LearningCenterWritePage() {
           학습센터
         </Link>
         <ChevronRightIcon className="size-4" />
-        <span className="text-foreground">동영상 올리기</span>
+        <span className="text-foreground">수정하기</span>
       </nav>
 
       {/* 제목 입력 필드 */}
@@ -244,7 +380,7 @@ export default function LearningCenterWritePage() {
           id="title"
           type="text"
           placeholder="학습 자료의 제목을 입력하세요"
-          value={title}
+          value={currentTitle}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full mt-1"
         />
@@ -258,7 +394,7 @@ export default function LearningCenterWritePage() {
         <Textarea
           id="description"
           placeholder="학습 자료에 대한 설명을 입력하세요"
-          value={description}
+          value={currentDescription}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full mt-1 min-h-[100px]"
         />
@@ -269,7 +405,7 @@ export default function LearningCenterWritePage() {
         <Label htmlFor="category" className="text-sm font-medium">
           카테고리 <span className="text-red-500">*</span>
         </Label>
-        <Select value={category} onValueChange={setCategory}>
+        <Select value={currentCategory} onValueChange={setCategory}>
           <SelectTrigger className="w-full mt-1">
             <SelectValue placeholder="카테고리를 선택하세요" />
           </SelectTrigger>
@@ -292,7 +428,7 @@ export default function LearningCenterWritePage() {
           id="videoId"
           type="text"
           placeholder="YouTube 비디오 ID를 입력하세요 (예: dQw4w9WgXcQ)"
-          value={videoId}
+          value={currentVideoId}
           onChange={(e) => handleVideoIdChange(e.target.value)}
           className={`w-full mt-1 ${videoIdError ? 'border-red-500 focus:border-red-500' : ''}`}
         />
@@ -302,7 +438,7 @@ export default function LearningCenterWritePage() {
         {videoIdError && (
           <p className="mt-1 text-sm text-red-600">{videoIdError}</p>
         )}
-        {videoId &&
+        {currentVideoId &&
           !videoIdError &&
           !isCheckingVideo &&
           videoExists === true && (
@@ -311,7 +447,7 @@ export default function LearningCenterWritePage() {
             </p>
           )}
         {/* 비디오 미리보기 */}
-        {videoId &&
+        {currentVideoId &&
           !videoIdError &&
           !isCheckingVideo &&
           videoExists === true && (
@@ -321,7 +457,7 @@ export default function LearningCenterWritePage() {
               </h4>
               <div className="aspect-video w-full max-w-md">
                 <iframe
-                  src={getYouTubeEmbedUrl(videoId)}
+                  src={getYouTubeEmbedUrl(currentVideoId)}
                   title="YouTube 비디오 미리보기"
                   className="size-full rounded-lg"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -330,13 +466,13 @@ export default function LearningCenterWritePage() {
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <img
-                  src={getYouTubeThumbnailUrl(videoId, 'default')}
+                  src={getYouTubeThumbnailUrl(currentVideoId, 'default')}
                   alt="비디오 썸네일"
                   className="size-12 rounded object-cover"
                 />
                 <div>
                   <p className="font-medium">YouTube 비디오</p>
-                  <p>ID: {videoId}</p>
+                  <p>ID: {currentVideoId}</p>
                 </div>
               </div>
             </div>
@@ -360,16 +496,16 @@ export default function LearningCenterWritePage() {
           <Button
             type="button"
             onClick={addTag}
-            disabled={!tagInput.trim() || tags.length >= MAX_TAGS_COUNT}
+            disabled={!tagInput.trim() || currentTags.length >= MAX_TAGS_COUNT}
           >
             추가
           </Button>
         </div>
 
         {/* 태그 뱃지들 */}
-        {tags.length > 0 && (
+        {currentTags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
-            {tags.map((tag) => (
+            {currentTags.map((tag: string) => (
               <Badge
                 key={tag}
                 variant="secondary"
@@ -388,7 +524,7 @@ export default function LearningCenterWritePage() {
           </div>
         )}
 
-        {tags.length >= MAX_TAGS_COUNT && (
+        {currentTags.length >= MAX_TAGS_COUNT && (
           <p className="mt-2 text-sm text-red-600">
             최대 {MAX_TAGS_COUNT}개의 태그까지 추가할 수 있습니다.
           </p>
@@ -402,7 +538,7 @@ export default function LearningCenterWritePage() {
         </Label>
         <div className="mt-1">
           <ThumbnailUpload
-            imageUrl={thumbnailUrl || undefined}
+            imageUrl={currentThumbnailUrl || undefined}
             onImageChange={setThumbnailUrl}
             aspectRatio="16:9"
             maxHeight={180}
@@ -428,15 +564,25 @@ export default function LearningCenterWritePage() {
         buttons={[
           {
             onClick: () => {
-              if (confirm('정말로 취소하시겠습니까?') === false) return
-              router.push(`/learning-center`)
+              if (confirm('정말로 취소하시겠습니까?')) {
+                router.push(`/learning-center`)
+              }
             },
             text: '취소',
             variant: 'outline',
+            disabled: isSubmitting || isDeleting,
+          },
+          {
+            onClick: handleDelete,
+            disabled: isSubmitting || isDeleting,
+            isLoading: isDeleting,
+            loadingText: '삭제중...',
+            text: '삭제',
+            variant: 'destructive',
           },
           {
             onClick: handleSubmit,
-            disabled: isDisabledSaveButton,
+            disabled: isDisabledSaveButton || isDeleting,
             isLoading: isSubmitting,
             loadingText: '저장중...',
             text: '저장하기',

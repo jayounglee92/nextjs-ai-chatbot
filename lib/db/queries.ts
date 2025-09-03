@@ -966,9 +966,9 @@ export async function getAllLearningCenters({
           ),
       ])
 
-      data = dataResult.map((item) => ({
+      data = dataResult.map((item: any) => ({
         ...item,
-        tags: item.tags
+        tags: (item.tags as string)
           .split(',')
           .map((tag) => tag.trim())
           .filter((tag) => tag),
@@ -998,9 +998,9 @@ export async function getAllLearningCenters({
         db.select({ count: count() }).from(learningCenter),
       ])
 
-      data = dataResult.map((item) => ({
+      data = dataResult.map((item: any) => ({
         ...item,
-        tags: item.tags
+        tags: (item.tags as string)
           .split(',')
           .map((tag) => tag.trim())
           .filter((tag) => tag),
@@ -1038,7 +1038,7 @@ export async function getLearningCenterById({ id }: { id: string }) {
 
     return {
       ...selectedLearningCenter,
-      tags: selectedLearningCenter.tags
+      tags: (selectedLearningCenter.tags as string)
         .split(',')
         .map((tag) => tag.trim())
         .filter((tag) => tag),

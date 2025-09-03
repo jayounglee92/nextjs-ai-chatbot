@@ -229,7 +229,7 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
                 <Image
                   src={imageUrl || currentFileItem?.url || ''}
                   alt="썸네일"
-                  className="w-full h-full object-cover rounded-lg"
+                  className="size-full object-cover rounded-lg"
                   width={Number.parseInt(
                     containerStyle.width.replace('px', ''),
                     10,

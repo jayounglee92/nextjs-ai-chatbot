@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-export const MAX_TITLE_LENGTH = 200
-export const MAX_DESCRIPTION_LENGTH = 1000
+export const MAX_TITLE_LENGTH = 100
+export const MAX_DESCRIPTION_LENGTH = 200
 export const MAX_CATEGORY_LENGTH = 50
 export const MAX_VIDEO_ID_LENGTH = 50
 export const MAX_TAGS_COUNT = 6
-export const MAX_TAG_LENGTH = 30
+export const MAX_TAG_LENGTH = 10
 
 export const LEARNING_CENTER_MESSAGES = {
   TITLE_REQUIRED: '제목은 필수입니다.',

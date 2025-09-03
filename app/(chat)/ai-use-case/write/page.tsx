@@ -118,7 +118,7 @@ export default function CommunityPage() {
         >
           AI 활용 사례
         </Link>
-        <ChevronRightIcon className="h-4 w-4" />
+        <ChevronRightIcon className="size-4" />
         <span className="text-foreground">글쓰기</span>
       </nav>
 
