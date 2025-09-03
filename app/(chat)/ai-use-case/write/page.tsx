@@ -20,6 +20,8 @@ import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import sanitizeHtml from 'sanitize-html'
+import Link from 'next/link'
+import { ChevronRightIcon } from 'lucide-react'
 
 export default function CommunityPage() {
   const { data: session } = useSession()
@@ -108,7 +110,18 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto space-y-6">
+      <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+        <Link
+          href="/ai-use-case"
+          className="hover:text-foreground transition-colors"
+        >
+          AI 활용 사례
+        </Link>
+        <ChevronRightIcon className="h-4 w-4" />
+        <span className="text-foreground">글쓰기</span>
+      </nav>
+
       {/* 제목 입력 필드 */}
       <div className="mb-6">
         <Label htmlFor="title" className="sr-only">

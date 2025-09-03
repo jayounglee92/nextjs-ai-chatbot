@@ -31,6 +31,8 @@ import {
   stream,
   aiUseCase,
   type AiUseCase,
+  learningCenter,
+  type LearningCenter,
 } from './schema'
 import type { ArtifactKind } from '@/components/artifact'
 import { generateUUID } from '../utils'
@@ -659,41 +661,47 @@ export async function getAllAiUseCases({
     let data: Array<AiUseCase & { userEmail: string }>
     let totalCount: number
 
-    if (search && search.trim()) {
-      // 검색어가 있는 경우: 모든 데이터를 가져와서 클라이언트에서 필터링
-      const allData = await db
-        .select({
-          id: aiUseCase.id,
-          title: aiUseCase.title,
-          content: aiUseCase.content,
-          thumbnailUrl: aiUseCase.thumbnailUrl,
-          userId: aiUseCase.userId,
-          createdAt: aiUseCase.createdAt,
-          updatedAt: aiUseCase.updatedAt,
-          userEmail: user.email,
-        })
-        .from(aiUseCase)
-        .innerJoin(user, eq(aiUseCase.userId, user.id))
-        .orderBy(desc(aiUseCase.createdAt))
+    const searchTerm = search && search.trim() ? `%${search.trim()}%` : null
 
-      // HTML을 제거한 후 검색어가 포함된 항목만 필터링
-      const filteredData = allData.filter((item) => {
-        const cleanTitle = item.title.toLowerCase()
-        const cleanContent = sanitizeHtml(item.content, {
-          allowedTags: [],
-          allowedAttributes: {},
-        }).toLowerCase()
-        const searchTerm = search.toLowerCase().trim()
+    if (searchTerm) {
+      // 검색어가 있는 경우: SQL 쿼리에서 직접 검색
+      const [dataResult, totalCountResult] = await Promise.all([
+        db
+          .select({
+            id: aiUseCase.id,
+            title: aiUseCase.title,
+            content: aiUseCase.content,
+            thumbnailUrl: aiUseCase.thumbnailUrl,
+            userId: aiUseCase.userId,
+            createdAt: aiUseCase.createdAt,
+            updatedAt: aiUseCase.updatedAt,
+            userEmail: user.email,
+          })
+          .from(aiUseCase)
+          .innerJoin(user, eq(aiUseCase.userId, user.id))
+          .where(
+            or(
+              ilike(aiUseCase.title, searchTerm),
+              ilike(aiUseCase.content, searchTerm),
+            ),
+          )
+          .orderBy(desc(aiUseCase.createdAt))
+          .limit(limit)
+          .offset(offset),
+        db
+          .select({ count: count() })
+          .from(aiUseCase)
+          .innerJoin(user, eq(aiUseCase.userId, user.id))
+          .where(
+            or(
+              ilike(aiUseCase.title, searchTerm),
+              ilike(aiUseCase.content, searchTerm),
+            ),
+          ),
+      ])
 
-        return (
-          cleanTitle.includes(searchTerm) || cleanContent.includes(searchTerm)
-        )
-      })
-
-      totalCount = filteredData.length
-
-      // 페이지네이션 적용
-      data = filteredData.slice(offset, offset + limit)
+      data = dataResult
+      totalCount = totalCountResult[0]?.count || 0
     } else {
       // 검색어가 없는 경우: 기존 로직 사용
       const [dataResult, totalCountResult] = await Promise.all([
@@ -812,6 +820,298 @@ export async function deleteAiUseCaseById({
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to delete AI use case',
+    )
+  }
+}
+
+// Learning Center related functions
+export async function saveLearningCenter({
+  id,
+  title,
+  description,
+  category,
+  thumbnail,
+  tags,
+  videoId,
+  userId,
+}: {
+  id: string
+  title: string
+  description: string
+  category: string
+  thumbnail: string
+  tags: string[]
+  videoId: string
+  userId: string
+}) {
+  try {
+    const now = new Date()
+    return await db
+      .insert(learningCenter)
+      .values({
+        id,
+        title,
+        description,
+        category,
+        thumbnail,
+        tags: tags.join(','),
+        videoId,
+        userId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning()
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to save learning center',
+    )
+  }
+}
+
+export async function getLearningCentersByUserId({
+  userId,
+  limit = 50,
+  offset = 0,
+}: {
+  userId: string
+  limit?: number
+  offset?: number
+}) {
+  try {
+    const [data, totalCountResult] = await Promise.all([
+      db
+        .select()
+        .from(learningCenter)
+        .where(eq(learningCenter.userId, userId))
+        .orderBy(desc(learningCenter.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: count() })
+        .from(learningCenter)
+        .where(eq(learningCenter.userId, userId)),
+    ])
+
+    const totalCount = totalCountResult[0]?.count || 0
+
+    return {
+      data: data.map((item) => ({
+        ...item,
+        tags: JSON.parse(item.tags) as string[],
+      })),
+      totalCount,
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get learning centers by user id',
+    )
+  }
+}
+
+export async function getAllLearningCenters({
+  limit = 50,
+  offset = 0,
+  search,
+}: {
+  limit?: number
+  offset?: number
+  search?: string
+}) {
+  try {
+    let data: Array<LearningCenter & { userEmail: string; tags: string[] }>
+    let totalCount: number
+
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim()}%`
+
+      const [dataResult, totalCountResult] = await Promise.all([
+        db
+          .select({
+            id: learningCenter.id,
+            title: learningCenter.title,
+            description: learningCenter.description,
+            category: learningCenter.category,
+            thumbnail: learningCenter.thumbnail,
+            tags: learningCenter.tags,
+            videoId: learningCenter.videoId,
+            userId: learningCenter.userId,
+            createdAt: learningCenter.createdAt,
+            updatedAt: learningCenter.updatedAt,
+            userEmail: user.email,
+          })
+          .from(learningCenter)
+          .innerJoin(user, eq(learningCenter.userId, user.id))
+          .where(
+            or(
+              ilike(learningCenter.title, searchTerm),
+              ilike(learningCenter.description, searchTerm),
+              ilike(learningCenter.tags, searchTerm),
+            ),
+          )
+          .orderBy(desc(learningCenter.createdAt))
+          .limit(limit)
+          .offset(offset),
+        db
+          .select({ count: count() })
+          .from(learningCenter)
+          .innerJoin(user, eq(learningCenter.userId, user.id))
+          .where(
+            or(
+              ilike(learningCenter.title, searchTerm),
+              ilike(learningCenter.description, searchTerm),
+              ilike(learningCenter.tags, searchTerm),
+            ),
+          ),
+      ])
+
+      data = dataResult.map((item) => ({
+        ...item,
+        tags: item.tags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+      }))
+      totalCount = totalCountResult[0]?.count || 0
+    } else {
+      const [dataResult, totalCountResult] = await Promise.all([
+        db
+          .select({
+            id: learningCenter.id,
+            title: learningCenter.title,
+            description: learningCenter.description,
+            category: learningCenter.category,
+            thumbnail: learningCenter.thumbnail,
+            tags: learningCenter.tags,
+            videoId: learningCenter.videoId,
+            userId: learningCenter.userId,
+            createdAt: learningCenter.createdAt,
+            updatedAt: learningCenter.updatedAt,
+            userEmail: user.email,
+          })
+          .from(learningCenter)
+          .innerJoin(user, eq(learningCenter.userId, user.id))
+          .orderBy(desc(learningCenter.createdAt))
+          .limit(limit)
+          .offset(offset),
+        db.select({ count: count() }).from(learningCenter),
+      ])
+
+      data = dataResult.map((item) => ({
+        ...item,
+        tags: item.tags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+      }))
+      totalCount = totalCountResult[0]?.count || 0
+    }
+
+    return {
+      data,
+      totalCount,
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get all learning centers',
+    )
+  }
+}
+
+export async function getLearningCenterById({ id }: { id: string }) {
+  try {
+    const [selectedLearningCenter] = await db
+      .select()
+      .from(learningCenter)
+      .where(eq(learningCenter.id, id))
+
+    if (!selectedLearningCenter) {
+      return null
+    }
+
+    const [userInfo] = await db
+      .select({ email: user.email })
+      .from(user)
+      .where(eq(user.id, selectedLearningCenter.userId))
+
+    return {
+      ...selectedLearningCenter,
+      tags: selectedLearningCenter.tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter((tag) => tag),
+      userEmail: userInfo?.email || 'Unknown',
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get learning center by id',
+    )
+  }
+}
+
+export async function updateLearningCenter({
+  id,
+  title,
+  description,
+  category,
+  thumbnail,
+  tags,
+  videoId,
+  userId,
+}: {
+  id: string
+  title?: string
+  description?: string
+  category?: string
+  thumbnail?: string
+  tags?: string[]
+  videoId?: string
+  userId: string
+}) {
+  try {
+    const updateData: Partial<LearningCenter> = {
+      updatedAt: new Date(),
+    }
+
+    if (title !== undefined) updateData.title = title
+    if (description !== undefined) updateData.description = description
+    if (category !== undefined) updateData.category = category
+    if (thumbnail !== undefined) updateData.thumbnail = thumbnail
+    if (tags !== undefined) updateData.tags = tags.join(',')
+    if (videoId !== undefined) updateData.videoId = videoId
+
+    return await db
+      .update(learningCenter)
+      .set(updateData)
+      .where(and(eq(learningCenter.id, id), eq(learningCenter.userId, userId)))
+      .returning()
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to update learning center',
+    )
+  }
+}
+
+export async function deleteLearningCenterById({
+  id,
+  userId,
+}: {
+  id: string
+  userId: string
+}) {
+  try {
+    return await db
+      .delete(learningCenter)
+      .where(and(eq(learningCenter.id, id), eq(learningCenter.userId, userId)))
+      .returning()
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to delete learning center',
     )
   }
 }

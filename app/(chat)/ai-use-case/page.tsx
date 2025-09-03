@@ -121,7 +121,7 @@ export default function AiUseCasePage() {
     <div className="flex flex-1 flex-col">
       <div className="space-y-4 flex flex-col mb-8">
         <div className="flex items-center gap-2 justify-between">
-          <h1 className="text-2xl font-semibold text-foreground ">
+          <h1 className="text-2xl font-semibold text-foreground">
             AI 활용 사례
           </h1>
           <Link

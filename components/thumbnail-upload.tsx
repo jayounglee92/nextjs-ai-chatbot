@@ -2,12 +2,12 @@
 
 import * as React from 'react'
 import Image from 'next/image'
-import { Button } from '@/components/tiptap-ui-primitive/button'
 import { CloseIcon } from '@/components/tiptap-icons/close-icon'
 import {
   useFileUpload,
   type UploadOptions,
 } from '@/components/tiptap-node/image-upload-node/image-upload-node'
+import { Button } from './ui/button'
 
 const CloudUploadIcon: React.FC = () => (
   <svg
@@ -41,6 +41,15 @@ interface ThumbnailUploadProps {
    * 업로드 옵션
    */
   uploadOptions: UploadOptions
+  /**
+   * 이미지 비율 (기본값: '1:1')
+   * 지원 비율: '1:1', '16:9', '4:3', '3:2', '21:9'
+   */
+  aspectRatio?: '1:1' | '16:9' | '4:3' | '3:2' | '21:9'
+  /**
+   * 이미지 최대 높이 (기본값: 192px)
+   */
+  maxHeight?: number
 }
 
 /**
@@ -51,6 +60,8 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
   imageUrl,
   onImageChange,
   uploadOptions,
+  aspectRatio = '1:1',
+  maxHeight = 192,
 }) => {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [isDragOver, setIsDragOver] = React.useState(false)
@@ -135,6 +146,21 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
   const hasImage = imageUrl !== undefined
   const currentFileItem = fileItems[0]
 
+  // 비율에 따른 스타일 계산
+  const getAspectRatioStyle = () => {
+    const [width, height] = aspectRatio.split(':').map(Number)
+    const aspectRatioValue = width / height
+    const widthValue = maxHeight * aspectRatioValue
+
+    return {
+      width: `${widthValue}px`,
+      height: `${maxHeight}px`,
+      aspectRatio: aspectRatio,
+    }
+  }
+
+  const containerStyle = getAspectRatioStyle()
+
   return (
     <div>
       <div
@@ -159,7 +185,10 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
       >
         {!hasImage ? (
           // 업로드 영역
-          <div className="text-center">
+          <div
+            className="text-center flex flex-col justify-center"
+            style={containerStyle}
+          >
             <div className="flex justify-center mb-4">
               <CloudUploadIcon />
             </div>
@@ -178,7 +207,10 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
             {currentFileItem && currentFileItem.status === 'uploading' ? (
               // 업로드 중
               <div className="relative">
-                <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div
+                  className="w-full bg-gray-100 rounded-lg flex items-center justify-center"
+                  style={containerStyle}
+                >
                   <div className="text-center">
                     <div className="animate-spin rounded-full size-8 border-b-2 border-blue-600 mx-auto mb-2" />
                     <p className="text-sm text-gray-600">
@@ -193,24 +225,31 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
               </div>
             ) : (
               // 업로드 완료된 이미지
-              <div className="relative size-48">
+              <div className="relative" style={containerStyle}>
                 <Image
                   src={imageUrl || currentFileItem?.url || ''}
                   alt="썸네일"
-                  className="size-full object-cover rounded-lg"
-                  width={192}
-                  height={192}
+                  className="w-full h-full object-cover rounded-lg"
+                  width={Number.parseInt(
+                    containerStyle.width.replace('px', ''),
+                    10,
+                  )}
+                  height={Number.parseInt(
+                    containerStyle.height.replace('px', ''),
+                    10,
+                  )}
                 />
 
                 <Button
                   type="button"
-                  className="absolute top-1 right-1 !rounded-full !bg-white/50 !hover:bg-white"
+                  size="icon"
+                  className="absolute top-1 right-1 rounded-full size-8 bg-black/50 hover:bg-black/100"
                   onClick={(e) => {
                     e.stopPropagation()
                     handleRemove()
                   }}
                 >
-                  <CloseIcon className="size-4 text-gray-600" />
+                  <CloseIcon className="size-4 text-white" />
                 </Button>
               </div>
             )}

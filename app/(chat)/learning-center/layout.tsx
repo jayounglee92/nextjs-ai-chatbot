@@ -8,7 +8,7 @@ export default function LearningCenterLayout({
   return (
     <>
       <CommonHeader />
-      <main className="p-3 md:p-8">{children}</main>
+      <main className="p-3 md:p-8 mb-20">{children}</main>
     </>
   )
 }

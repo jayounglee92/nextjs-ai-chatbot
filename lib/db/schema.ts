@@ -182,3 +182,20 @@ export const aiUseCase = pgTable('AiUseCase', {
 })
 
 export type AiUseCase = InferSelectModel<typeof aiUseCase>
+
+export const learningCenter = pgTable('LearningCenter', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  category: text('category').notNull(),
+  thumbnail: text('thumbnail').notNull(),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
+  tags: text('tags').notNull(), // JSON string으로 저장
+  videoId: text('videoId').notNull(),
+})
+
+export type LearningCenter = InferSelectModel<typeof learningCenter>

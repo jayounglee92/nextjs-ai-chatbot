@@ -64,6 +64,13 @@
       "when": 1756786195091,
       "tag": "0008_pale_black_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1756876524569,
+      "tag": "0009_pink_sharon_carter",
+      "breakpoints": true
     }
   ]
 }

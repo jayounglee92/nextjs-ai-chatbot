@@ -34,8 +34,8 @@ export function AiUseCaseList({
   if (useCases.length === 0) {
     return (
       <EmptyPage
-        title="목록이 비어있습니다."
-        description="새로운 사용 사례를 작성해주세요."
+        title="검색 결과가 없습니다."
+        description="검색어를 변경하거나 다른 조건으로 검색해주세요."
       />
     )
   }

@@ -7,14 +7,19 @@ import {
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog'
-import type { LearningItem } from '@/lib/data/learning-center'
+import type { LearningCenter } from '@/lib/db/schema'
+
+// API에서 받는 데이터 타입 (tags가 배열로 변환됨)
+interface ClientLearningCenter extends Omit<LearningCenter, 'tags'> {
+  tags: string[]
+}
 import { Badge } from '@/components/ui/badge'
 import { X } from 'lucide-react'
 
 interface LearningVideoDialogProps {
   isOpen: boolean
   onClose: () => void
-  learningItem: LearningItem | null
+  learningItem: ClientLearningCenter | null
 }
 
 export function LearningVideoDialog({
@@ -79,7 +84,7 @@ export function LearningVideoDialog({
                   태그
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {learningItem.tags.map((tag) => (
+                  {learningItem.tags.map((tag: string) => (
                     <Badge key={tag} variant="outline">
                       {tag}
                     </Badge>
