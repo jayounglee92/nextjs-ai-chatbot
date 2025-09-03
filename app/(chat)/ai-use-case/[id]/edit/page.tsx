@@ -17,15 +17,12 @@ import {
 } from '@/lib/toast-utils'
 import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
 import useSWR, { useSWRConfig } from 'swr'
-import {
-  fetcher,
-  formatValidationErrors,
-  getTextLengthFromHtml,
-} from '@/lib/utils'
+import { fetcher, formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import type { AiUseCase } from '@/lib/db/schema'
 import { validateAiUseCaseUpdate } from '@/lib/validators/ai-use-case'
 import { toast } from 'sonner'
+import sanitizeHtml from 'sanitize-html'
 
 export default function AiUseCaseEditPage() {
   const { data: session, status } = useSession()
@@ -70,16 +67,14 @@ export default function AiUseCaseEditPage() {
   const currentContent = content !== null ? content : aiUseCase?.content
   const currentThumbnailUrl =
     thumbnailUrl !== null ? thumbnailUrl : aiUseCase?.thumbnailUrl
-
-  useEffect(() => {
-    if (status === 'loading') return
-
-    if (!session) {
-      router.push('/login')
-      return
-    }
-  }, [session, status, router])
-
+  const isDisabledSaveButton =
+    isSubmitting ||
+    !currentTitle?.trim() ||
+    sanitizeHtml(currentContent || '', {
+      allowedTags: [],
+      allowedAttributes: {},
+    }).length === 0 ||
+    !currentThumbnailUrl
   const handleSubmit = async () => {
     // 유효성 검사
     const validation = validateAiUseCaseUpdate({
@@ -146,6 +141,15 @@ export default function AiUseCaseEditPage() {
       setIsSubmitting(false)
     }
   }
+
+  useEffect(() => {
+    if (status === 'loading') return
+
+    if (!session) {
+      router.push('/login')
+      return
+    }
+  }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
     return <LoadingPage />
@@ -238,11 +242,7 @@ export default function AiUseCaseEditPage() {
           },
           {
             onClick: handleSubmit,
-            disabled:
-              isSubmitting ||
-              !currentTitle?.trim() ||
-              getTextLengthFromHtml(currentContent || '') === 0 ||
-              !currentThumbnailUrl,
+            disabled: isDisabledSaveButton,
             isLoading: isSubmitting,
             loadingText: '저장중...',
             text: '저장하기',

@@ -6,6 +6,7 @@ import { Pagination } from './pagination'
 import type { AiUseCase } from '@/lib/db/schema'
 import { calculateReadingTime, getRelativeTimeString } from '@/lib/utils'
 import { EmptyPage } from './empty-page'
+import { decode } from 'he'
 // API에서 받는 데이터 타입 (summary, userEmail 필드 추가)
 interface ProcessedAiUseCase extends AiUseCase {
   userEmail: string
@@ -68,9 +69,11 @@ export function AiUseCaseList({
                       </div>
                     </div>
                     <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 h-12">
-                      {useCase.cleanText.length > 200
-                        ? useCase.cleanText.substring(0, 200)
-                        : useCase.cleanText}
+                      {decode(
+                        useCase.cleanText.length > 200
+                          ? useCase.cleanText.substring(0, 200)
+                          : useCase.cleanText,
+                      )}
                     </p>
                     <div className="flex items-center gap-2">
                       <User className="size-4 text-muted-foreground" />

@@ -16,9 +16,10 @@ import {
 } from '@/lib/toast-utils'
 import type { AiUseCase } from '@/lib/db/schema'
 import { validateAiUseCaseCreate } from '@/lib/validators/ai-use-case'
-import { formatValidationErrors, getTextLengthFromHtml } from '@/lib/utils'
+import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
+import sanitizeHtml from 'sanitize-html'
 
 export default function CommunityPage() {
   const { data: session } = useSession()
@@ -28,6 +29,14 @@ export default function CommunityPage() {
   const [content, setContent] = useState('')
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const isDisabledSaveButton =
+    isSubmitting ||
+    !title?.trim() ||
+    sanitizeHtml(content, {
+      allowedTags: [],
+      allowedAttributes: {},
+    }).length === 0 ||
+    !thumbnailUrl
 
   if (!session) {
     return <div />
@@ -159,11 +168,7 @@ export default function CommunityPage() {
           },
           {
             onClick: handleSubmit,
-            disabled:
-              isSubmitting ||
-              !title?.trim() ||
-              getTextLengthFromHtml(content || '') === 0 ||
-              !thumbnailUrl,
+            disabled: isDisabledSaveButton,
             isLoading: isSubmitting,
             loadingText: '저장중...',
             text: '저장하기',
