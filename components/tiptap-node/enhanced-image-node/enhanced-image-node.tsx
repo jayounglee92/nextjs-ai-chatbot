@@ -10,6 +10,7 @@ import {
 } from '@/components/tiptap-ui/image-popover'
 import '@/components/tiptap-ui/image-popover/image-popover.scss'
 import './enhanced-image-node.scss'
+import { useThrottledCallback } from '@/hooks/use-throttled-callback'
 
 export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
   const { src, alt, title, alignment, width, height } = props.node.attrs
@@ -41,6 +42,14 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
     [updateAttributes],
   )
 
+  // throttle된 리사이즈 핸들러 (60fps로 제한)
+  const throttledHandleResize = useThrottledCallback(
+    handleResize,
+    16, // 16ms = 60fps
+    [updateAttributes],
+    { leading: false, trailing: true },
+  )
+
   const handleResetSize = React.useCallback(() => {
     if (updateAttributes) {
       updateAttributes({ width: null, height: null })
@@ -61,33 +70,50 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
       const startHeight = height || imageRef.current?.naturalHeight || 0
       const aspectRatio = startWidth / startHeight
 
+      // ProseMirror-selectednode의 최대 너비 가져오기 : 이미지는 에디터 너비보다 클 수 없음
+      const getMaxWidth = () => {
+        // ProseMirror-selectednode 클래스를 가진 요소 찾기
+        const proseMirrorNode = document.querySelector(
+          '.ProseMirror-selectednode',
+        )
+        if (proseMirrorNode) {
+          return proseMirrorNode.getBoundingClientRect().width
+        }
+        // 대안: containerRef 사용
+        if (containerRef.current) {
+          return containerRef.current.offsetWidth
+        }
+        return 800 // 기본값
+      }
+
       const handleMouseMove = (e: MouseEvent) => {
         const deltaX = e.clientX - startX
         const deltaY = e.clientY - startY
+        const maxWidth = getMaxWidth()
 
         let newWidth = startWidth
         let newHeight = startHeight
 
         switch (handle) {
           case 'se': // 우하단
-            newWidth = Math.max(50, startWidth + deltaX)
+            newWidth = Math.max(50, Math.min(maxWidth, startWidth + deltaX))
             newHeight = Math.max(50, newWidth / aspectRatio)
             break
           case 'sw': // 좌하단
-            newWidth = Math.max(50, startWidth - deltaX)
+            newWidth = Math.max(50, Math.min(maxWidth, startWidth - deltaX))
             newHeight = Math.max(50, newWidth / aspectRatio)
             break
           case 'ne': // 우상단
-            newWidth = Math.max(50, startWidth + deltaX)
+            newWidth = Math.max(50, Math.min(maxWidth, startWidth + deltaX))
             newHeight = Math.max(50, newWidth / aspectRatio)
             break
           case 'nw': // 좌상단
-            newWidth = Math.max(50, startWidth - deltaX)
+            newWidth = Math.max(50, Math.min(maxWidth, startWidth - deltaX))
             newHeight = Math.max(50, newWidth / aspectRatio)
             break
         }
 
-        handleResize(newWidth, newHeight)
+        throttledHandleResize(newWidth, newHeight)
       }
 
       const handleMouseUp = () => {
@@ -97,10 +123,13 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
         document.removeEventListener('mouseup', handleMouseUp)
       }
 
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
+      // passive: false로 설정하여 preventDefault 사용 가능하게 함
+      document.addEventListener('mousemove', handleMouseMove, {
+        passive: false,
+      })
+      document.addEventListener('mouseup', handleMouseUp, { passive: true })
     },
-    [width, height, handleResize],
+    [width, height, throttledHandleResize],
   )
 
   const handleDelete = () => {
@@ -194,13 +223,14 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
               src={src}
               alt={alt || ''}
               title={title || ''}
-              className="enhanced-image"
+              className={`enhanced-image ${width === null ? 'w-full h-auto' : ''}`}
               style={imageStyle}
               onClick={handleImageClick}
               draggable={!isResizing}
               onDragStart={handleDragStart}
-              width={width}
-              height={height}
+              width={width === null ? 400 : width}
+              height={height === null ? 300 : height}
+              unoptimized
             />
 
             {/* 리사이즈 핸들들 - 모서리 4개만 */}
@@ -240,11 +270,12 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
             src={src}
             alt={alt || ''}
             title={title || ''}
-            className="enhanced-image"
+            className={`enhanced-image ${width === null ? 'w-full h-auto' : ''}`}
             style={imageStyle}
             draggable={false}
-            width={width}
-            height={height}
+            width={width === null ? 400 : width}
+            height={height === null ? 300 : height}
+            unoptimized
           />
         </div>
       )}
