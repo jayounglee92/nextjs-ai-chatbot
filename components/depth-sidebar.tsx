@@ -233,7 +233,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -63, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
-            className="absolute left-20 top-0 z-20 h-full w-[280px] overflow-hidden border-sidebar-border bg-sidebar shadow-lg"
+            className="fixed left-20 top-0 z-30 h-full w-[280px] overflow-hidden border-sidebar-border bg-sidebar shadow-lg"
             onMouseEnter={() => setHoveredMenu(hoveredMenu)}
             onMouseLeave={(e) => {
               // 마우스가 서브메뉴 영역을 벗어났는지 확인

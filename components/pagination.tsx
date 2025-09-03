@@ -66,7 +66,7 @@ export function Pagination({
       {/* 이전 페이지 버튼 */}
       <Button
         variant="ghost"
-        size="sm"
+        size="icon"
         onClick={() => changePage(currentPage - 1)}
         disabled={hasPrevPage === false || currentPage === 1}
         className="flex items-center gap-1"
@@ -80,9 +80,9 @@ export function Pagination({
           <Button
             key={page}
             variant={page === currentPage ? 'default' : 'ghost'}
-            size="sm"
+            size="icon"
             onClick={() => changePage(page)}
-            className="min-w-40"
+            className="min-w-4"
           >
             {page}
           </Button>
@@ -92,7 +92,7 @@ export function Pagination({
       {/* 다음 페이지 버튼 */}
       <Button
         variant="ghost"
-        size="sm"
+        size="icon"
         onClick={() => changePage(currentPage + 1)}
         disabled={hasNextPage === false || currentPage === totalPages}
         className="flex items-center gap-1"
