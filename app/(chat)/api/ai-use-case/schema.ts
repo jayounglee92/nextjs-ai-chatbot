@@ -1,6 +1,5 @@
 import { z } from 'zod'
-import { stripHtmlTags } from '@/lib/utils'
-
+import sanitizeHtml from 'sanitize-html'
 // 상수 정의
 export const MAX_TITLE_LENGTH = 200
 export const MAX_CONTENT_LENGTH = 10000
@@ -23,7 +22,10 @@ export const postRequestBodySchema = z.object({
     .min(1, AI_USE_CASE_MESSAGES.CONTENT_REQUIRED)
     .refine(
       (content) => {
-        const plainText = stripHtmlTags(content)
+        const plainText = sanitizeHtml(content, {
+          allowedTags: [],
+          allowedAttributes: {},
+        })
         return plainText.length <= MAX_CONTENT_LENGTH
       },
       {
@@ -46,7 +48,10 @@ export const putRequestBodySchema = z.object({
     .min(1, AI_USE_CASE_MESSAGES.CONTENT_REQUIRED)
     .refine(
       (content) => {
-        const plainText = stripHtmlTags(content)
+        const plainText = sanitizeHtml(content, {
+          allowedTags: [],
+          allowedAttributes: {},
+        })
         return plainText.length <= MAX_CONTENT_LENGTH
       },
       {

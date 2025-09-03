@@ -162,10 +162,7 @@ export function getRelativeTimeString(dateString: string | Date): string {
  * @example
  * calculateReadingTime('<p>Hello, world!</p>') // 0분
  */
-export function calculateReadingTime(htmlContent: string): string {
-  // HTML 태그 제거하고 텍스트만 추출
-  const textContent = stripHtmlTags(htmlContent)
-
+export function calculateReadingTime(textContent: string): string {
   // 한글, 영문, 숫자, 특수문자 포함한 전체 글자 수 계산
   const totalCharacters = textContent.length
 

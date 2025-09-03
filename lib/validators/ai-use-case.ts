@@ -5,7 +5,7 @@ import {
   postRequestBodySchema,
   putRequestBodySchema,
 } from '@/app/(chat)/api/ai-use-case/schema'
-import { stripHtmlTags } from '@/lib/utils'
+import sanitizeHtml from 'sanitize-html'
 
 export interface ValidationResult {
   success: boolean
@@ -92,7 +92,10 @@ export function validateAiUseCaseFields(
   if (!contentTrimmed) {
     contentError = AI_USE_CASE_MESSAGES.CONTENT_REQUIRED
   } else {
-    const plainText = stripHtmlTags(contentTrimmed)
+    const plainText = sanitizeHtml(contentTrimmed, {
+      allowedTags: [],
+      allowedAttributes: {},
+    })
     if (plainText.length > MAX_CONTENT_LENGTH) {
       contentError = AI_USE_CASE_MESSAGES.CONTENT_MAX_LENGTH
     }

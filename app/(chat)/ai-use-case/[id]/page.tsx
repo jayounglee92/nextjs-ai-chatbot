@@ -5,6 +5,11 @@ import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor
 import { calculateReadingTime, getRelativeTimeString } from '@/lib/utils'
 import { getAiUseCaseById } from '@/lib/db/queries'
 import type { AiUseCase } from '@/lib/db/schema'
+
+// API에서 받는 데이터 타입 (userEmail 필드 추가)
+interface AiUseCaseWithEmail extends AiUseCase {
+  userEmail: string
+}
 import Link from 'next/link'
 import { AiUseCaseActions } from './ai-use-case-actions'
 
@@ -20,7 +25,7 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
   }
 
   const { id } = await params
-  let useCase: AiUseCase | null = null
+  let useCase: AiUseCaseWithEmail | null = null
 
   try {
     useCase = await getAiUseCaseById({ id })
@@ -51,7 +56,7 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-6">
+    <div className="max-w-4xl mx-auto">
       <div className="grid grid-cols-1">
         {/* 제목 */}
         <div>
@@ -66,7 +71,7 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
           <div className="flex flex-wrap gap-4">
             <span className="flex gap-2 items-center">
               <User className="size-5 border rounded-full" />
-              {useCase.userId}
+              {useCase.userEmail}
             </span>
             <span className="text-gray-300 font-bold">|</span>
             <span className="flex gap-2 items-center">

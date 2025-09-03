@@ -5,17 +5,25 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { AiUseCaseList } from '@/components/ai-use-case-list'
 import { AiUseCaseSkeleton } from '@/components/ai-use-case-skeleton'
+import { SearchBar } from '@/components/search-bar'
 import Link from 'next/link'
 import { PencilLineIcon } from 'lucide-react'
 import useSWR from 'swr'
 import type { AiUseCase } from '@/lib/db/schema'
+
+// API에서 받는 데이터 타입 (summary, userEmail 필드 추가)
+interface ClientAiUseCase extends AiUseCase {
+  summary: string
+  userEmail: string
+  cleanText: string
+}
 import { fetcher } from '@/lib/utils'
 import { ErrorPage } from '@/components/error-page'
 import { Button } from '@/components/ui/button'
 
 // 페이지네이션 응답 타입 정의
 interface PaginatedResponse {
-  data: AiUseCase[]
+  data: ClientAiUseCase[]
   pagination: {
     currentPage: number
     totalPages: number
@@ -31,8 +39,9 @@ export default function AiUseCasePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // URL 파라미터에서 페이지 번호 읽기
+  // URL 파라미터에서 페이지 번호와 검색어 읽기
   const currentPage = Number.parseInt(searchParams.get('page') || '1', 10)
+  const searchWord = searchParams.get('search') || ''
   const itemsPerPage = 6
 
   // SWR을 사용하여 AI Use Case 데이터 조회 (서버 사이드 페이지네이션)
@@ -42,7 +51,7 @@ export default function AiUseCasePage() {
     isLoading,
   } = useSWR<PaginatedResponse>(
     session
-      ? `/api/ai-use-case?itemsPerPage=${itemsPerPage}&page=${currentPage}`
+      ? `/api/ai-use-case?itemsPerPage=${itemsPerPage}&page=${currentPage}${searchWord ? `&search=${encodeURIComponent(searchWord)}` : ''}`
       : null,
     fetcher,
     {
@@ -83,6 +92,12 @@ export default function AiUseCasePage() {
             사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.
           </p>
         </div>
+        <div className="mb-6">
+          <SearchBar
+            placeholder="AI 활용 사례를 검색하세요..."
+            basePath="/ai-use-case"
+          />
+        </div>
         <AiUseCaseSkeleton />
       </div>
     )
@@ -119,6 +134,13 @@ export default function AiUseCasePage() {
         <p className="text-muted-foreground">
           사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.
         </p>
+      </div>
+
+      <div className="mb-6">
+        <SearchBar
+          placeholder="제목, 내용으로 검색하세요"
+          basePath="/ai-use-case"
+        />
       </div>
 
       <AiUseCaseList

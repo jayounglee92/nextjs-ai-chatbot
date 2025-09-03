@@ -3,16 +3,16 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Clock, Calendar, User } from 'lucide-react'
 import Link from 'next/link'
 import { Pagination } from './pagination'
-import type { AiUseCase as DbAiUseCase } from '@/lib/db/schema'
-import {
-  calculateReadingTime,
-  getRelativeTimeString,
-  stripHtmlTags,
-} from '@/lib/utils'
+import type { AiUseCase } from '@/lib/db/schema'
+import { calculateReadingTime, getRelativeTimeString } from '@/lib/utils'
 import { EmptyPage } from './empty-page'
-
+// API에서 받는 데이터 타입 (summary, userEmail 필드 추가)
+interface ProcessedAiUseCase extends AiUseCase {
+  userEmail: string
+  cleanText: string
+}
 interface AiUseCaseListProps {
-  useCases: DbAiUseCase[]
+  useCases: ProcessedAiUseCase[]
   totalItems: number
   itemsPerPage: number
   currentPage: number
@@ -56,7 +56,7 @@ export function AiUseCaseList({
                         <div className="flex items-center gap-1">
                           <Clock className="size-4" />
                           <span>
-                            {calculateReadingTime(useCase.content) || '5분'}
+                            {calculateReadingTime(useCase.cleanText) || '5분'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
@@ -68,26 +68,21 @@ export function AiUseCaseList({
                       </div>
                     </div>
                     <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 h-12">
-                      {useCase.content
-                        ? (() => {
-                            const cleanText = stripHtmlTags(useCase.content)
-                            return cleanText.length > 100
-                              ? cleanText.substring(0, 200)
-                              : cleanText
-                          })()
-                        : '내용이 없습니다.'}
+                      {useCase.cleanText.length > 200
+                        ? useCase.cleanText.substring(0, 200)
+                        : useCase.cleanText}
                     </p>
                     <div className="flex items-center gap-2">
                       <User className="size-4 text-muted-foreground" />
                       <span className="text-xs md:text-sm text-muted-foreground line-clamp-1">
-                        {useCase.userId}
+                        {useCase.userEmail}
                       </span>
                     </div>
                   </div>
                   <div className="shrink-0 size-24 md:size-28 bg-muted rounded-lg overflow-hidden">
                     {useCase.thumbnailUrl ? (
                       <Image
-                        src={useCase.thumbnailUrl ?? '/images/thumbnail01.webp'}
+                        src={useCase.thumbnailUrl}
                         alt={useCase.title}
                         width={80}
                         height={80}

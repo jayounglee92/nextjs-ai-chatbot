@@ -70,18 +70,18 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
       icon: HomeIcon,
       hasSubmenu: true,
     },
-    {
-      id: 'space' as const,
-      label: '공간',
-      icon: OrbitIcon,
-      hasSubmenu: false,
-    },
-    {
-      id: 'ai-lab' as const,
-      label: 'AI Lab',
-      icon: FlaskConicalIcon,
-      hasSubmenu: false,
-    },
+    // {
+    //   id: 'space' as const,
+    //   label: '공간',
+    //   icon: OrbitIcon,
+    //   hasSubmenu: false,
+    // },
+    // {
+    //   id: 'ai-lab' as const,
+    //   label: 'AI Lab',
+    //   icon: FlaskConicalIcon,
+    //   hasSubmenu: false,
+    // },
     {
       id: 'ai-use-case' as const,
       label: 'AI 활용 사례',

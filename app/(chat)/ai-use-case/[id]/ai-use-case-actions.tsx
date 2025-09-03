@@ -21,8 +21,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
 
+// API에서 받는 데이터 타입 (userEmail 필드 추가)
+interface AiUseCaseWithEmail extends AiUseCase {
+  userEmail: string
+}
+
 interface Props {
-  useCase: AiUseCase
+  useCase: AiUseCaseWithEmail
 }
 
 export function AiUseCaseActions({ useCase }: Props) {

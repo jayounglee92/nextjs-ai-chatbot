@@ -9,6 +9,8 @@ import {
   gt,
   gte,
   inArray,
+  ilike,
+  or,
   lt,
   type SQL,
 } from 'drizzle-orm'
@@ -35,6 +37,7 @@ import { generateUUID } from '../utils'
 import { generateHashedPassword } from './utils'
 import type { VisibilityType } from '@/components/visibility-selector'
 import { ChatSDKError } from '../errors'
+import sanitizeHtml from 'sanitize-html'
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -646,23 +649,76 @@ export async function getAiUseCasesByUserId({
 export async function getAllAiUseCases({
   limit = 50,
   offset = 0,
+  search,
 }: {
   limit?: number
   offset?: number
+  search?: string
 }) {
   try {
-    // 데이터와 총 개수를 동시에 조회
-    const [data, totalCountResult] = await Promise.all([
-      db
-        .select()
-        .from(aiUseCase)
-        .orderBy(desc(aiUseCase.createdAt))
-        .limit(limit)
-        .offset(offset),
-      db.select({ count: count() }).from(aiUseCase),
-    ])
+    let data: Array<AiUseCase & { userEmail: string }>
+    let totalCount: number
 
-    const totalCount = totalCountResult[0]?.count || 0
+    if (search && search.trim()) {
+      // 검색어가 있는 경우: 모든 데이터를 가져와서 클라이언트에서 필터링
+      const allData = await db
+        .select({
+          id: aiUseCase.id,
+          title: aiUseCase.title,
+          content: aiUseCase.content,
+          thumbnailUrl: aiUseCase.thumbnailUrl,
+          userId: aiUseCase.userId,
+          createdAt: aiUseCase.createdAt,
+          updatedAt: aiUseCase.updatedAt,
+          userEmail: user.email,
+        })
+        .from(aiUseCase)
+        .innerJoin(user, eq(aiUseCase.userId, user.id))
+        .orderBy(desc(aiUseCase.createdAt))
+
+      // HTML을 제거한 후 검색어가 포함된 항목만 필터링
+      const filteredData = allData.filter((item) => {
+        const cleanTitle = item.title.toLowerCase()
+        const cleanContent = sanitizeHtml(item.content, {
+          allowedTags: [],
+          allowedAttributes: {},
+        }).toLowerCase()
+        const searchTerm = search.toLowerCase().trim()
+
+        return (
+          cleanTitle.includes(searchTerm) || cleanContent.includes(searchTerm)
+        )
+      })
+
+      totalCount = filteredData.length
+
+      // 페이지네이션 적용
+      data = filteredData.slice(offset, offset + limit)
+    } else {
+      // 검색어가 없는 경우: 기존 로직 사용
+      const [dataResult, totalCountResult] = await Promise.all([
+        db
+          .select({
+            id: aiUseCase.id,
+            title: aiUseCase.title,
+            content: aiUseCase.content,
+            thumbnailUrl: aiUseCase.thumbnailUrl,
+            userId: aiUseCase.userId,
+            createdAt: aiUseCase.createdAt,
+            updatedAt: aiUseCase.updatedAt,
+            userEmail: user.email,
+          })
+          .from(aiUseCase)
+          .innerJoin(user, eq(aiUseCase.userId, user.id))
+          .orderBy(desc(aiUseCase.createdAt))
+          .limit(limit)
+          .offset(offset),
+        db.select({ count: count() }).from(aiUseCase),
+      ])
+
+      data = dataResult
+      totalCount = totalCountResult[0]?.count || 0
+    }
 
     return {
       data,
@@ -682,7 +738,21 @@ export async function getAiUseCaseById({ id }: { id: string }) {
       .select()
       .from(aiUseCase)
       .where(eq(aiUseCase.id, id))
-    return selectedAiUseCase
+
+    if (!selectedAiUseCase) {
+      return null
+    }
+
+    // User 정보를 별도로 조회
+    const [userInfo] = await db
+      .select({ email: user.email })
+      .from(user)
+      .where(eq(user.id, selectedAiUseCase.userId))
+
+    return {
+      ...selectedAiUseCase,
+      userEmail: userInfo?.email || 'Unknown',
+    }
   } catch (error) {
     throw new ChatSDKError(
       'bad_request:database',

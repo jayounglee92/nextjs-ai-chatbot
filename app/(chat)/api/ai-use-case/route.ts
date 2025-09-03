@@ -9,6 +9,7 @@ import {
 import { ChatSDKError } from '@/lib/errors'
 import { generateUUID } from '@/lib/utils'
 import { postRequestBodySchema, putRequestBodySchema } from './schema'
+import sanitizeHtml from 'sanitize-html'
 
 export async function POST(request: Request) {
   let requestBody: { title: string; content: string; thumbnailUrl: string }
@@ -52,6 +53,7 @@ export async function GET(request: Request) {
     const id = searchParams.get('id')
     const itemsPerPage = searchParams.get('itemsPerPage')
     const page = searchParams.get('page')
+    const search = searchParams.get('search')
 
     const session = await auth()
 
@@ -79,10 +81,28 @@ export async function GET(request: Request) {
     const currentPage = page ? Number.parseInt(page) : 1
     const offset = (currentPage - 1) * limit
 
-    // 전체 AI use case 조회 (페이지네이션 적용)
+    // 전체 AI use case 조회 (페이지네이션 및 검색 적용)
     const { data: aiUseCases, totalCount } = await getAllAiUseCases({
       limit,
       offset,
+      search: search || undefined,
+    })
+
+    // content를 미리 정제하고 요약본 생성
+    const processedUseCases = aiUseCases.map((useCase) => {
+      const cleanText = sanitizeHtml(useCase.content, {
+        allowedTags: [],
+        allowedAttributes: {},
+      })
+
+      return {
+        id: useCase.id,
+        title: useCase.title,
+        thumbnailUrl: useCase.thumbnailUrl,
+        userEmail: useCase.userEmail,
+        createdAt: useCase.createdAt,
+        cleanText: cleanText,
+      }
     })
 
     // 페이지네이션 메타데이터 계산
@@ -92,7 +112,7 @@ export async function GET(request: Request) {
 
     return Response.json(
       {
-        data: aiUseCases,
+        data: processedUseCases,
         pagination: {
           currentPage,
           totalPages,
