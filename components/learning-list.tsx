@@ -52,7 +52,7 @@ export function LearningList({
                     alt={item.title}
                     width={400}
                     height={225}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
+                    className="object-cover size-full group-hover:scale-105 transition-transform duration-200"
                   />
                 </div>
 
@@ -68,8 +68,8 @@ export function LearningList({
 
                 {/* 플레이 버튼 오버레이 */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <div className="w-16 h-16 bg-black/70 rounded-full flex items-center justify-center">
-                    <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1" />
+                  <div className="size-16 bg-black/70 rounded-full flex items-center justify-center">
+                    <div className="size-0 border-l-[12px] border-l-white border-y-2 border-y-transparent ml-1" />
                   </div>
                 </div>
               </div>

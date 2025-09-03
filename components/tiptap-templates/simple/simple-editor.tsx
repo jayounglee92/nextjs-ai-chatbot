@@ -13,7 +13,7 @@ import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 import { CharacterCount, Placeholder, Selection } from '@tiptap/extensions'
 import { TableKit } from '@tiptap/extension-table'
-import Youtube from '@tiptap/extension-youtube'
+import { Youtube } from '@tiptap/extension-youtube'
 
 // --- UI Primitives ---
 import { Button } from '@/components/tiptap-ui-primitive/button'

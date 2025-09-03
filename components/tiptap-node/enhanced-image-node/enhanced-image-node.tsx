@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import type { NodeViewProps } from '@tiptap/react'
 import { NodeViewWrapper } from '@tiptap/react'
 import {
@@ -12,6 +13,7 @@ import './enhanced-image-node.scss'
 
 export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
   const { src, alt, title, alignment, width, height } = props.node.attrs
+  const { updateAttributes, editor, deleteNode, getPos, node } = props
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
   const [isResizing, setIsResizing] = React.useState(false)
   const [resizeHandle, setResizeHandle] = React.useState<string | null>(null)
@@ -19,31 +21,31 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   // 에디터가 뷰 모드인지 확인
-  const isViewMode = !props.editor.isEditable
+  const isViewMode = !editor.isEditable
 
   const handleAlignmentChange = (newAlignment: ImageAlignment) => {
-    if (props.updateAttributes) {
-      props.updateAttributes({ alignment: newAlignment })
+    if (updateAttributes) {
+      updateAttributes({ alignment: newAlignment })
     }
   }
 
   const handleResize = React.useCallback(
     (newWidth: number, newHeight: number) => {
-      if (props.updateAttributes) {
-        props.updateAttributes({
+      if (updateAttributes) {
+        updateAttributes({
           width: Math.round(newWidth),
           height: Math.round(newHeight),
         })
       }
     },
-    [props.updateAttributes],
+    [updateAttributes],
   )
 
   const handleResetSize = React.useCallback(() => {
-    if (props.updateAttributes) {
-      props.updateAttributes({ width: null, height: null })
+    if (updateAttributes) {
+      updateAttributes({ width: null, height: null })
     }
-  }, [props.updateAttributes])
+  }, [updateAttributes])
 
   const handleMouseDown = React.useCallback(
     (e: React.MouseEvent, handle: string) => {
@@ -106,18 +108,18 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
     setIsPopoverOpen(false)
 
     // NodeViewProps에서 노드를 삭제하는 방법
-    if (props.deleteNode) {
-      props.deleteNode()
+    if (deleteNode) {
+      deleteNode()
     } else {
       // 대안: editor를 통해 직접 삭제
-      const pos = props.getPos()
+      const pos = getPos()
       if (typeof pos === 'number') {
-        props.editor
+        editor
           .chain()
           .focus()
           .deleteRange({
             from: pos,
-            to: pos + props.node.nodeSize,
+            to: pos + node.nodeSize,
           })
           .run()
       }
@@ -143,7 +145,7 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
     setIsPopoverOpen(false)
 
     // 드래그 데이터 설정
-    const pos = props.getPos()
+    const pos = getPos()
     if (typeof pos === 'number') {
       // 이미지 노드의 정확한 위치 정보 전달
       e.dataTransfer.setData('text/plain', pos.toString())
@@ -151,8 +153,8 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
         'application/x-tiptap-image',
         JSON.stringify({
           pos,
-          nodeSize: props.node.nodeSize,
-          attrs: props.node.attrs,
+          nodeSize: node.nodeSize,
+          attrs: node.attrs,
         }),
       )
       e.dataTransfer.effectAllowed = 'move'
@@ -173,7 +175,7 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
       {/* 뷰 모드에서는 ImagePopover와 리사이즈 핸들 제거 */}
       {!isViewMode ? (
         <ImagePopover
-          editor={props.editor}
+          editor={editor}
           open={isPopoverOpen && !isResizing}
           onOpenChange={setIsPopoverOpen}
           alignment={alignment}
@@ -187,7 +189,7 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
             className="enhanced-image-container"
             data-state={isPopoverOpen ? 'open' : 'closed'}
           >
-            <img
+            <Image
               ref={imageRef}
               src={src}
               alt={alt || ''}
@@ -197,6 +199,8 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
               onClick={handleImageClick}
               draggable={!isResizing}
               onDragStart={handleDragStart}
+              width={width}
+              height={height}
             />
 
             {/* 리사이즈 핸들들 - 모서리 4개만 */}
@@ -231,7 +235,7 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
       ) : (
         /* 뷰 모드: 단순한 이미지만 표시 */
         <div className="enhanced-image-container enhanced-image-viewmode">
-          <img
+          <Image
             ref={imageRef}
             src={src}
             alt={alt || ''}
@@ -239,6 +243,8 @@ export const EnhancedImageNode: React.FC<NodeViewProps> = (props) => {
             className="enhanced-image"
             style={imageStyle}
             draggable={false}
+            width={width}
+            height={height}
           />
         </div>
       )}

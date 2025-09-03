@@ -1,5 +1,4 @@
-import { Node, mergeAttributes } from '@tiptap/react'
-import { ReactNodeViewRenderer } from '@tiptap/react'
+import { Node, mergeAttributes, ReactNodeViewRenderer } from '@tiptap/react'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { EnhancedImageNode as EnhancedImageNodeComponent } from './enhanced-image-node'
 
@@ -11,7 +10,7 @@ export interface EnhancedImageNodeOptions {
    * @default {}
    * @example { class: 'foo' }
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: 설명
   HTMLAttributes: Record<string, any>
 }
 

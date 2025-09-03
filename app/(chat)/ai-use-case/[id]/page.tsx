@@ -65,12 +65,12 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
           {/* 메타 정보 */}
           <div className="flex flex-wrap gap-4">
             <span className="flex gap-2 items-center">
-              <User className="h-5 w-5 border rounded-full" />
+              <User className="size-5 border rounded-full" />
               {useCase.userId}
             </span>
             <span className="text-gray-300 font-bold">|</span>
             <span className="flex gap-2 items-center">
-              <Clock className="h-5 w-5" />
+              <Clock className="size-5" />
               {calculateReadingTime(useCase.content)}
             </span>
             <span className="text-gray-300 font-bold">|</span>

@@ -1,27 +1,23 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useHotkeys } from "react-hotkeys-hook"
-import type { ChainedCommands } from "@tiptap/react"
-import { type Editor } from "@tiptap/react"
+import * as React from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+import type { ChainedCommands, Editor } from '@tiptap/react'
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useTiptapEditor } from '@/hooks/use-tiptap-editor'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 // --- Lib ---
-import {
-  isExtensionAvailable,
-  isNodeTypeSelected,
-} from "@/lib/tiptap-utils"
+import { isExtensionAvailable, isNodeTypeSelected } from '@/lib/tiptap-utils'
 
 // --- Icons ---
-import { AlignCenterIcon } from "@/components/tiptap-icons/align-center-icon"
-import { AlignJustifyIcon } from "@/components/tiptap-icons/align-justify-icon"
-import { AlignLeftIcon } from "@/components/tiptap-icons/align-left-icon"
-import { AlignRightIcon } from "@/components/tiptap-icons/align-right-icon"
+import { AlignCenterIcon } from '@/components/tiptap-icons/align-center-icon'
+import { AlignJustifyIcon } from '@/components/tiptap-icons/align-justify-icon'
+import { AlignLeftIcon } from '@/components/tiptap-icons/align-left-icon'
+import { AlignRightIcon } from '@/components/tiptap-icons/align-right-icon'
 
-export type TextAlign = "left" | "center" | "right" | "justify"
+export type TextAlign = 'left' | 'center' | 'right' | 'justify'
 
 /**
  * Configuration for the text align functionality
@@ -47,10 +43,10 @@ export interface UseTextAlignConfig {
 }
 
 export const TEXT_ALIGN_SHORTCUT_KEYS: Record<TextAlign, string> = {
-  left: "mod+shift+l",
-  center: "mod+shift+e",
-  right: "mod+shift+r",
-  justify: "mod+shift+j",
+  left: 'mod+shift+l',
+  center: 'mod+shift+e',
+  right: 'mod+shift+r',
+  justify: 'mod+shift+j',
 }
 
 export const textAlignIcons = {
@@ -61,10 +57,10 @@ export const textAlignIcons = {
 }
 
 export const textAlignLabels: Record<TextAlign, string> = {
-  left: "Align left",
-  center: "Align center",
-  right: "Align right",
-  justify: "Align justify",
+  left: 'Align left',
+  center: 'Align center',
+  right: 'Align right',
+  justify: 'Align justify',
 }
 
 /**
@@ -72,12 +68,12 @@ export const textAlignLabels: Record<TextAlign, string> = {
  */
 export function canSetTextAlign(
   editor: Editor | null,
-  align: TextAlign
+  align: TextAlign,
 ): boolean {
   if (!editor || !editor.isEditable) return false
   if (
-    !isExtensionAvailable(editor, "textAlign") ||
-    isNodeTypeSelected(editor, ["image"])
+    !isExtensionAvailable(editor, 'textAlign') ||
+    isNodeTypeSelected(editor, ['image'])
   )
     return false
 
@@ -85,11 +81,11 @@ export function canSetTextAlign(
 }
 
 export function hasSetTextAlign(
-  commands: ChainedCommands
+  commands: ChainedCommands,
 ): commands is ChainedCommands & {
   setTextAlign: (align: TextAlign) => ChainedCommands
 } {
-  return "setTextAlign" in commands
+  return 'setTextAlign' in commands
 }
 
 /**
@@ -97,7 +93,7 @@ export function hasSetTextAlign(
  */
 export function isTextAlignActive(
   editor: Editor | null,
-  align: TextAlign
+  align: TextAlign,
 ): boolean {
   if (!editor || !editor.isEditable) return false
   return editor.isActive({ textAlign: align })
@@ -129,9 +125,9 @@ export function shouldShowButton(props: {
   const { editor, hideWhenUnavailable, align } = props
 
   if (!editor || !editor.isEditable) return false
-  if (!isExtensionAvailable(editor, "textAlign")) return false
+  if (!isExtensionAvailable(editor, 'textAlign')) return false
 
-  if (hideWhenUnavailable && !editor.isActive("code")) {
+  if (hideWhenUnavailable && !editor.isActive('code')) {
     return canSetTextAlign(editor, align)
   }
 
@@ -198,10 +194,10 @@ export function useTextAlign(config: UseTextAlignConfig) {
 
     handleSelectionUpdate()
 
-    editor.on("selectionUpdate", handleSelectionUpdate)
+    editor.on('selectionUpdate', handleSelectionUpdate)
 
     return () => {
-      editor.off("selectionUpdate", handleSelectionUpdate)
+      editor.off('selectionUpdate', handleSelectionUpdate)
     }
   }, [editor, hideWhenUnavailable, align])
 
@@ -225,7 +221,7 @@ export function useTextAlign(config: UseTextAlignConfig) {
       enabled: isVisible && canAlign,
       enableOnContentEditable: !isMobile,
       enableOnFormTags: true,
-    }
+    },
   )
 
   return {

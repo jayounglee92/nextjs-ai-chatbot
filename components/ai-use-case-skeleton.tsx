@@ -21,11 +21,11 @@ export function AiUseCaseSkeleton() {
                     <Skeleton className="h-6 w-3/4" />
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
-                        <Skeleton className="h-4 w-4 rounded" />
+                        <Skeleton className="size-4 rounded" />
                         <Skeleton className="h-4 w-16" />
                       </div>
                       <div className="flex items-center gap-1">
-                        <Skeleton className="h-4 w-4 rounded" />
+                        <Skeleton className="size-4 rounded" />
                         <Skeleton className="h-4 w-20" />
                       </div>
                     </div>
@@ -35,12 +35,12 @@ export function AiUseCaseSkeleton() {
                     <Skeleton className="h-4 w-5/6" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <Skeleton className="h-4 w-4 rounded" />
+                    <Skeleton className="size-4 rounded" />
                     <Skeleton className="h-4 w-20" />
                   </div>
                 </div>
-                <div className="flex-shrink-0">
-                  <Skeleton className="h-24 w-24 md:h-28 md:w-28 rounded-lg" />
+                <div className="shrink-0">
+                  <Skeleton className="size-24 md:size-28 rounded-lg" />
                 </div>
               </div>
             </CardContent>

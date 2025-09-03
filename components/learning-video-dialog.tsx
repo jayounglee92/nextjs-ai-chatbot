@@ -37,7 +37,7 @@ export function LearningVideoDialog({
               {learningItem.title}
             </DialogTitle>
             <DialogClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-              <X className="h-5 w-5 lg:h-6 lg:w-6" />
+              <X className="size-5 lg:size-6" />
               <span className="sr-only">Close</span>
             </DialogClose>
           </div>
@@ -49,7 +49,7 @@ export function LearningVideoDialog({
             <iframe
               src={`https://www.youtube.com/embed/${videoId}`}
               title={learningItem.title}
-              className="w-full h-full rounded-lg"
+              className="size-full rounded-lg"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />

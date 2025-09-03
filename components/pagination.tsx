@@ -71,7 +71,7 @@ export function Pagination({
         disabled={hasPrevPage === false || currentPage === 1}
         className="flex items-center gap-1"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="size-4" />
       </Button>
 
       {/* 페이지 번호들 */}
@@ -82,7 +82,7 @@ export function Pagination({
             variant={page === currentPage ? 'default' : 'ghost'}
             size="sm"
             onClick={() => changePage(page)}
-            className="min-w-[40px]"
+            className="min-w-40"
           >
             {page}
           </Button>
@@ -97,7 +97,7 @@ export function Pagination({
         disabled={hasNextPage === false || currentPage === totalPages}
         className="flex items-center gap-1"
       >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="size-4" />
       </Button>
     </div>
   )

@@ -54,13 +54,13 @@ export function AiUseCaseList({
                       </h3>
                       <div className="flex items-center gap-4 text-xs md:text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
+                          <Clock className="size-4" />
                           <span>
                             {calculateReadingTime(useCase.content) || '5분'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
+                          <Calendar className="size-4" />
                           <span>
                             {getRelativeTimeString(useCase.createdAt)}
                           </span>
@@ -78,23 +78,23 @@ export function AiUseCaseList({
                         : '내용이 없습니다.'}
                     </p>
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
+                      <User className="size-4 text-muted-foreground" />
                       <span className="text-xs md:text-sm text-muted-foreground">
                         {useCase.userId}
                       </span>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 h-24 w-24 md:h-28 md:w-28 bg-muted rounded-lg overflow-hidden">
+                  <div className="shrink-0 size-24 md:size-28 bg-muted rounded-lg overflow-hidden">
                     {useCase.thumbnailUrl ? (
                       <Image
                         src={useCase.thumbnailUrl ?? '/images/thumbnail01.webp'}
                         alt={useCase.title}
                         width={80}
                         height={80}
-                        className="object-cover w-full h-full"
+                        className="object-cover size-full"
                       />
                     ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <div className="size-full bg-muted flex items-center justify-center">
                         <span className="text-muted-foreground text-xs">
                           이미지 없음
                         </span>

@@ -1,53 +1,53 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
-import { toast } from '@/components/toast';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useActionState, useEffect, useState } from 'react'
+import { toast } from '@/components/toast'
 
-import { AuthForm } from '@/components/auth-form';
-import { SubmitButton } from '@/components/submit-button';
+import { AuthForm } from '@/components/auth-form'
+import { SubmitButton } from '@/components/submit-button'
 
-import { login, type LoginActionState } from '../actions';
-import { useSession } from 'next-auth/react';
+import { login, type LoginActionState } from '../actions'
+import { useSession } from 'next-auth/react'
 
 export default function Page() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [email, setEmail] = useState('');
-  const [isSuccessful, setIsSuccessful] = useState(false);
+  const [email, setEmail] = useState('')
+  const [isSuccessful, setIsSuccessful] = useState(false)
 
   const [state, formAction] = useActionState<LoginActionState, FormData>(
     login,
     {
       status: 'idle',
     },
-  );
+  )
 
-  const { update: updateSession } = useSession();
+  const { update: updateSession } = useSession()
 
   useEffect(() => {
     if (state.status === 'failed') {
       toast({
         type: 'error',
         description: '잘못된 이메일 또는 비밀번호입니다.',
-      });
+      })
     } else if (state.status === 'invalid_data') {
       toast({
         type: 'error',
         description: '입력 값이 유효하지 않습니다.',
-      });
+      })
     } else if (state.status === 'success') {
-      setIsSuccessful(true);
-      updateSession();
-      router.refresh();
+      setIsSuccessful(true)
+      updateSession()
+      router.refresh()
     }
-  }, [state.status]);
+  }, [state.status, updateSession, router])
 
   const handleSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    formAction(formData);
-  };
+    setEmail(formData.get('email') as string)
+    formAction(formData)
+  }
 
   return (
     <div className="flex h-dvh w-screen items-start justify-center bg-background pt-12 md:items-center md:pt-0">
@@ -72,5 +72,5 @@ export default function Page() {
         </AuthForm>
       </div>
     </div>
-  );
+  )
 }

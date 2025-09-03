@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
-import { memo } from 'react';
-import type { Chat } from '@/lib/db/schema';
-import { useRouter } from 'next/navigation';
-import { GlobeIcon, LockIcon } from 'lucide-react';
+import { motion } from 'framer-motion'
+import { Button } from './ui/button'
+import { memo } from 'react'
+import type { Chat } from '@/lib/db/schema'
+import { useRouter } from 'next/navigation'
+import { GlobeIcon, LockIcon } from 'lucide-react'
 
 interface PublicChatListProps {
-  chats: Chat[];
+  chats: Chat[]
 }
 
 function PurePublicChatList({ chats }: PublicChatListProps) {
-  const router = useRouter();
+  const router = useRouter()
 
   if (!chats || chats.length === 0) {
     return (
@@ -24,7 +24,7 @@ function PurePublicChatList({ chats }: PublicChatListProps) {
           </p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -41,15 +41,15 @@ function PurePublicChatList({ chats }: PublicChatListProps) {
           <Button
             variant="ghost"
             onClick={() => {
-              router.push(`/chat/${chat.id}`);
+              router.push(`/chat/${chat.id}`)
             }}
             className="h-auto w-full flex-1 items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
           >
             <div className="flex items-center gap-2 mb-1">
               {chat.visibility === 'public' ? (
-                <GlobeIcon className="h-4 w-4 " />
+                <GlobeIcon className="size-4" />
               ) : (
-                <LockIcon className="h-4 w-4 " />
+                <LockIcon className="size-4" />
               )}
               <span className="text-xs text-muted-foreground">
                 {chat.visibility === 'public' ? '공개' : '비공개'}
@@ -67,19 +67,19 @@ function PurePublicChatList({ chats }: PublicChatListProps) {
         </motion.div>
       ))}
     </div>
-  );
+  )
 }
 
 export const PublicChatList = memo(
   PurePublicChatList,
   (prevProps, nextProps) => {
-    if (prevProps.chats.length !== nextProps.chats.length) return false;
+    if (prevProps.chats.length !== nextProps.chats.length) return false
 
     // 채팅 ID가 변경되었는지 확인
-    const prevIds = prevProps.chats.map((chat) => chat.id).join(',');
-    const nextIds = nextProps.chats.map((chat) => chat.id).join(',');
-    if (prevIds !== nextIds) return false;
+    const prevIds = prevProps.chats.map((chat) => chat.id).join(',')
+    const nextIds = nextProps.chats.map((chat) => chat.id).join(',')
+    if (prevIds !== nextIds) return false
 
-    return true;
+    return true
   },
-);
+)

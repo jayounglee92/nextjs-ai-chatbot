@@ -76,7 +76,7 @@ export default function AiUseCasePage() {
               href="/ai-use-case/write"
               className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <PencilLineIcon className="w-4 h-4" /> 글쓰기
+              <PencilLineIcon className="size-4" /> 글쓰기
             </Link>
           </div>
           <p className="text-muted-foreground">
@@ -113,7 +113,7 @@ export default function AiUseCasePage() {
             href="/ai-use-case/write"
             className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <PencilLineIcon className="w-4 h-4" /> 글쓰기
+            <PencilLineIcon className="size-4" /> 글쓰기
           </Link>
         </div>
         <p className="text-muted-foreground">

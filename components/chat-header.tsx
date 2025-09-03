@@ -44,7 +44,7 @@ function PureChatHeader({
   const { width: windowWidth } = useWindowSize()
 
   return (
-    <header className="flex sticky shadow-sm top-0 bg-background py-2 px-4 items-center gap-2 bg-white">
+    <header className="flex sticky shadow-sm top-0 py-2 px-4 items-center gap-2 bg-white">
       {/* 사이드바 열기/닫기 토글 버튼 */}
       <SidebarToggle />
       {/* 새 채팅 시작 버튼 - 조건부 표시 */}

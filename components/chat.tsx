@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import { DefaultChatTransport } from 'ai';
-import { useChat } from '@ai-sdk/react';
-import { useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { ChatHeader } from '@/components/chat-header';
-import type { Vote } from '@/lib/db/schema';
-import { fetcher, fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
-import { Artifact } from './artifact';
-import { MultimodalInput } from './multimodal-input';
-import { Messages } from './messages';
-import type { VisibilityType } from './visibility-selector';
-import { useArtifactSelector } from '@/hooks/use-artifact';
-import { unstable_serialize } from 'swr/infinite';
-import { getChatHistoryPaginationKey } from './sidebar-history';
-import { toast } from './toast';
-import type { Session } from 'next-auth';
-import { useSearchParams } from 'next/navigation';
-import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import { useAutoResume } from '@/hooks/use-auto-resume';
-import { ChatSDKError } from '@/lib/errors';
-import type { Attachment, ChatMessage } from '@/lib/types';
-import { useDataStream } from './data-stream-provider';
+import { DefaultChatTransport } from 'ai'
+import { useChat } from '@ai-sdk/react'
+import { useEffect, useState } from 'react'
+import useSWR, { useSWRConfig } from 'swr'
+import { ChatHeader } from '@/components/chat-header'
+import type { Vote } from '@/lib/db/schema'
+import { fetcher, fetchWithErrorHandlers, generateUUID } from '@/lib/utils'
+import { Artifact } from './artifact'
+import { MultimodalInput } from './multimodal-input'
+import { Messages } from './messages'
+import type { VisibilityType } from './visibility-selector'
+import { useArtifactSelector } from '@/hooks/use-artifact'
+import { unstable_serialize } from 'swr/infinite'
+import { getChatHistoryPaginationKey } from './sidebar-history'
+import { toast } from './toast'
+import type { Session } from 'next-auth'
+import { useSearchParams } from 'next/navigation'
+import { useChatVisibility } from '@/hooks/use-chat-visibility'
+import { useAutoResume } from '@/hooks/use-auto-resume'
+import { ChatSDKError } from '@/lib/errors'
+import type { Attachment, ChatMessage } from '@/lib/types'
+import { useDataStream } from './data-stream-provider'
 
 /**
  * 메인 채팅 컴포넌트
@@ -43,26 +43,26 @@ export function Chat({
   session,
   autoResume,
 }: {
-  id: string; // 채팅방 고유 ID
-  initialMessages: ChatMessage[]; // 초기 메시지 목록 (서버에서 로드된 기존 대화)
-  initialChatModel: string; // 사용할 AI 모델 ID (GPT-4, Claude 등)
-  initialVisibilityType: VisibilityType; // 채팅 공개/비공개 설정
-  isReadonly: boolean; // 읽기 전용 모드 여부 (공유된 채팅 등)
-  session: Session; // 사용자 세션 정보
-  autoResume: boolean; // 중단된 스트리밍 자동 재개 여부
+  id: string // 채팅방 고유 ID
+  initialMessages: ChatMessage[] // 초기 메시지 목록 (서버에서 로드된 기존 대화)
+  initialChatModel: string // 사용할 AI 모델 ID (GPT-4, Claude 등)
+  initialVisibilityType: VisibilityType // 채팅 공개/비공개 설정
+  isReadonly: boolean // 읽기 전용 모드 여부 (공유된 채팅 등)
+  session: Session // 사용자 세션 정보
+  autoResume: boolean // 중단된 스트리밍 자동 재개 여부
 }) {
   // 채팅 가시성 상태 관리 (Public/Private 전환)
   const { visibilityType } = useChatVisibility({
     chatId: id,
     initialVisibilityType,
-  });
+  })
 
   // SWR 캐시 관리 및 데이터 스트림 상태
-  const { mutate } = useSWRConfig();
-  const { setDataStream } = useDataStream();
+  const { mutate } = useSWRConfig()
+  const { setDataStream } = useDataStream()
 
   // 사용자 입력 텍스트 상태
-  const [input, setInput] = useState<string>('');
+  const [input, setInput] = useState<string>('')
 
   // AI SDK의 useChat 훅으로 채팅 기능 구현
   const {
@@ -94,20 +94,20 @@ export function Chat({
             selectedVisibilityType: visibilityType, // 현재 가시성 설정
             ...body, // 추가 데이터 (첨부파일 등)
           },
-        };
+        }
       },
     }),
 
     // 스트리밍 데이터 수신 시 콜백
     onData: (dataPart) => {
       // 실시간으로 받은 데이터를 스트림에 추가
-      setDataStream((ds) => (ds ? [...ds, dataPart] : []));
+      setDataStream((ds) => (ds ? [...ds, dataPart] : []))
     },
 
     // 메시지 완료 시 콜백
     onFinish: () => {
       // 채팅 히스토리 캐시를 무효화하여 사이드바 업데이트
-      mutate(unstable_serialize(getChatHistoryPaginationKey));
+      mutate(unstable_serialize(getChatHistoryPaginationKey))
     },
 
     // 에러 발생 시 콜백
@@ -117,17 +117,17 @@ export function Chat({
         toast({
           type: 'error',
           description: error.message,
-        });
+        })
       }
     },
-  });
+  })
 
   // URL 쿼리 파라미터에서 초기 질문 추출
-  const searchParams = useSearchParams();
-  const query = searchParams.get('query');
+  const searchParams = useSearchParams()
+  const query = searchParams.get('query')
 
   // 쿼리 파라미터 처리 상태 (중복 전송 방지)
-  const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
+  const [hasAppendedQuery, setHasAppendedQuery] = useState(false)
 
   // URL 쿼리로부터 자동 메시지 전송 처리
   useEffect(() => {
@@ -137,28 +137,28 @@ export function Chat({
       sendMessage({
         role: 'user' as const,
         parts: [{ type: 'text', text: query }],
-      });
+      })
 
       // 중복 처리 방지 플래그 설정
-      setHasAppendedQuery(true);
+      setHasAppendedQuery(true)
 
       // URL에서 쿼리 파라미터 제거 (깔끔한 URL 유지)
-      window.history.replaceState({}, '', `/chat/${id}`);
+      window.history.replaceState({}, '', `/chat/${id}`)
     }
-  }, [query, sendMessage, hasAppendedQuery, id]);
+  }, [query, sendMessage, hasAppendedQuery, id])
 
   // 투표 데이터 조회 (메시지가 2개 이상일 때만)
   // 사용자 질문 + AI 답변이 있어야 투표 가능
   const { data: votes } = useSWR<Array<Vote>>(
     messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
     fetcher,
-  );
+  )
 
   // 파일 첨부 상태 관리
-  const [attachments, setAttachments] = useState<Array<Attachment>>([]);
+  const [attachments, setAttachments] = useState<Array<Attachment>>([])
 
   // 아티팩트 패널 표시 여부 (코드, 이미지 등 생성물)
-  const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
+  const isArtifactVisible = useArtifactSelector((state) => state.isVisible)
 
   // 중단된 스트리밍 자동 재개 기능
   useAutoResume({
@@ -166,7 +166,7 @@ export function Chat({
     initialMessages,
     resumeStream,
     setMessages,
-  });
+  })
 
   return (
     <>
@@ -232,7 +232,9 @@ export function Chat({
         votes={votes}
         isReadonly={isReadonly}
         selectedVisibilityType={visibilityType}
+        selectedModelId={initialChatModel}
+        session={session}
       />
     </>
-  );
+  )
 }

@@ -1,9 +1,8 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'

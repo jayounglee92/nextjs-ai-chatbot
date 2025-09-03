@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { SidebarHistory } from '@/components/sidebar-history'
-import { SidebarUserNav } from '@/components/sidebar-user-nav'
 import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
 import Link from 'next/link'
@@ -164,7 +163,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
             isOpen ? 'w-20 flex border-sidebar-border' : 'w-0 hidden'
           }`}
         >
-          <div className="relative z-40 flex h-full w-full flex-col bg-sidebar">
+          <div className="relative z-40 flex size-full flex-col bg-sidebar">
             {/* 헤더 */}
             <div className="flex flex-col gap-2 p-2">
               <div className="flex flex-col items-center py-2">
@@ -176,14 +175,14 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                     }
                     setActiveMenu('home')
                   }}
-                  className="flex h-14 w-14 items-center justify-center rounded-lg  text-lg font-bold text-primary-foreground hover:bg-secondary hover:text-primary-foreground"
+                  className="flex size-14 items-center justify-center rounded-lg  text-lg font-bold text-primary-foreground hover:bg-secondary hover:text-primary-foreground"
                 >
                   <Image
                     src={logo}
                     alt="logo"
                     width={24}
                     height={24}
-                    className="w-6 h-6"
+                    className="size-6"
                   />
                 </Link>
               </div>
@@ -195,7 +194,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="rounded-full flex flex-col h-12 w-12 gap-1 p-0 text-md text-left text-gray-700"
+                  className="rounded-full flex flex-col size-12 gap-1 p-0 text-md text-left text-gray-700"
                   onClick={() => {
                     // 홈페이지로 이동하여 새 채팅 시작
                     router.push('/')
@@ -209,7 +208,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                     key={item.id}
                     variant={activeMenu === item.id ? 'secondary' : 'ghost'}
                     size="sm"
-                    className="flex flex-col h-16 w-16 gap-1 p-0 text-md text-left text-gray-700"
+                    className="flex flex-col size-16 gap-1 p-0 text-md text-left text-gray-700"
                     onClick={() => handleMenuClick(item.id)}
                     onMouseEnter={() =>
                       item.hasSubmenu && setHoveredMenu(item.id)
@@ -248,7 +247,7 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
               setHoveredMenu(null)
             }}
           >
-            <div className="flex h-full w-full flex-col">
+            <div className="flex h-full size-full flex-col">
               <div className="border-b border-sidebar-border p-4">
                 <h3 className="text-sm font-medium text-sidebar-foreground">
                   모든 채팅

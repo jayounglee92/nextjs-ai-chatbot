@@ -441,10 +441,6 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
   // 뷰 모드에서는 업로드 노드를 표시하지 않음
   const isViewMode = !props.editor.isEditable
 
-  if (isViewMode) {
-    return null
-  }
-
   const uploadOptions: UploadOptions = {
     maxSize,
     limit,
@@ -456,6 +452,10 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 
   const { fileItems, uploadFiles, removeFileItem, clearAllFiles } =
     useFileUpload(uploadOptions)
+
+  if (isViewMode) {
+    return null
+  }
 
   const handleUpload = async (files: File[]) => {
     const urls = await uploadFiles(files)
@@ -527,7 +527,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
               setShowDropZone(false)
             }}
           >
-            <CloseIcon className="w-4 h-4 text-gray-600" />
+            <CloseIcon className="size-4 text-gray-600" />
           </Button>
           <DropZoneContent maxSize={maxSize} limit={limit} />
         </ImageUploadDragArea>

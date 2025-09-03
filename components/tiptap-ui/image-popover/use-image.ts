@@ -91,11 +91,16 @@ export function useImage({
       const { $from } = selection
 
       // Check if there's a selected image node
-      const selectedNode = editor.state.selection.node
-      if (selectedNode && selectedNode.type.name === 'image') {
-        const newAlignment = selectedNode.attrs.alignment || 'center'
-        setCurrentAlignment(newAlignment)
-        return
+      if (
+        selection instanceof editor.state.selection.constructor &&
+        'node' in selection
+      ) {
+        const selectedNode = (selection as any).node
+        if (selectedNode && selectedNode.type.name === 'image') {
+          const newAlignment = selectedNode.attrs.alignment || 'center'
+          setCurrentAlignment(newAlignment)
+          return
+        }
       }
 
       // Check if we're inside an image node
@@ -151,7 +156,7 @@ export function useImage({
 
     // 현재 선택된 노드가 이미지인지 확인
     const { selection } = editor.state
-    const selectedNode = selection.node
+    const selectedNode = 'node' in selection ? (selection as any).node : null
 
     if (selectedNode && selectedNode.type.name === 'image') {
       // 선택된 이미지 노드 삭제

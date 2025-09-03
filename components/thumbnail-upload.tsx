@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/tiptap-ui-primitive/button'
 import { CloseIcon } from '@/components/tiptap-icons/close-icon'
 import {
@@ -179,7 +180,7 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
               <div className="relative">
                 <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2" />
+                    <div className="animate-spin rounded-full size-8 border-b-2 border-blue-600 mx-auto mb-2" />
                     <p className="text-sm text-gray-600">
                       업로드 중... {currentFileItem.progress}%
                     </p>
@@ -192,11 +193,13 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
               </div>
             ) : (
               // 업로드 완료된 이미지
-              <div className="relative h-48 w-48">
-                <img
-                  src={imageUrl || currentFileItem?.url}
+              <div className="relative size-48">
+                <Image
+                  src={imageUrl || currentFileItem?.url || ''}
                   alt="썸네일"
-                  className="w-full h-full object-cover rounded-lg"
+                  className="size-full object-cover rounded-lg"
+                  width={192}
+                  height={192}
                 />
 
                 <Button
@@ -207,7 +210,7 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
                     handleRemove()
                   }}
                 >
-                  <CloseIcon className="w-4 h-4 text-gray-600" />
+                  <CloseIcon className="size-4 text-gray-600" />
                 </Button>
               </div>
             )}

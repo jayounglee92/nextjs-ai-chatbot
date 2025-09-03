@@ -60,7 +60,7 @@ export function AiUseCaseActions({ useCase }: Props) {
       <Tooltip>
         <TooltipTrigger asChild>
           <button type="button" onClick={handleShare}>
-            <Share2 className="h-6 w-6" />
+            <Share2 className="size-6" />
           </button>
         </TooltipTrigger>
         <TooltipContent>
@@ -70,7 +70,7 @@ export function AiUseCaseActions({ useCase }: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button type="button">
-            <EllipsisVertical className="h-6 w-6" />
+            <EllipsisVertical className="size-6" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

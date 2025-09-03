@@ -114,7 +114,7 @@ export function TableDropdownMenu({
                       <button
                         key={`${row}-${col}`}
                         type="button"
-                        className={`w-4 h-4 border border-gray-200 cursor-pointer transition-colors ${
+                        className={`size-4 border border-gray-200 cursor-pointer transition-colors ${
                           isSelected ? 'bg-black' : 'bg-white hover:bg-gray-100'
                         }`}
                         onMouseEnter={() => handleCellHover(row, col)}

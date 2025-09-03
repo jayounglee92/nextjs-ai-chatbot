@@ -1,6 +1,6 @@
-import { formatDistance } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { AnimatePresence, motion } from 'framer-motion';
+import { formatDistance } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   type Dispatch,
   memo,
@@ -8,27 +8,27 @@ import {
   useCallback,
   useEffect,
   useState,
-} from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { useDebounceCallback, useWindowSize } from 'usehooks-ts';
-import type { Document, Vote } from '@/lib/db/schema';
-import { fetcher } from '@/lib/utils';
-import { MultimodalInput } from './multimodal-input';
-import { Toolbar } from './toolbar';
-import { VersionFooter } from './version-footer';
-import { ArtifactActions } from './artifact-actions';
-import { ArtifactCloseButton } from './artifact-close-button';
-import { ArtifactMessages } from './artifact-messages';
-import { useSidebar } from './ui/sidebar';
-import { useArtifact } from '@/hooks/use-artifact';
-import { imageArtifact } from '@/artifacts/image/client';
-import { codeArtifact } from '@/artifacts/code/client';
-import { sheetArtifact } from '@/artifacts/sheet/client';
-import { textArtifact } from '@/artifacts/text/client';
-import equal from 'fast-deep-equal';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { VisibilityType } from './visibility-selector';
-import type { Attachment, ChatMessage } from '@/lib/types';
+} from 'react'
+import useSWR, { useSWRConfig } from 'swr'
+import { useDebounceCallback, useWindowSize } from 'usehooks-ts'
+import type { Document, Vote } from '@/lib/db/schema'
+import { fetcher } from '@/lib/utils'
+import { MultimodalInput } from './multimodal-input'
+import { Toolbar } from './toolbar'
+import { VersionFooter } from './version-footer'
+import { ArtifactActions } from './artifact-actions'
+import { ArtifactCloseButton } from './artifact-close-button'
+import { ArtifactMessages } from './artifact-messages'
+import { useSidebar } from './ui/sidebar'
+import { useArtifact } from '@/hooks/use-artifact'
+import { imageArtifact } from '@/artifacts/image/client'
+import { codeArtifact } from '@/artifacts/code/client'
+import { sheetArtifact } from '@/artifacts/sheet/client'
+import { textArtifact } from '@/artifacts/text/client'
+import equal from 'fast-deep-equal'
+import type { UseChatHelpers } from '@ai-sdk/react'
+import type { VisibilityType } from './visibility-selector'
+import type { Attachment, ChatMessage } from '@/lib/types'
 
 // 지원되는 아티팩트 타입들의 정의 배열
 export const artifactDefinitions = [
@@ -36,28 +36,28 @@ export const artifactDefinitions = [
   codeArtifact, // 코드 파일
   imageArtifact, // 이미지
   sheetArtifact, // 스프레드시트
-];
+]
 
 // 아티팩트 종류 타입 (위 배열에서 추출)
-export type ArtifactKind = (typeof artifactDefinitions)[number]['kind'];
+export type ArtifactKind = (typeof artifactDefinitions)[number]['kind']
 
 /**
  * UI에서 사용되는 아티팩트 상태 인터페이스
  */
 export interface UIArtifact {
-  title: string; // 아티팩트 제목
-  documentId: string; // 문서 고유 ID
-  kind: ArtifactKind; // 아티팩트 종류 (text, code, image, sheet)
-  content: string; // 아티팩트 내용
-  isVisible: boolean; // 패널 표시 여부
-  status: 'streaming' | 'idle'; // 스트리밍 상태
+  title: string // 아티팩트 제목
+  documentId: string // 문서 고유 ID
+  kind: ArtifactKind // 아티팩트 종류 (text, code, image, sheet)
+  content: string // 아티팩트 내용
+  isVisible: boolean // 패널 표시 여부
+  status: 'streaming' | 'idle' // 스트리밍 상태
   boundingBox: {
     // 애니메이션용 시작 위치
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  };
+    top: number
+    left: number
+    width: number
+    height: number
+  }
 }
 
 /**
@@ -88,24 +88,28 @@ function PureArtifact({
   votes, // 메시지 투표 정보
   isReadonly, // 읽기 전용 모드 여부
   selectedVisibilityType, // 채팅 가시성 설정
+  selectedModelId, // 선택된 AI 모델 ID
+  session, // 사용자 세션
 }: {
-  chatId: string;
-  input: string;
-  setInput: Dispatch<SetStateAction<string>>;
-  status: UseChatHelpers<ChatMessage>['status'];
-  stop: UseChatHelpers<ChatMessage>['stop'];
-  attachments: Attachment[];
-  setAttachments: Dispatch<SetStateAction<Attachment[]>>;
-  messages: ChatMessage[];
-  setMessages: UseChatHelpers<ChatMessage>['setMessages'];
-  votes: Array<Vote> | undefined;
-  sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
-  regenerate: UseChatHelpers<ChatMessage>['regenerate'];
-  isReadonly: boolean;
-  selectedVisibilityType: VisibilityType;
+  chatId: string
+  input: string
+  setInput: Dispatch<SetStateAction<string>>
+  status: UseChatHelpers<ChatMessage>['status']
+  stop: UseChatHelpers<ChatMessage>['stop']
+  attachments: Attachment[]
+  setAttachments: Dispatch<SetStateAction<Attachment[]>>
+  messages: ChatMessage[]
+  setMessages: UseChatHelpers<ChatMessage>['setMessages']
+  votes: Array<Vote> | undefined
+  sendMessage: UseChatHelpers<ChatMessage>['sendMessage']
+  regenerate: UseChatHelpers<ChatMessage>['regenerate']
+  isReadonly: boolean
+  selectedVisibilityType: VisibilityType
+  selectedModelId: string
+  session: any
 }) {
   // 아티팩트 전역 상태 및 메타데이터 관리
-  const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
+  const { artifact, setArtifact, metadata, setMetadata } = useArtifact()
 
   // 문서 버전 히스토리 데이터 fetching (SWR 사용)
   const {
@@ -118,43 +122,43 @@ function PureArtifact({
       ? `/api/document?id=${artifact.documentId}`
       : null,
     fetcher,
-  );
+  )
 
   // 아티팩트 표시 모드 ('edit': 편집, 'diff': 변경사항 비교)
-  const [mode, setMode] = useState<'edit' | 'diff'>('edit');
+  const [mode, setMode] = useState<'edit' | 'diff'>('edit')
   // 현재 선택된 문서 버전
-  const [document, setDocument] = useState<Document | null>(null);
+  const [document, setDocument] = useState<Document | null>(null)
   // 현재 보고 있는 버전의 인덱스 (-1은 최신 버전)
-  const [currentVersionIndex, setCurrentVersionIndex] = useState(-1);
+  const [currentVersionIndex, setCurrentVersionIndex] = useState(-1)
 
   // 사이드바 열림/닫힘 상태
-  const { open: isSidebarOpen } = useSidebar();
+  const { open: isSidebarOpen } = useSidebar()
 
   // 문서 데이터가 로드되면 최신 버전으로 상태 업데이트
   useEffect(() => {
     if (documents && documents.length > 0) {
-      const mostRecentDocument = documents.at(-1);
+      const mostRecentDocument = documents.at(-1)
 
       if (mostRecentDocument) {
-        setDocument(mostRecentDocument); // 현재 문서 설정
-        setCurrentVersionIndex(documents.length - 1); // 최신 버전 인덱스 설정
+        setDocument(mostRecentDocument) // 현재 문서 설정
+        setCurrentVersionIndex(documents.length - 1) // 최신 버전 인덱스 설정
         setArtifact((currentArtifact) => ({
           ...currentArtifact,
           content: mostRecentDocument.content ?? '', // 아티팩트 내용 업데이트
-        }));
+        }))
       }
     }
-  }, [documents, setArtifact]);
+  }, [documents, setArtifact])
 
   // 아티팩트 상태가 변경되면 문서 데이터 새로고침
   useEffect(() => {
-    mutateDocuments();
-  }, [artifact.status, mutateDocuments]);
+    mutateDocuments()
+  }, [artifact.status, mutateDocuments])
 
   // SWR 전역 mutate 함수 (캐시 업데이트용)
-  const { mutate } = useSWRConfig();
+  const { mutate } = useSWRConfig()
   // 내용 변경 중 상태 (저장 중 표시용)
-  const [isContentDirty, setIsContentDirty] = useState(false);
+  const [isContentDirty, setIsContentDirty] = useState(false)
 
   /**
    * 아티팩트 내용 변경 처리 및 서버 저장
@@ -167,20 +171,20 @@ function PureArtifact({
    */
   const handleContentChange = useCallback(
     (updatedContent: string) => {
-      if (!artifact) return;
+      if (!artifact) return
 
       // SWR 캐시 업데이트 (낙관적 업데이트)
       mutate<Array<Document>>(
         `/api/document?id=${artifact.documentId}`,
         async (currentDocuments) => {
-          if (!currentDocuments) return undefined;
+          if (!currentDocuments) return undefined
 
-          const currentDocument = currentDocuments.at(-1);
+          const currentDocument = currentDocuments.at(-1)
 
           // 문서가 없거나 내용이 없으면 변경사항 없음
           if (!currentDocument || !currentDocument.content) {
-            setIsContentDirty(false);
-            return currentDocuments;
+            setIsContentDirty(false)
+            return currentDocuments
           }
 
           // 내용이 실제로 변경된 경우에만 저장
@@ -193,33 +197,33 @@ function PureArtifact({
                 content: updatedContent,
                 kind: artifact.kind,
               }),
-            });
+            })
 
-            setIsContentDirty(false);
+            setIsContentDirty(false)
 
             // 새 문서 버전 생성
             const newDocument = {
               ...currentDocument,
               content: updatedContent,
               createdAt: new Date(),
-            };
+            }
 
             // 문서 히스토리에 새 버전 추가
-            return [...currentDocuments, newDocument];
+            return [...currentDocuments, newDocument]
           }
-          return currentDocuments;
+          return currentDocuments
         },
         { revalidate: false }, // 자동 재검증 비활성화
-      );
+      )
     },
     [artifact, mutate],
-  );
+  )
 
   // 디바운스된 내용 변경 처리 (2초 지연 후 저장)
   const debouncedHandleContentChange = useDebounceCallback(
     handleContentChange,
     2000,
-  );
+  )
 
   /**
    * 아티팩트 내용 저장 함수
@@ -230,26 +234,26 @@ function PureArtifact({
   const saveContent = useCallback(
     (updatedContent: string, debounce: boolean) => {
       if (document && updatedContent !== document.content) {
-        setIsContentDirty(true); // 저장 중 상태 표시
+        setIsContentDirty(true) // 저장 중 상태 표시
 
         if (debounce) {
-          debouncedHandleContentChange(updatedContent); // 디바운스된 저장
+          debouncedHandleContentChange(updatedContent) // 디바운스된 저장
         } else {
-          handleContentChange(updatedContent); // 즉시 저장
+          handleContentChange(updatedContent) // 즉시 저장
         }
       }
     },
     [document, debouncedHandleContentChange, handleContentChange],
-  );
+  )
 
   /**
    * 특정 인덱스의 문서 내용 조회
    * 버전 히스토리 탐색 시 사용
    */
   function getDocumentContentById(index: number) {
-    if (!documents) return '';
-    if (!documents[index]) return '';
-    return documents[index].content ?? '';
+    if (!documents) return ''
+    if (!documents[index]) return ''
+    return documents[index].content ?? ''
   }
 
   /**
@@ -262,30 +266,30 @@ function PureArtifact({
    *   - 'toggle': 편집/비교 모드 전환
    */
   const handleVersionChange = (type: 'next' | 'prev' | 'toggle' | 'latest') => {
-    if (!documents) return;
+    if (!documents) return
 
     if (type === 'latest') {
-      setCurrentVersionIndex(documents.length - 1); // 최신 버전 인덱스
-      setMode('edit'); // 편집 모드로 전환
+      setCurrentVersionIndex(documents.length - 1) // 최신 버전 인덱스
+      setMode('edit') // 편집 모드로 전환
     }
 
     if (type === 'toggle') {
-      setMode((mode) => (mode === 'edit' ? 'diff' : 'edit')); // 모드 토글
+      setMode((mode) => (mode === 'edit' ? 'diff' : 'edit')) // 모드 토글
     }
 
     if (type === 'prev') {
       if (currentVersionIndex > 0) {
-        setCurrentVersionIndex((index) => index - 1); // 이전 버전
+        setCurrentVersionIndex((index) => index - 1) // 이전 버전
       }
     } else if (type === 'next') {
       if (currentVersionIndex < documents.length - 1) {
-        setCurrentVersionIndex((index) => index + 1); // 다음 버전
+        setCurrentVersionIndex((index) => index + 1) // 다음 버전
       }
     }
-  };
+  }
 
   // 도구 모음 표시 여부 상태
-  const [isToolbarVisible, setIsToolbarVisible] = useState(false);
+  const [isToolbarVisible, setIsToolbarVisible] = useState(false)
 
   /**
    * 현재 버전 여부 판단
@@ -297,19 +301,19 @@ function PureArtifact({
   const isCurrentVersion =
     documents && documents.length > 0
       ? currentVersionIndex === documents.length - 1
-      : true;
+      : true
 
   // 윈도우 크기 정보 (반응형 레이아웃용)
-  const { width: windowWidth, height: windowHeight } = useWindowSize();
-  const isMobile = windowWidth ? windowWidth < 768 : false;
+  const { width: windowWidth, height: windowHeight } = useWindowSize()
+  const isMobile = windowWidth ? windowWidth < 768 : false
 
   // 현재 아티팩트 종류에 맞는 정의 찾기
   const artifactDefinition = artifactDefinitions.find(
     (definition) => definition.kind === artifact.kind,
-  );
+  )
 
   if (!artifactDefinition) {
-    throw new Error('Artifact definition not found!');
+    throw new Error('Artifact definition not found!')
   }
 
   // 아티팩트 초기화 (메타데이터 설정 등)
@@ -319,10 +323,10 @@ function PureArtifact({
         artifactDefinition.initialize({
           documentId: artifact.documentId,
           setMetadata,
-        });
+        })
       }
     }
-  }, [artifact.documentId, artifactDefinition, setMetadata]);
+  }, [artifact.documentId, artifactDefinition, setMetadata])
 
   return (
     <AnimatePresence>
@@ -413,6 +417,8 @@ function PureArtifact({
                     className="bg-background dark:bg-muted"
                     setMessages={setMessages}
                     selectedVisibilityType={selectedVisibilityType}
+                    selectedModelId={selectedModelId}
+                    session={session}
                   />
                 </form>
               </div>
@@ -585,23 +591,23 @@ function PureArtifact({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }
 
 // 성능 최적화를 위한 메모이제이션 (특정 props 변경 시에만 리렌더링)
 export const Artifact = memo(PureArtifact, (prevProps, nextProps) => {
   // 채팅 상태 변경 시 리렌더링
-  if (prevProps.status !== nextProps.status) return false;
+  if (prevProps.status !== nextProps.status) return false
   // 투표 정보 변경 시 리렌더링
-  if (!equal(prevProps.votes, nextProps.votes)) return false;
+  if (!equal(prevProps.votes, nextProps.votes)) return false
   // 입력 텍스트 변경 시 리렌더링
-  if (prevProps.input !== nextProps.input) return false;
+  if (prevProps.input !== nextProps.input) return false
   // 메시지 개수 변경 시 리렌더링
-  if (!equal(prevProps.messages, nextProps.messages.length)) return false;
+  if (!equal(prevProps.messages, nextProps.messages.length)) return false
   // 가시성 설정 변경 시 리렌더링
   if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
-    return false;
+    return false
 
   // 위 조건들이 모두 동일하면 리렌더링 하지 않음
-  return true;
-});
+  return true
+})

@@ -45,7 +45,7 @@ export const FixedBottomButtons = ({
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-3 z-50">
+    <div className="fixed bottom-0 inset-x-0 bg-white border-t p-3 z-50">
       <div
         className={`max-w-6xl mx-auto flex ${getAlignmentClass()} gap-3 ${className}`}
       >
