@@ -74,7 +74,7 @@ export default function LearningCenterPage() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="flex flex-1 flex-col">
+      <>
         <div className="space-y-4 flex flex-col mb-8">
           <div className="flex items-center gap-2 justify-between">
             <h1 className="text-2xl font-semibold text-foreground">학습센터</h1>
@@ -97,7 +97,7 @@ export default function LearningCenterPage() {
           />
         </div>
         <LearningSkeleton />
-      </div>
+      </>
     )
   }
 
@@ -116,7 +116,7 @@ export default function LearningCenterPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <>
       <div className="space-y-4 flex flex-col mb-8">
         <div className="flex items-center gap-2 justify-between">
           <h1 className="text-2xl font-semibold text-foreground">학습센터</h1>
@@ -149,6 +149,6 @@ export default function LearningCenterPage() {
         hasNextPage={pagination?.hasNextPage || false}
         hasPrevPage={pagination?.hasPrevPage || false}
       />
-    </div>
+    </>
   )
 }

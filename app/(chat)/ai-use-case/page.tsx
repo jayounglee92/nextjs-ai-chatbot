@@ -75,7 +75,7 @@ export default function AiUseCasePage() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="flex flex-1 flex-col">
+      <>
         <div className="space-y-4 flex flex-col mb-8">
           <div className="flex items-center gap-2 justify-between">
             <h1 className="text-2xl font-semibold text-foreground">
@@ -99,7 +99,7 @@ export default function AiUseCasePage() {
           />
         </div>
         <AiUseCaseSkeleton />
-      </div>
+      </>
     )
   }
 
@@ -118,7 +118,7 @@ export default function AiUseCasePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <>
       <div className="space-y-4 flex flex-col mb-8">
         <div className="flex items-center gap-2 justify-between">
           <h1 className="text-2xl font-semibold text-foreground">
@@ -152,6 +152,6 @@ export default function AiUseCasePage() {
         hasNextPage={pagination?.hasNextPage || false}
         hasPrevPage={pagination?.hasPrevPage || false}
       />
-    </div>
+    </>
   )
 }

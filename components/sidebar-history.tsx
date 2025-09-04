@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { isToday, isYesterday, subMonths, subWeeks } from 'date-fns';
-import { useParams, useRouter } from 'next/navigation';
-import type { User } from 'next-auth';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import { isToday, isYesterday, subMonths, subWeeks } from 'date-fns'
+import { useParams, useRouter } from 'next/navigation'
+import type { User } from 'next-auth'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { motion } from 'framer-motion'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,56 +15,56 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog'
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   useSidebar,
-} from '@/components/ui/sidebar';
-import type { Chat } from '@/lib/db/schema';
-import { fetcher } from '@/lib/utils';
-import { ChatItem } from './sidebar-history-item';
-import useSWRInfinite from 'swr/infinite';
-import { LoaderIcon } from './icons';
+} from '@/components/ui/sidebar'
+import type { Chat } from '@/lib/db/schema'
+import { fetcher } from '@/lib/utils'
+import { ChatItem } from './sidebar-history-item'
+import useSWRInfinite from 'swr/infinite'
+import { LoaderIcon } from './icons'
 
 type GroupedChats = {
-  today: Chat[];
-  yesterday: Chat[];
-  lastWeek: Chat[];
-  lastMonth: Chat[];
-  older: Chat[];
-};
-
-export interface ChatHistory {
-  chats: Array<Chat>;
-  hasMore: boolean;
+  today: Chat[]
+  yesterday: Chat[]
+  lastWeek: Chat[]
+  lastMonth: Chat[]
+  older: Chat[]
 }
 
-const PAGE_SIZE = 20;
+export interface ChatHistory {
+  chats: Array<Chat>
+  hasMore: boolean
+}
+
+const PAGE_SIZE = 20
 
 const groupChatsByDate = (chats: Chat[]): GroupedChats => {
-  const now = new Date();
-  const oneWeekAgo = subWeeks(now, 1);
-  const oneMonthAgo = subMonths(now, 1);
+  const now = new Date()
+  const oneWeekAgo = subWeeks(now, 1)
+  const oneMonthAgo = subMonths(now, 1)
 
   return chats.reduce(
     (groups, chat) => {
-      const chatDate = new Date(chat.createdAt);
+      const chatDate = new Date(chat.createdAt)
 
       if (isToday(chatDate)) {
-        groups.today.push(chat);
+        groups.today.push(chat)
       } else if (isYesterday(chatDate)) {
-        groups.yesterday.push(chat);
+        groups.yesterday.push(chat)
       } else if (chatDate > oneWeekAgo) {
-        groups.lastWeek.push(chat);
+        groups.lastWeek.push(chat)
       } else if (chatDate > oneMonthAgo) {
-        groups.lastMonth.push(chat);
+        groups.lastMonth.push(chat)
       } else {
-        groups.older.push(chat);
+        groups.older.push(chat)
       }
 
-      return groups;
+      return groups
     },
     {
       today: [],
@@ -73,35 +73,35 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
       lastMonth: [],
       older: [],
     } as GroupedChats,
-  );
-};
+  )
+}
 
 export function getChatHistoryPaginationKey(
   pageIndex: number,
   previousPageData: ChatHistory,
 ) {
   if (previousPageData && previousPageData.hasMore === false) {
-    return null;
+    return null
   }
 
-  if (pageIndex === 0) return `/api/history?limit=${PAGE_SIZE}`;
+  if (pageIndex === 0) return `/api/history?limit=${PAGE_SIZE}`
 
-  const firstChatFromPage = previousPageData.chats.at(-1);
+  const firstChatFromPage = previousPageData.chats.at(-1)
 
-  if (!firstChatFromPage) return null;
+  if (!firstChatFromPage) return null
 
-  return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}`;
+  return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}`
 }
 
 export function SidebarHistory({
   user,
   visibilityFilter,
 }: {
-  user: User | undefined;
-  visibilityFilter?: 'private' | 'public' | 'all';
+  user: User | undefined
+  visibilityFilter?: 'private' | 'public' | 'all'
 }) {
-  const { setOpenMobile } = useSidebar();
-  const { id } = useParams();
+  const { setOpenMobile } = useSidebar()
+  const { id } = useParams()
 
   const {
     data: paginatedChatHistories,
@@ -111,24 +111,24 @@ export function SidebarHistory({
     mutate,
   } = useSWRInfinite<ChatHistory>(getChatHistoryPaginationKey, fetcher, {
     fallbackData: [],
-  });
+  })
 
-  const router = useRouter();
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const router = useRouter()
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const hasReachedEnd = paginatedChatHistories
     ? paginatedChatHistories.some((page) => page.hasMore === false)
-    : false;
+    : false
 
   const hasEmptyChatHistory = paginatedChatHistories
     ? paginatedChatHistories.every((page) => page.chats.length === 0)
-    : false;
+    : false
 
   const handleDelete = async () => {
     const deletePromise = fetch(`/api/chat?id=${deleteId}`, {
       method: 'DELETE',
-    });
+    })
 
     toast.promise(deletePromise, {
       loading: '채팅을 삭제하는 중이에요...',
@@ -138,21 +138,21 @@ export function SidebarHistory({
             return chatHistories.map((chatHistory) => ({
               ...chatHistory,
               chats: chatHistory.chats.filter((chat) => chat.id !== deleteId),
-            }));
+            }))
           }
-        });
+        })
 
-        return '채팅이 삭제되었어요!';
+        return '채팅이 삭제되었어요!'
       },
       error: '채팅을 삭제하는데 실패했어요.',
-    });
+    })
 
-    setShowDeleteDialog(false);
+    setShowDeleteDialog(false)
 
     if (deleteId === id) {
-      router.push('/');
+      router.push('/')
     }
-  };
+  }
 
   if (!user) {
     return (
@@ -163,15 +163,13 @@ export function SidebarHistory({
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
-    );
+    )
   }
 
   if (isLoading) {
     return (
       <SidebarGroup>
-        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-          Today
-        </div>
+        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">오늘</div>
         <SidebarGroupContent>
           <div className="flex flex-col">
             {[44, 32, 28, 64, 52].map((item) => (
@@ -192,7 +190,7 @@ export function SidebarHistory({
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
-    );
+    )
   }
 
   if (hasEmptyChatHistory) {
@@ -204,7 +202,7 @@ export function SidebarHistory({
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
-    );
+    )
   }
 
   return (
@@ -216,7 +214,7 @@ export function SidebarHistory({
               (() => {
                 const chatsFromHistory = paginatedChatHistories.flatMap(
                   (paginatedChatHistory) => paginatedChatHistory.chats,
-                );
+                )
 
                 // visibilityFilter가 있으면 해당 visibility만 필터링
                 const filteredChats =
@@ -224,9 +222,9 @@ export function SidebarHistory({
                     ? chatsFromHistory.filter(
                         (chat) => chat.visibility === visibilityFilter,
                       )
-                    : chatsFromHistory;
+                    : chatsFromHistory
 
-                const groupedChats = groupChatsByDate(filteredChats);
+                const groupedChats = groupChatsByDate(filteredChats)
 
                 return (
                   <div className="flex flex-col gap-6">
@@ -241,8 +239,8 @@ export function SidebarHistory({
                             chat={chat}
                             isActive={chat.id === id}
                             onDelete={(chatId) => {
-                              setDeleteId(chatId);
-                              setShowDeleteDialog(true);
+                              setDeleteId(chatId)
+                              setShowDeleteDialog(true)
                             }}
                             setOpenMobile={setOpenMobile}
                           />
@@ -261,8 +259,8 @@ export function SidebarHistory({
                             chat={chat}
                             isActive={chat.id === id}
                             onDelete={(chatId) => {
-                              setDeleteId(chatId);
-                              setShowDeleteDialog(true);
+                              setDeleteId(chatId)
+                              setShowDeleteDialog(true)
                             }}
                             setOpenMobile={setOpenMobile}
                           />
@@ -281,8 +279,8 @@ export function SidebarHistory({
                             chat={chat}
                             isActive={chat.id === id}
                             onDelete={(chatId) => {
-                              setDeleteId(chatId);
-                              setShowDeleteDialog(true);
+                              setDeleteId(chatId)
+                              setShowDeleteDialog(true)
                             }}
                             setOpenMobile={setOpenMobile}
                           />
@@ -293,7 +291,7 @@ export function SidebarHistory({
                     {groupedChats.lastMonth.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Last 30 days
+                          지난 30 일
                         </div>
                         {groupedChats.lastMonth.map((chat) => (
                           <ChatItem
@@ -301,8 +299,8 @@ export function SidebarHistory({
                             chat={chat}
                             isActive={chat.id === id}
                             onDelete={(chatId) => {
-                              setDeleteId(chatId);
-                              setShowDeleteDialog(true);
+                              setDeleteId(chatId)
+                              setShowDeleteDialog(true)
                             }}
                             setOpenMobile={setOpenMobile}
                           />
@@ -313,7 +311,7 @@ export function SidebarHistory({
                     {groupedChats.older.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Older than last month
+                          지난 30 일 이전
                         </div>
                         {groupedChats.older.map((chat) => (
                           <ChatItem
@@ -321,8 +319,8 @@ export function SidebarHistory({
                             chat={chat}
                             isActive={chat.id === id}
                             onDelete={(chatId) => {
-                              setDeleteId(chatId);
-                              setShowDeleteDialog(true);
+                              setDeleteId(chatId)
+                              setShowDeleteDialog(true)
                             }}
                             setOpenMobile={setOpenMobile}
                           />
@@ -330,14 +328,14 @@ export function SidebarHistory({
                       </div>
                     )}
                   </div>
-                );
+                )
               })()}
           </SidebarMenu>
 
           <motion.div
             onViewportEnter={() => {
               if (!isValidating && !hasReachedEnd) {
-                setSize((size) => size + 1);
+                setSize((size) => size + 1)
               }
             }}
           />
@@ -372,5 +370,5 @@ export function SidebarHistory({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }
