@@ -92,7 +92,7 @@ export default function LearningCenterPage() {
         </div>
         <div className="mb-6">
           <SearchBar
-            placeholder="제목, 내용으로 검색하세요"
+            placeholder="제목, 설명, 태그으로 검색하세요"
             basePath="/learning-center"
           />
         </div>

@@ -32,12 +32,8 @@ import { ChevronRightIcon, XIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { MAX_TAGS_COUNT } from '../../api/learning-center/schema'
-import {
-  isValidYouTubeVideoIdFormat,
-  getYouTubeEmbedUrl,
-  getYouTubeThumbnailUrl,
-  checkVideoExistsViaIframe,
-} from '@/lib/youtube-utils'
+import { YoutubePreview } from '@/components/youtube-preview'
+import { useYoutubeVideo } from '@/hooks/use-youtube-video'
 
 // 카테고리 옵션들
 const CATEGORY_OPTIONS = [
@@ -64,13 +60,16 @@ export default function LearningCenterWritePage() {
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
-  const [videoId, setVideoId] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [videoIdError, setVideoIdError] = useState<string | null>(null)
-  const [isCheckingVideo, setIsCheckingVideo] = useState(false)
-  const [videoExists, setVideoExists] = useState<boolean | null>(null)
+  const {
+    videoId,
+    videoIdError,
+    isCheckingVideo,
+    videoExists,
+    handleVideoIdChange,
+  } = useYoutubeVideo()
 
   // 태그 입력 핸들러
   const addTag = React.useCallback(() => {
@@ -89,69 +88,50 @@ export default function LearningCenterWritePage() {
     }
   }, [tagInput, tags])
 
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove))
-  }
+  const removeTag = React.useCallback(
+    (tagToRemove: string) => {
+      setTags(tags.filter((tag) => tag !== tagToRemove))
+    },
+    [tags],
+  )
 
-  const handleTagInputKeyUp = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      e.stopPropagation()
-      addTag()
-    }
-  }
-
-  // 비디오 ID 입력 핸들러
-  const handleVideoIdChange = async (value: string) => {
-    setVideoId(value)
-    setVideoExists(null)
-
-    if (!value.trim()) {
-      setVideoIdError(null)
-      return
-    }
-
-    // 직접 입력된 비디오 ID 검증
-    if (isValidYouTubeVideoIdFormat(value)) {
-      setVideoIdError(null)
-
-      // 실제 비디오 존재 여부 확인
-      setIsCheckingVideo(true)
-      try {
-        const exists = await checkVideoExistsViaIframe(value)
-        setVideoExists(exists)
-        if (!exists) {
-          setVideoIdError('이 동영상은 볼 수 없습니다.')
-        }
-      } catch (error) {
-        console.error('비디오 존재 여부 확인 중 오류:', error)
-        setVideoExists(false)
-        setVideoIdError('비디오 확인 중 오류가 발생했습니다.')
-      } finally {
-        setIsCheckingVideo(false)
+  const handleTagInputKeyUp = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        e.stopPropagation()
+        addTag()
       }
-    } else {
-      setVideoIdError(
-        '올바른 YouTube 비디오 ID를 입력해주세요. (예: dQw4w9WgXcQ)',
-      )
-    }
-  }
+    },
+    [addTag],
+  )
 
   // 유효성 검사
-  const isDisabledSaveButton =
-    isSubmitting ||
-    !title?.trim() ||
-    !description?.trim() ||
-    !category?.trim() ||
-    !thumbnailUrl ||
-    !videoId?.trim() ||
-    !!videoIdError
+  const isDisabledSaveButton = React.useMemo(
+    () =>
+      isSubmitting ||
+      !title?.trim() ||
+      !description?.trim() ||
+      !category?.trim() ||
+      !thumbnailUrl ||
+      !videoId?.trim() ||
+      !!videoIdError,
+    [
+      isSubmitting,
+      title,
+      description,
+      category,
+      thumbnailUrl,
+      videoId,
+      videoIdError,
+    ],
+  )
 
   if (!session) {
     return <div />
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = React.useCallback(async () => {
     // 유효성 검사
     const validation = validateLearningCenterCreate({
       title: title.trim(),
@@ -219,11 +199,19 @@ export default function LearningCenterWritePage() {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [
+    title,
+    description,
+    category,
+    thumbnailUrl,
+    videoId,
+    tags,
+    mutate,
+    router,
+  ])
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Breadcrumb */}
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Link
           href="/learning-center"
@@ -296,51 +284,12 @@ export default function LearningCenterWritePage() {
           onChange={(e) => handleVideoIdChange(e.target.value)}
           className={`w-full mt-1 ${videoIdError ? 'border-red-500 focus:border-red-500' : ''}`}
         />
-        {isCheckingVideo && (
-          <p className="mt-1 text-sm text-blue-600">비디오 확인 중...</p>
-        )}
-        {videoIdError && (
-          <p className="mt-1 text-sm text-red-600">{videoIdError}</p>
-        )}
-        {videoId &&
-          !videoIdError &&
-          !isCheckingVideo &&
-          videoExists === true && (
-            <p className="mt-1 text-sm text-green-600">
-              ✓ 유효한 YouTube 비디오 ID입니다
-            </p>
-          )}
-        {/* 비디오 미리보기 */}
-        {videoId &&
-          !videoIdError &&
-          !isCheckingVideo &&
-          videoExists === true && (
-            <div className="mt-4 space-y-3">
-              <h4 className="text-sm font-medium text-gray-700">
-                비디오 미리보기
-              </h4>
-              <div className="aspect-video w-full max-w-md">
-                <iframe
-                  src={getYouTubeEmbedUrl(videoId)}
-                  title="YouTube 비디오 미리보기"
-                  className="size-full rounded-lg"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <img
-                  src={getYouTubeThumbnailUrl(videoId, 'default')}
-                  alt="비디오 썸네일"
-                  className="size-12 rounded object-cover"
-                />
-                <div>
-                  <p className="font-medium">YouTube 비디오</p>
-                  <p>ID: {videoId}</p>
-                </div>
-              </div>
-            </div>
-          )}
+        <YoutubePreview
+          videoId={videoId}
+          videoIdError={videoIdError}
+          isCheckingVideo={isCheckingVideo}
+          videoExists={videoExists}
+        />
       </div>
 
       {/* 태그 입력 */}

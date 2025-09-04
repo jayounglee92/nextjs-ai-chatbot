@@ -94,7 +94,7 @@ export default function AiUseCasePage() {
         </div>
         <div className="mb-6">
           <SearchBar
-            placeholder="AI 활용 사례를 검색하세요..."
+            placeholder="제목, 내용으로 검색하세요"
             basePath="/ai-use-case"
           />
         </div>

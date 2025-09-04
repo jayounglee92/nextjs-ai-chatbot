@@ -9,7 +9,7 @@ import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ErrorPage } from '@/components/error-page'
-import { LoadingPage } from '@/components/loading-page'
+import { AiUseCaseEditSkeleton } from './skeleton'
 import {
   handleFetchError,
   handleApiError,
@@ -152,7 +152,7 @@ export default function AiUseCaseEditPage() {
   }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
-    return <LoadingPage />
+    return <AiUseCaseEditSkeleton />
   }
 
   if (!session) {
