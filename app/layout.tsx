@@ -4,7 +4,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 
 import './globals.css'
 import { SessionProvider } from 'next-auth/react'
-import { pretendard } from '@/lib/constants'
+import { pretendard } from '@/lib/fonts'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://chat.vercel.ai'),

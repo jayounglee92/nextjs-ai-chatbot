@@ -83,7 +83,7 @@ import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils'
 
 // --- Styles ---
 import '@/components/tiptap-templates/simple/simple-editor.scss'
-import { pretendard } from '@/lib/constants'
+import { pretendard } from '@/lib/fonts'
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -335,7 +335,7 @@ export function SimpleEditor({
           <EditorContent
             editor={editor}
             role="presentation"
-            className={`simple-editor-content ${pretendard.variable}`}
+            className={`simple-editor-content ${pretendard.variable} max-w-7xl`}
           />
 
           {/* 뷰 모드에서는 테이블 플로팅 메뉴 숨김 */}

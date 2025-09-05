@@ -1,14 +1,22 @@
 import { auth } from '@/app/(auth)/auth'
 import { redirect } from 'next/navigation'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
-import { getAiUseCaseById } from '@/lib/db/queries'
-import type { AiUseCase } from '@/lib/db/schema'
+import { getPostById } from '@/lib/db/queries'
 import Link from 'next/link'
-import { AiUseCaseActions } from './ai-use-case-actions'
+import { NewsActions } from './news-actions'
 import { PostMetaInfo } from '@/components/post-meta-info'
 
-// API에서 받는 데이터 타입 (userEmail 필드 추가)
-interface AiUseCaseWithEmail extends AiUseCase {
+// API에서 받는 데이터 타입 (JOIN 결과)
+interface PostDetailData {
+  id: string
+  postId: string
+  content: string
+  category: string | null
+  tags: string[]
+  userId: string
+  title: string
+  createdAt: Date
+  updatedAt: Date
   userEmail: string
 }
 
@@ -16,7 +24,7 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
-export default async function AiUseCaseDetailPage({ params }: Props) {
+export default async function NewsDetailPage({ params }: Props) {
   const session = await auth()
 
   if (!session) {
@@ -24,27 +32,27 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
   }
 
   const { id } = await params
-  let useCase: AiUseCaseWithEmail | null = null
+  let post: PostDetailData | null = null
 
   try {
-    useCase = await getAiUseCaseById({ id })
+    post = (await getPostById({ id })) as PostDetailData | null
   } catch (error) {
-    console.error('Failed to fetch AI use case:', error)
-    useCase = null
+    console.error('Failed to fetch news post:', error)
+    post = null
   }
 
-  if (!useCase) {
+  if (!post) {
     return (
       <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
         <div className="text-center">
           <h1 className="text-xl font-semibold text-foreground mb-2">
-            AI 활용 사례를 찾을 수 없습니다
+            뉴스를 찾을 수 없습니다
           </h1>
           <p className="text-muted-foreground mb-4">
-            요청하신 ID의 AI 활용 사례가 존재하지 않습니다.
+            요청하신 ID의 뉴스가 존재하지 않습니다.
           </p>
           <Link
-            href="/ai-use-case"
+            href="/news-letter"
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
           >
             목록으로
@@ -60,30 +68,44 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
         {/* 제목 */}
         <div>
           <Link
-            href="/ai-use-case"
+            href="/news-letter"
             className="text-gray-500 hover:underline underline-offset-4"
           >
-            AI 활용 사례
+            뉴스레터
           </Link>
           <h1 className="text-4xl font-bold text-foreground my-6">
-            {useCase.title}
+            {post.title}
           </h1>
 
           {/* 메타 정보 */}
-          <PostMetaInfo
-            items={[
-              { type: 'author', data: { email: useCase.userEmail } },
-              { type: 'readingTime', data: useCase.content },
-              { type: 'relativeTime', data: useCase.createdAt },
-              {
-                type: 'actions',
-                content: <AiUseCaseActions useCase={useCase} />,
-              },
-            ]}
-          />
+          <div className="flex justify-between">
+            <PostMetaInfo
+              items={[
+                { type: 'readingTime', data: post.content },
+                { type: 'relativeTime', data: post.createdAt },
+              ]}
+            />
+            <NewsActions postId={post.postId} />
+          </div>
+
+          {/* 태그 */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {post.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <hr className="my-10 border-t-2 border-primary" />
-        <SimpleEditor viewMode={true} initialContent={useCase.content} />
+        {/* 컨텐츠 */}
+
+        <SimpleEditor viewMode={true} initialContent={post.content} />
       </div>
     </div>
   )

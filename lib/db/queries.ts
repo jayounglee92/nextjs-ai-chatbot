@@ -13,6 +13,7 @@ import {
   or,
   lt,
   type SQL,
+  sql,
 } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
@@ -33,6 +34,10 @@ import {
   type AiUseCase,
   learningCenter,
   type LearningCenter,
+  posts,
+  type Posts,
+  postContents,
+  type PostContents,
 } from './schema'
 import type { ArtifactKind } from '@/components/artifact'
 import { generateUUID } from '../utils'
@@ -1112,6 +1117,641 @@ export async function deleteLearningCenterById({
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to delete learning center',
+    )
+  }
+}
+
+// PostContents related functions
+export async function savePostContents({
+  id,
+  postId,
+  content,
+  category,
+  tags,
+  userId,
+}: {
+  id?: string
+  postId: string
+  content: string
+  category?: string
+  tags?: string
+  userId: string
+}) {
+  try {
+    const now = new Date()
+    const data = {
+      postId,
+      content,
+      category: category || null,
+      tags: tags || null,
+      userId,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    if (id) {
+      // Update existing postContents
+      return await db
+        .update(postContents)
+        .set({ ...data, updatedAt: now })
+        .where(and(eq(postContents.id, id), eq(postContents.userId, userId)))
+        .returning()
+    } else {
+      // Create new postContents
+      return await db.insert(postContents).values(data).returning()
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to save post contents',
+    )
+  }
+}
+
+export async function getPostContentsByPostId({
+  postId,
+  limit = 50,
+  offset = 0,
+}: {
+  postId: string
+  limit?: number
+  offset?: number
+}) {
+  try {
+    const [data, totalCountResult] = await Promise.all([
+      db
+        .select()
+        .from(postContents)
+        .where(eq(postContents.postId, postId))
+        .orderBy(desc(postContents.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: count() })
+        .from(postContents)
+        .where(eq(postContents.postId, postId)),
+    ])
+
+    const totalCount = totalCountResult[0]?.count || 0
+
+    return {
+      data,
+      totalCount,
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get post contents by post id',
+    )
+  }
+}
+
+export async function getAllPostContents({
+  limit = 50,
+  offset = 0,
+  search,
+  category,
+}: {
+  limit?: number
+  offset?: number
+  search?: string
+  category?: string
+}) {
+  try {
+    let data: Array<PostContents>
+    let totalCount: number
+
+    const searchTerm = search && search.trim() ? `%${search.trim()}%` : null
+    const whereConditions = []
+
+    if (searchTerm) {
+      whereConditions.push(
+        or(
+          ilike(postContents.content, searchTerm),
+          ilike(postContents.category, searchTerm),
+          ilike(postContents.tags, searchTerm),
+        ),
+      )
+    }
+
+    if (category) {
+      whereConditions.push(eq(postContents.category, category))
+    }
+
+    const finalWhereCondition =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined
+
+    const [dataResult, totalCountResult] = await Promise.all([
+      db
+        .select()
+        .from(postContents)
+        .where(finalWhereCondition)
+        .orderBy(desc(postContents.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: count() })
+        .from(postContents)
+        .where(finalWhereCondition),
+    ])
+
+    // tags를 쉼표로 구분된 문자열에서 배열로 변환
+    data = dataResult.map((item) => ({
+      ...item,
+      tags: item.tags ? item.tags.split(',') : [],
+    }))
+    totalCount = totalCountResult[0]?.count || 0
+
+    return {
+      data,
+      totalCount,
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get all post contents',
+    )
+  }
+}
+
+export async function getPostContentsById({ id }: { id: string }) {
+  try {
+    const [selectedPostContents] = await db
+      .select()
+      .from(postContents)
+      .where(eq(postContents.id, id))
+
+    if (!selectedPostContents) {
+      return null
+    }
+
+    // tags를 쉼표로 구분된 문자열에서 배열로 변환
+    const result = {
+      ...selectedPostContents,
+      tags: selectedPostContents.tags
+        ? selectedPostContents.tags.split(',')
+        : [],
+    }
+
+    return result
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get post contents by id',
+    )
+  }
+}
+
+export async function updatePostContents({
+  id,
+  content,
+  category,
+  tags,
+  title,
+  thumbnailUrl,
+  summary,
+  summaryType = 'auto_truncated',
+}: {
+  id: string
+  content?: string
+  category?: string
+  tags?: string | null
+  title?: string
+  thumbnailUrl?: string | null
+  summary?: string
+  summaryType?: 'ai_generated' | 'auto_truncated'
+}) {
+  try {
+    // PostContents 업데이트 데이터
+    const postContentsUpdateData: Partial<PostContents> = {
+      updatedAt: new Date(),
+    }
+
+    if (content !== undefined) postContentsUpdateData.content = content
+    if (category !== undefined) postContentsUpdateData.category = category
+    if (tags !== undefined) postContentsUpdateData.tags = tags
+
+    // PostContents 업데이트
+    const updatedPostContents = await db
+      .update(postContents)
+      .set(postContentsUpdateData)
+      .where(eq(postContents.postId, id))
+      .returning()
+
+    // Posts 테이블도 업데이트가 필요한 경우
+    if (
+      title !== undefined ||
+      thumbnailUrl !== undefined ||
+      content !== undefined
+    ) {
+      const postContentsRecord = updatedPostContents[0]
+      if (postContentsRecord) {
+        const postsUpdateData: Partial<Posts> = {
+          updatedAt: new Date(),
+        }
+
+        if (title !== undefined) postsUpdateData.title = title
+        if (thumbnailUrl !== undefined)
+          postsUpdateData.thumbnailUrl = thumbnailUrl
+
+        // content가 변경된 경우 summary도 업데이트
+        if (content !== undefined) {
+          if (summaryType === 'auto_truncated') {
+            postsUpdateData.summary = sanitizeHtml(content, {
+              allowedTags: [],
+              allowedAttributes: {},
+            }).substring(0, 200)
+          } else if (summary !== undefined) {
+            postsUpdateData.summary = summary
+          }
+        }
+
+        await db
+          .update(posts)
+          .set(postsUpdateData)
+          .where(eq(posts.id, postContentsRecord.postId))
+      }
+    }
+
+    return updatedPostContents
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to update post contents',
+    )
+  }
+}
+
+export async function deletePostContentsById({ id }: { id: string }) {
+  try {
+    // 먼저 PostContents를 삭제
+    const deletedPostContents = await db
+      .delete(postContents)
+      .where(eq(postContents.postId, id))
+      .returning()
+
+    // PostContents가 삭제되었으면 Posts도 삭제
+    if (deletedPostContents && deletedPostContents.length > 0) {
+      await db.delete(posts).where(eq(posts.id, id))
+    }
+
+    return deletedPostContents
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to delete post contents',
+    )
+  }
+}
+
+export async function getPostContentsCategories() {
+  try {
+    const categories = await db
+      .selectDistinct({ category: postContents.category })
+      .from(postContents)
+      .where(eq(postContents.category, postContents.category)) // NULL이 아닌 카테고리만 조회
+      .orderBy(asc(postContents.category))
+
+    return categories.map((item) => item.category).filter(Boolean)
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get post contents categories',
+    )
+  }
+}
+
+// Posts related functions
+export async function savePost({
+  id,
+  title,
+  summary,
+  summaryType = 'auto_truncated',
+  thumbnailUrl,
+  userId,
+  postType,
+  visibility = 'private',
+  viewCount = 0,
+  likeCount = 0,
+  openType = 'page',
+}: {
+  id?: string
+  title: string
+  summary?: string
+  summaryType?: 'ai_generated' | 'auto_truncated'
+  thumbnailUrl?: string
+  userId: string
+  postType: 'aiusecase' | 'learningcenter' | 'news'
+  visibility?: 'public' | 'private'
+  viewCount?: number
+  likeCount?: number
+  openType?: 'page' | 'modal' | 'new_tab'
+}) {
+  try {
+    const now = new Date()
+    const data = {
+      title,
+      summary,
+      summaryType,
+      thumbnailUrl,
+      userId,
+      postType,
+      visibility,
+      viewCount,
+      likeCount,
+      openType,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    if (id) {
+      data.id = id
+    }
+
+    return await db.insert(posts).values(data).returning()
+  } catch (error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to save post')
+  }
+}
+
+export async function getAllPosts({
+  limit = 50,
+  offset = 0,
+  search,
+  postType,
+  visibility,
+}: {
+  limit?: number
+  offset?: number
+  search?: string
+  postType?: string
+  visibility?: string
+}) {
+  try {
+    let data: Array<Posts>
+    let totalCount: number
+
+    const searchTerm = search && search.trim() ? `%${search.trim()}%` : null
+    const whereConditions = []
+
+    if (searchTerm) {
+      whereConditions.push(
+        or(ilike(posts.title, searchTerm), ilike(posts.summary, searchTerm)),
+      )
+    }
+
+    if (postType) {
+      whereConditions.push(eq(posts.postType, postType as any))
+    }
+
+    if (visibility) {
+      whereConditions.push(eq(posts.visibility, visibility as any))
+    }
+
+    const finalWhereCondition =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined
+
+    const [dataResult, totalCountResult] = await Promise.all([
+      db
+        .select({
+          id: posts.id,
+          title: posts.title,
+          summary: posts.summary,
+          summaryType: posts.summaryType,
+          thumbnailUrl: posts.thumbnailUrl,
+          userId: posts.userId,
+          postType: posts.postType,
+          visibility: posts.visibility,
+          viewCount: posts.viewCount,
+          likeCount: posts.likeCount,
+          openType: posts.openType,
+          createdAt: posts.createdAt,
+          updatedAt: posts.updatedAt,
+          category: postContents.category,
+          tags: postContents.tags,
+        })
+        .from(posts)
+        .leftJoin(postContents, eq(posts.id, postContents.postId))
+        .where(finalWhereCondition)
+        .orderBy(desc(posts.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db.select({ count: count() }).from(posts).where(finalWhereCondition),
+    ])
+
+    // tags를 쉼표로 구분된 문자열에서 배열로 변환
+    data = dataResult.map((item) => ({
+      ...item,
+      tags: item.tags ? item.tags.split(',') : [],
+    }))
+    totalCount = totalCountResult[0]?.count || 0
+
+    return {
+      data,
+      totalCount,
+    }
+  } catch (error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to get all posts')
+  }
+}
+
+export async function updatePost({
+  id,
+  title,
+  summary,
+  summaryType,
+  thumbnailUrl,
+  visibility,
+  openType,
+}: {
+  id: string
+  title?: string
+  summary?: string
+  summaryType?: 'ai_generated' | 'auto_truncated'
+  thumbnailUrl?: string
+  visibility?: 'public' | 'private'
+  openType?: 'page' | 'modal' | 'new_tab'
+}) {
+  try {
+    const updateData: Partial<Posts> = {
+      updatedAt: new Date(),
+    }
+
+    if (title !== undefined) updateData.title = title
+    if (summary !== undefined) updateData.summary = summary
+    if (summaryType !== undefined) updateData.summaryType = summaryType
+    if (thumbnailUrl !== undefined) updateData.thumbnailUrl = thumbnailUrl
+    if (visibility !== undefined) updateData.visibility = visibility
+    if (openType !== undefined) updateData.openType = openType
+
+    return await db
+      .update(posts)
+      .set(updateData)
+      .where(eq(posts.id, id))
+      .returning()
+  } catch (error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to update post')
+  }
+}
+
+export async function deletePostById({ id }: { id: string }) {
+  try {
+    return await db.delete(posts).where(eq(posts.id, id)).returning()
+  } catch (error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to delete post')
+  }
+}
+
+export async function incrementPostViewCount({ id }: { id: string }) {
+  try {
+    return await db
+      .update(posts)
+      .set({
+        viewCount: sql`${posts.viewCount} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(posts.id, id))
+      .returning()
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to increment view count',
+    )
+  }
+}
+
+export async function incrementPostLikeCount({ id }: { id: string }) {
+  try {
+    return await db
+      .update(posts)
+      .set({
+        likeCount: sql`${posts.likeCount} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(posts.id, id))
+      .returning()
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to increment like count',
+    )
+  }
+}
+
+export async function getPostById({ id }: { id: string }) {
+  try {
+    const [selectedPost] = await db
+      .select({
+        // PostContents 필드들
+        id: postContents.id,
+        postId: postContents.postId,
+        content: postContents.content,
+        category: postContents.category,
+        tags: postContents.tags,
+        userId: postContents.userId,
+        // Posts에서 가져올 메타데이터
+        title: posts.title,
+        thumbnailUrl: posts.thumbnailUrl,
+        createdAt: posts.createdAt,
+        updatedAt: posts.updatedAt,
+        // User에서 가져올 이메일
+        userEmail: user.email,
+      })
+      .from(postContents)
+      .leftJoin(posts, eq(postContents.postId, posts.id))
+      .leftJoin(user, eq(postContents.userId, user.id))
+      .where(eq(postContents.postId, id))
+
+    if (!selectedPost) {
+      return null
+    }
+
+    // tags를 쉼표로 구분된 문자열에서 배열로 변환
+    const result = {
+      ...selectedPost,
+      tags: selectedPost.tags ? selectedPost.tags.split(',') : [],
+    }
+
+    return result
+  } catch (error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to get post by id')
+  }
+}
+
+// Posts와 PostContents를 함께 저장하는 함수
+export async function savePostWithContents({
+  title,
+  content,
+  category,
+  tags,
+  thumbnailUrl,
+  userId,
+  postType,
+  visibility = 'private',
+  summary,
+  summaryType = 'auto_truncated',
+}: {
+  title: string
+  content: string
+  category?: string
+  tags?: string | null
+  thumbnailUrl?: string
+  userId: string
+  postType: 'aiusecase' | 'learningcenter' | 'news'
+  visibility?: 'public' | 'private'
+  summary?: string
+  summaryType?: 'ai_generated' | 'auto_truncated'
+}) {
+  try {
+    const now = new Date()
+
+    // 1. Posts 테이블에 저장
+    const [savedPost] = await db
+      .insert(posts)
+      .values({
+        title,
+        summary:
+          summaryType === 'auto_truncated'
+            ? sanitizeHtml(content, {
+                allowedTags: [],
+                allowedAttributes: {},
+              }).substring(0, 200)
+            : summary,
+        summaryType,
+        thumbnailUrl,
+        userId,
+        postType,
+        visibility,
+        viewCount: 0,
+        likeCount: 0,
+        openType: 'page',
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning()
+
+    // 2. PostContents 테이블에 저장
+    const [savedPostContents] = await db
+      .insert(postContents)
+      .values({
+        postId: savedPost.id,
+        content,
+        category,
+        tags: tags || null,
+        userId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning()
+
+    return {
+      post: savedPost,
+      postContents: savedPostContents,
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to save post with contents',
     )
   }
 }

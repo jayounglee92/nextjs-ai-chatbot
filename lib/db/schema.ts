@@ -9,6 +9,7 @@ import {
   primaryKey,
   foreignKey,
   boolean,
+  integer,
 } from 'drizzle-orm/pg-core'
 
 export const user = pgTable('User', {
@@ -199,3 +200,51 @@ export const learningCenter = pgTable('LearningCenter', {
 })
 
 export type LearningCenter = InferSelectModel<typeof learningCenter>
+
+export const posts = pgTable('Posts', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  title: text('title').notNull(),
+  summary: text('summary'), // NULL 허용
+  summaryType: text('summaryType', {
+    enum: ['ai_generated', 'auto_truncated'],
+  })
+    .notNull()
+    .default('auto_truncated'),
+  thumbnailUrl: text('thumbnailUrl'), // NULL 허용
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  postType: text('postType', {
+    enum: ['aiusecase', 'learningcenter', 'news'],
+  }).notNull(),
+  visibility: text('visibility', {
+    enum: ['public', 'private'],
+  })
+    .notNull()
+    .default('private'),
+  viewCount: integer('viewCount').notNull().default(0),
+  likeCount: integer('likeCount').notNull().default(0),
+  openType: text('openType', {
+    enum: ['page', 'modal', 'new_tab'],
+  }).default('page'),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
+})
+
+export const postContents = pgTable('PostContents', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  postId: uuid('postId')
+    .notNull()
+    .references(() => posts.id),
+  content: text('content').notNull(),
+  category: text('category'), // NULL 허용
+  tags: text('tags'), // NULL 허용
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
+})
+
+export type Posts = InferSelectModel<typeof posts>
+export type PostContents = InferSelectModel<typeof postContents>

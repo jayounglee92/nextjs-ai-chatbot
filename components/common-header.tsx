@@ -11,7 +11,7 @@ function PureCommonHeader() {
   return (
     <header className="z-20 shadow-sm flex sticky top-0 bg-background items-center justify-between py-2 px-4 gap-2">
       <SidebarToggle />
-      <div className="place-items-end">
+      <div className="place-items-end h-10">
         {session && <SidebarUserNav user={session.user} />}
       </div>
     </header>

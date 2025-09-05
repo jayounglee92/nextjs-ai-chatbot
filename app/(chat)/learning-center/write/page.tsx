@@ -28,9 +28,8 @@ import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { ChevronRightIcon, XIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { ChevronRightIcon } from 'lucide-react'
+import { TagInput } from '@/components/tag-input'
 import { MAX_TAGS_COUNT } from '../../api/learning-center/schema'
 import { YoutubePreview } from '@/components/youtube-preview'
 import { useYoutubeVideo } from '@/hooks/use-youtube-video'
@@ -61,7 +60,6 @@ export default function LearningCenterWritePage() {
   const [category, setCategory] = useState('')
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [tags, setTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const {
     videoId,
@@ -70,41 +68,6 @@ export default function LearningCenterWritePage() {
     videoExists,
     handleVideoIdChange,
   } = useYoutubeVideo()
-
-  // 태그 입력 핸들러
-  const addTag = React.useCallback(() => {
-    let trimmedTag = tagInput.trim()
-
-    // 맨 앞의 모든 # 제거
-    trimmedTag = trimmedTag.replace(/^#+/, '').trim()
-
-    if (
-      trimmedTag &&
-      !tags.includes(trimmedTag) &&
-      tags.length < MAX_TAGS_COUNT
-    ) {
-      setTags([...tags, trimmedTag])
-      setTagInput('')
-    }
-  }, [tagInput, tags])
-
-  const removeTag = React.useCallback(
-    (tagToRemove: string) => {
-      setTags(tags.filter((tag) => tag !== tagToRemove))
-    },
-    [tags],
-  )
-
-  const handleTagInputKeyUp = React.useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        e.stopPropagation()
-        addTag()
-      }
-    },
-    [addTag],
-  )
 
   // 유효성 검사
   const isDisabledSaveButton = React.useMemo(
@@ -293,56 +256,7 @@ export default function LearningCenterWritePage() {
       </div>
 
       {/* 태그 입력 */}
-      <div>
-        <Label className="text-sm font-medium">태그</Label>
-
-        {/* 태그 입력 필드 */}
-        <div className="mt-1 flex gap-2">
-          <Input
-            type="text"
-            placeholder="태그입력"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyUp={handleTagInputKeyUp}
-            className="flex-1"
-          />
-          <Button
-            type="button"
-            onClick={addTag}
-            disabled={!tagInput.trim() || tags.length >= MAX_TAGS_COUNT}
-          >
-            추가
-          </Button>
-        </div>
-
-        {/* 태그 뱃지들 */}
-        {tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="inline-flex items-center pl-3 pr-2 py-1 bg-gray-100 border border-dashed border-gray-300 text-sm"
-              >
-                <span>#{tag}</span>
-                <button
-                  type="button"
-                  onClick={() => removeTag(tag)}
-                  className="ml-1 size-4 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700"
-                >
-                  <XIcon className="size-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        {tags.length >= MAX_TAGS_COUNT && (
-          <p className="mt-2 text-sm text-red-600">
-            최대 {MAX_TAGS_COUNT}개의 태그까지 추가할 수 있습니다.
-          </p>
-        )}
-      </div>
+      <TagInput tags={tags} onTagsChange={setTags} maxTags={MAX_TAGS_COUNT} />
 
       {/* 썸네일 업로드 */}
       <div className="w-fit">

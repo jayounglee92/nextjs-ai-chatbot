@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
         protocol: 'https',
       },
     ],
+    // 로컬 개발 환경에서만 이미지 최적화 비활성화
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 }
 

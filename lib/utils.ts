@@ -10,7 +10,6 @@ import type { DBMessage, Document } from '@/lib/db/schema'
 import { ChatSDKError, type ErrorCode } from './errors'
 import type { ChatMessage, ChatTools, CustomUIDataTypes } from './types'
 import { formatISO } from 'date-fns'
-import DOMPurify from 'dompurify'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -183,4 +182,67 @@ export function calculateReadingTime(textContent: string): string {
  */
 export function formatValidationErrors(errors: string[]): string {
   return errors.join('\n')
+}
+
+// 날짜 포맷팅 함수
+export function formatCreatedAt(dateString: string | Date): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffInMs = now.getTime() - date.getTime()
+  const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+  // 오늘 내에 게시된 경우
+  if (diffInDays === 0) {
+    if (diffInMinutes < 1) {
+      return '방금 전'
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes}분 전`
+    } else {
+      return `${diffInHours}시간 전`
+    }
+  }
+
+  // 어제나 과거에 게시된 경우
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
+/*
+ * 게시된 날짜를 포맷팅하는 함수
+ * @param dateString 날짜 문자열 또는 Date 객체
+ * @returns 날짜 포맷팅 문자열
+ */
+export function formatPublishedDate(dateString: string | Date): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffInMs = now.getTime() - date.getTime()
+  const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+  // 오늘 내에 게시된 경우
+  if (diffInDays === 0) {
+    if (diffInMinutes < 1) {
+      // 1분 전
+      return '방금 전'
+    } else if (diffInMinutes < 60) {
+      // 60분 전
+      return `${diffInMinutes}분 전`
+    } else {
+      return `${diffInHours}시간 전` // 1시간 이후
+    }
+  }
+
+  // 어제나 과거에 게시된 경우
+  return date.toLocaleDateString('ko-KR', {
+    // 2024. 12. 31.
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 }

@@ -12,7 +12,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-pretendard)'],
-        // mono: ['var(--font-pretendard-mono)'],
+        'noto-serif-kr': ['var(--font-noto-serif-kr)'],
       },
       screens: {
         'toast-mobile': '600px',

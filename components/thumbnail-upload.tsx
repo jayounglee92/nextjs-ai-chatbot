@@ -162,109 +162,107 @@ export const ThumbnailUpload: React.FC<ThumbnailUploadProps> = ({
   const containerStyle = getAspectRatioStyle()
 
   return (
-    <div>
-      <div
-        role="button"
-        tabIndex={0}
-        className={`
-         relative border-2 border-dashed rounded-lg p-4 transition-colors
+    <div
+      role="button"
+      tabIndex={0}
+      className={`
+          w-fit relative border-2 border-dashed rounded-lg p-4 transition-colors
           ${isDragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'}
           ${hasImage ? 'cursor-pointer' : 'cursor-pointer hover:border-gray-400'}
         `}
-        onClick={handleClick}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick()
-          }
-        }}
-      >
-        {!hasImage ? (
-          // 업로드 영역
-          <div
-            className="text-center flex flex-col justify-center"
-            style={containerStyle}
-          >
-            <div className="flex justify-center mb-4">
-              <CloudUploadIcon />
-            </div>
-            <p className="text-xs text-gray-600 mb-2 break-keep">
-              <em>클릭하거나</em> 드래그 앤 드롭으로
-              <br />
-              썸네일 이미지를 업로드하세요
-            </p>
-            <p className="text-xs text-gray-500">
-              1개, 최대 {uploadOptions.maxSize / 1024 / 1024}MB
-            </p>
+      onClick={handleClick}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleClick()
+        }
+      }}
+    >
+      {!hasImage ? (
+        // 업로드 영역
+        <div
+          className="text-center flex flex-col justify-center"
+          style={containerStyle}
+        >
+          <div className="flex justify-center mb-4">
+            <CloudUploadIcon />
           </div>
-        ) : (
-          // 이미지 미리보기
-          <div className="relative">
-            {currentFileItem && currentFileItem.status === 'uploading' ? (
-              // 업로드 중
-              <div className="relative">
-                <div
-                  className="w-full bg-gray-100 rounded-lg flex items-center justify-center"
-                  style={containerStyle}
-                >
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full size-8 border-b-2 border-blue-600 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">
-                      업로드 중... {currentFileItem.progress}%
-                    </p>
-                  </div>
+          <p className="text-xs text-gray-600 mb-2 break-keep">
+            <em>클릭하거나</em> 드래그 앤 드롭으로
+            <br />
+            썸네일 이미지를 업로드하세요
+          </p>
+          <p className="text-xs text-gray-500">
+            1개, 최대 {uploadOptions.maxSize / 1024 / 1024}MB
+          </p>
+        </div>
+      ) : (
+        // 이미지 미리보기
+        <div className="relative">
+          {currentFileItem && currentFileItem.status === 'uploading' ? (
+            // 업로드 중
+            <div className="relative">
+              <div
+                className="w-full bg-gray-100 rounded-lg flex items-center justify-center"
+                style={containerStyle}
+              >
+                <div className="text-center">
+                  <div className="animate-spin rounded-full size-8 border-b-2 border-blue-600 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">
+                    업로드 중... {currentFileItem.progress}%
+                  </p>
                 </div>
-                <div
-                  className="absolute bottom-0 left-0 h-1 bg-blue-600 transition-all duration-300"
-                  style={{ width: `${currentFileItem.progress}%` }}
-                />
               </div>
-            ) : (
-              // 업로드 완료된 이미지
-              <div className="relative" style={containerStyle}>
-                <Image
-                  src={imageUrl || currentFileItem?.url || ''}
-                  alt="썸네일"
-                  className="size-full object-cover rounded-lg"
-                  width={Number.parseInt(
-                    containerStyle.width.replace('px', ''),
-                    10,
-                  )}
-                  height={Number.parseInt(
-                    containerStyle.height.replace('px', ''),
-                    10,
-                  )}
-                />
+              <div
+                className="absolute bottom-0 left-0 h-1 bg-blue-600 transition-all duration-300"
+                style={{ width: `${currentFileItem.progress}%` }}
+              />
+            </div>
+          ) : (
+            // 업로드 완료된 이미지
+            <div className="relative" style={containerStyle}>
+              <Image
+                src={imageUrl || currentFileItem?.url || ''}
+                alt="썸네일"
+                className="size-full object-cover rounded-lg"
+                width={Number.parseInt(
+                  containerStyle.width.replace('px', ''),
+                  10,
+                )}
+                height={Number.parseInt(
+                  containerStyle.height.replace('px', ''),
+                  10,
+                )}
+              />
 
-                <Button
-                  type="button"
-                  size="icon"
-                  className="absolute top-1 right-1 rounded-full size-8 bg-black/50 hover:bg-black/100"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleRemove()
-                  }}
-                >
-                  <CloseIcon className="size-4 text-white" />
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+              <Button
+                type="button"
+                size="icon"
+                className="absolute top-1 right-1 rounded-full size-8 bg-black/50 hover:bg-black/100"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRemove()
+                }}
+              >
+                <CloseIcon className="size-4 text-white" />
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept={uploadOptions.accept}
-          onChange={handleInputChange}
-          onClick={(e) => e.stopPropagation()}
-          className="hidden"
-        />
-      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={uploadOptions.accept}
+        onChange={handleInputChange}
+        onClick={(e) => e.stopPropagation()}
+        className="hidden"
+      />
     </div>
   )
 }

@@ -71,6 +71,27 @@
       "when": 1756876524569,
       "tag": "0009_pink_sharon_carter",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1756974289630,
+      "tag": "0010_free_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1756974750930,
+      "tag": "0011_orange_silvermane",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1757034227826,
+      "tag": "0012_bitter_mercury",
+      "breakpoints": true
     }
   ]
 }
