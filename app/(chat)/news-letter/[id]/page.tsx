@@ -2,9 +2,10 @@ import { auth } from '@/app/(auth)/auth'
 import { redirect } from 'next/navigation'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { getPostById } from '@/lib/db/queries'
-import Link from 'next/link'
 import { NewsActions } from './news-actions'
 import { PostMetaInfo } from '@/components/post-meta-info'
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import Link from 'next/link'
 
 // API에서 받는 데이터 타입 (JOIN 결과)
 interface PostDetailData {
@@ -63,50 +64,43 @@ export default async function NewsDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1">
-        {/* 제목 */}
-        <div>
-          <Link
-            href="/news-letter"
-            className="text-gray-500 hover:underline underline-offset-4"
-          >
-            뉴스레터
-          </Link>
-          <h1 className="text-4xl font-bold text-foreground my-6">
-            {post.title}
-          </h1>
+    <div className="grid grid-cols-1">
+      {/* 제목 */}
+      <div>
+        <PageBreadcrumb items={[{ label: '뉴스레터', href: '/news-letter' }]} />
+        <h1 className="text-4xl font-bold text-foreground my-6">
+          {post.title}
+        </h1>
 
-          {/* 메타 정보 */}
-          <div className="flex justify-between">
-            <PostMetaInfo
-              items={[
-                { type: 'readingTime', data: post.content },
-                { type: 'relativeTime', data: post.createdAt },
-              ]}
-            />
-            <NewsActions postId={post.postId} />
-          </div>
-
-          {/* 태그 */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+        {/* 메타 정보 */}
+        <div className="flex justify-between">
+          <PostMetaInfo
+            items={[
+              { type: 'readingTime', data: post.content },
+              { type: 'relativeTime', data: post.createdAt },
+            ]}
+          />
+          <NewsActions postId={post.postId} />
         </div>
-        <hr className="my-10 border-t-2 border-primary" />
-        {/* 컨텐츠 */}
 
-        <SimpleEditor viewMode={true} initialContent={post.content} />
+        {/* 태그 */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {post.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
+      <hr className="my-10 border-t-2 border-primary" />
+      {/* 컨텐츠 */}
+
+      <SimpleEditor viewMode={true} initialContent={post.content} />
     </div>
   )
 }

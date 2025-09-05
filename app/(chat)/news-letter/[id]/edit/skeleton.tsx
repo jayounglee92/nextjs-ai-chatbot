@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function NewsEditSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto w-full">
+    <>
       {/* 제목 라벨 스켈레톤 */}
       <div className="mb-2">
         <Skeleton className="h-4 w-16" />
@@ -75,6 +75,6 @@ export function NewsEditSkeleton() {
           <Skeleton className="h-10 w-20" />
         </div>
       </div>
-    </div>
+    </>
   )
 }

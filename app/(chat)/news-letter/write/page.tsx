@@ -21,9 +21,8 @@ import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import sanitizeHtml from 'sanitize-html'
-import Link from 'next/link'
-import { ChevronRightIcon } from 'lucide-react'
 import { TagInput } from '@/components/tag-input'
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
 
 const MAX_TAGS_COUNT = 10
 
@@ -129,17 +128,13 @@ export default function NewsLetterWritePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5">
-      <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-        <Link
-          href="/news-letter"
-          className="hover:text-foreground transition-colors"
-        >
-          뉴스레터
-        </Link>
-        <ChevronRightIcon className="size-4" />
-        <span className="text-foreground">뉴스 작성하기</span>
-      </nav>
+    <div className="space-y-5">
+      <PageBreadcrumb
+        items={[
+          { label: '뉴스레터', href: '/news-letter' },
+          { label: '뉴스 작성하기' },
+        ]}
+      />
 
       {/* 제목 입력 필드 */}
       <div className="space-y-1">

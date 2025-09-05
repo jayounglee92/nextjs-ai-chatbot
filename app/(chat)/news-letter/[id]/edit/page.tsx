@@ -210,7 +210,7 @@ export default function NewsEditPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div>
       {/* 제목 입력 필드 */}
       <div className="mb-6">
         <Label htmlFor="title" className="text-sm font-medium block mb-2">

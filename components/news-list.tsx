@@ -81,7 +81,7 @@ export function WideArticle({ item, isWideRight = false }: WideArticleProps) {
 
         {/* 이미지 */}
         <div
-          className={`relative overflow-hidden h-48 md:h-60 rounded-lg md:col-span-2 ${isWideRight ? 'md:order-1' : 'md:order-2'}`}
+          className={`relative overflow-hidden h-48 md:h-60 rounded-tl-lg rounded-tr-lg md:rounded-br-lg md:rounded-bl-lg md:col-span-2 ${isWideRight ? 'md:order-1' : 'md:order-2'}`}
         >
           <Image
             src={item.image}
@@ -105,7 +105,7 @@ export function ThreeColumnArticle({ item }: ThreeColumnArticleProps) {
         className="flex flex-col"
       >
         {/* 이미지 */}
-        <div className="relative rounded-lg overflow-hidden h-48">
+        <div className="relative rounded-tl-lg rounded-tr-lg overflow-hidden h-48">
           <Image
             src={item.image}
             alt={item.title}
