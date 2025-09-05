@@ -57,7 +57,7 @@ export default function NewsEditPage() {
     error,
     isLoading,
   } = useSWR<PostDetailData>(
-    session && params.id ? `/api/news-letter?id=${params.id}` : null,
+    session && params.id ? `/api/post?id=${params.id}` : null,
     fetcher,
     {
       onSuccess: (data) => {
@@ -122,10 +122,10 @@ export default function NewsEditPage() {
     try {
       // SWR mutate를 사용한 낙관적 업데이트
       await mutate(
-        `/api/news-letter?id=${params.id}`,
+        `/api/post?id=${params.id}`,
         async (currentData: PostDetailData | undefined) => {
           // 서버에 PUT 요청
-          const response = await fetch(`/api/news-letter?id=${params.id}`, {
+          const response = await fetch(`/api/post?id=${params.id}`, {
             method: 'PUT',
             body: JSON.stringify({
               title: currentTitle?.trim(),
@@ -163,7 +163,7 @@ export default function NewsEditPage() {
       )
 
       // 목록 캐시도 업데이트 (수정된 항목이 목록에서도 반영되도록)
-      mutate('/api/news-letter')
+      mutate('/api/post')
     } catch (error) {
       // 네트워크 오류나 기타 런타임 오류 처리
       handleFetchError(error, router, '수정')

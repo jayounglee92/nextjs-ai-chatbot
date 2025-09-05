@@ -161,7 +161,7 @@ export function getRelativeTimeString(dateString: string | Date): string {
  * @example
  * calculateReadingTime('<p>Hello, world!</p>') // 0분
  */
-export function calculateReadingTime(textContent: string): string {
+export function calculateReadingTime(textContent: string): number {
   // 한글, 영문, 숫자, 특수문자 포함한 전체 글자 수 계산
   const totalCharacters = textContent.length
 
@@ -174,7 +174,7 @@ export function calculateReadingTime(textContent: string): string {
     Math.round(totalCharacters / readingSpeedPerMinute),
   )
 
-  return `${readingTimeMinutes}분`
+  return readingTimeMinutes
 }
 
 /**

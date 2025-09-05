@@ -14,14 +14,13 @@ import {
   handleApiError,
   showSuccessToast,
 } from '@/lib/toast-utils'
-import type { AiUseCase } from '@/lib/db/schema'
-import { validateAiUseCaseCreate } from '@/lib/validators/ai-use-case'
+import { validatePostContentsCreate } from '@/lib/validators/post-contents'
 import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import sanitizeHtml from 'sanitize-html'
-import Link from 'next/link'
-import { ChevronRightIcon } from 'lucide-react'
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { TagInput } from '@/components/tag-input'
 
 export default function CommunityPage() {
   const { data: session } = useSession()
@@ -30,6 +29,8 @@ export default function CommunityPage() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
+  const [category, setCategory] = useState('')
+  const [tags, setTags] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const isDisabledSaveButton =
     isSubmitting ||
@@ -46,14 +47,18 @@ export default function CommunityPage() {
 
   const handleSubmit = async () => {
     // 유효성 검사
-    const validation = validateAiUseCaseCreate({
+    const validation = validatePostContentsCreate({
       title: title.trim(),
       content: content.trim(),
+      category: category.trim(),
+      tags: tags,
       thumbnailUrl: thumbnailUrl || '',
+      postType: 'aiusecase',
     })
 
     if (!validation.success) {
-      alert(formatValidationErrors(validation.errors || ['유효성 검사 실패']))
+      const errorMessages = validation.error.errors.map((err) => err.message)
+      alert(formatValidationErrors(errorMessages))
       return
     }
 
@@ -62,15 +67,18 @@ export default function CommunityPage() {
     try {
       // SWR mutate를 사용한 낙관적 업데이트
       await mutate(
-        '/api/ai-use-case',
-        async (currentData: AiUseCase[] | undefined) => {
+        '/api/post',
+        async (currentData: any) => {
           // 서버에 POST 요청
-          const response = await fetch('/api/ai-use-case', {
+          const response = await fetch('/api/post', {
             method: 'POST',
             body: JSON.stringify({
               title: title.trim(),
               content: content.trim(),
+              category: category.trim(),
+              tags: tags,
               thumbnailUrl: thumbnailUrl || undefined,
+              postType: 'aiusecase',
             }),
           })
 
@@ -111,16 +119,12 @@ export default function CommunityPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-        <Link
-          href="/ai-use-case"
-          className="hover:text-foreground transition-colors"
-        >
-          AI 활용 사례
-        </Link>
-        <ChevronRightIcon className="size-4" />
-        <span className="text-foreground">글쓰기</span>
-      </nav>
+      <PageBreadcrumb
+        items={[
+          { label: 'AI 활용 사례', href: '/ai-use-case' },
+          { label: '글쓰기' },
+        ]}
+      />
 
       {/* 제목 입력 필드 */}
       <div className="mb-6">
@@ -133,12 +137,12 @@ export default function CommunityPage() {
           placeholder="제목을 입력하세요"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded-none !text-lg h-12"
+          className="w-full !text-lg h-12"
         />
       </div>
 
       {/* 에디터 */}
-      <div className="border">
+      <div className="border rounded-lg overflow-hidden pb-2">
         <SimpleEditor
           onContentChange={(newContent) => setContent(newContent)}
         />
@@ -165,6 +169,32 @@ export default function CommunityPage() {
               toast.error(`이미지 업로드에 실패했습니다.\n ${error.message}`)
             },
           }}
+        />
+      </div>
+
+      {/* 카테고리 입력 */}
+      <div className="mb-6">
+        <Label htmlFor="category" className="text-sm font-medium block mb-2">
+          카테고리
+        </Label>
+        <Input
+          id="category"
+          type="text"
+          placeholder="카테고리를 입력하세요"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full"
+        />
+      </div>
+
+      {/* 태그 입력 */}
+      <div className="mb-6">
+        <TagInput
+          tags={tags}
+          onTagsChange={setTags}
+          label="태그"
+          placeholder="태그를 입력하고 Enter를 누르세요"
+          maxTags={10}
         />
       </div>
 

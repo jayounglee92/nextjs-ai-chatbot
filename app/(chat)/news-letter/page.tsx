@@ -9,18 +9,37 @@ import { Button } from '@/components/ui/button'
 import useSWR from 'swr'
 import type { Posts } from '@/lib/db/schema'
 import { ErrorPage } from '@/components/error-page'
+import { fetcher } from '@/lib/utils'
+import { useState } from 'react'
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+interface PaginatedResponse {
+  data: (Posts & {
+    category?: string | null
+    tags?: string[]
+    readingTime?: string
+    userEmail?: string | null
+  })[]
+  pagination: {
+    currentPage: number
+    totalPages: number
+    totalCount: number
+    itemsPerPage: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
+}
 
 export default function NewsLetterPage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(6)
 
-  // Posts 테이블에서 데이터 가져오기
-  const { data, error, isLoading } = useSWR<{
-    data: (Posts & { category?: string | null; tags?: string[] })[]
-    totalCount: number
-  }>('/api/news-letter', fetcher)
+  // Posts 테이블에서 데이터 가져오기 (페이지네이션 적용)
+  const { data, error, isLoading } = useSWR<PaginatedResponse>(
+    `/api/post?postType=news&itemsPerPage=${itemsPerPage}&page=${currentPage}`,
+    fetcher,
+  )
 
   // Posts 데이터를 NewsItem 형태로 변환
   const newsData = (data?.data || []).map((post) => ({
@@ -42,13 +61,11 @@ export default function NewsLetterPage() {
   }
 
   if (error) {
-    return (
-      <ErrorPage
-        title="데이터를 불러오는 중 오류가 발생했습니다."
-        description="잠시 후 다시 시도해주세요."
-        actions={<Button onClick={() => router.push('/')}>홈으로</Button>}
-      />
-    )
+    return ErrorPage({
+      title: '데이터를 불러오는 중 오류가 발생했습니다.',
+      description: '잠시 후 다시 시도해주세요.',
+      actions: <Button onClick={() => router.push('/')}>홈으로</Button>,
+    })
   }
 
   if (isLoading) {
@@ -97,7 +114,7 @@ export default function NewsLetterPage() {
         {/* 데스크톱에서만 보이는 버튼 */}
         <Button
           onClick={handleWriteClick}
-          className="hidden sm:flex items-center gap-2"
+          className="hidden md:flex items-center gap-2"
         >
           <PencilLineIcon className="w-4 h-4" />
           뉴스 작성하기
@@ -106,10 +123,50 @@ export default function NewsLetterPage() {
 
       <NewsList newsData={newsData} />
 
+      {/* 페이지네이션 */}
+      {data?.pagination && data.pagination.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={!data.pagination.hasPrevPage}
+          >
+            이전
+          </Button>
+
+          <div className="flex gap-1">
+            {Array.from(
+              { length: data.pagination.totalPages },
+              (_, i) => i + 1,
+            ).map((page) => (
+              <Button
+                key={page}
+                variant={page === currentPage ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+                className="w-10 h-10"
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={!data.pagination.hasNextPage}
+          >
+            다음
+          </Button>
+        </div>
+      )}
+
       {/* 모바일에서만 보이는 floating 버튼 */}
       <Button
         onClick={handleWriteClick}
-        className="fixed bottom-6 right-6 z-50 sm:hidden rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
         size="icon"
       >
         <PencilLineIcon className="w-6 h-6" />

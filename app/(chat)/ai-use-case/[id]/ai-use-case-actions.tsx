@@ -2,7 +2,20 @@
 
 import { useRouter } from 'next/navigation'
 import { Share2, EllipsisVertical } from 'lucide-react'
-import type { AiUseCase } from '@/lib/db/schema'
+// API에서 받는 데이터 타입 (getPostById 반환 타입)
+interface PostDetailData {
+  id: string
+  postId: string
+  content: string
+  category: string | null
+  tags: string[]
+  userId: string
+  title: string | null
+  thumbnailUrl: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
+  userEmail: string | null
+}
 import {
   Tooltip,
   TooltipContent,
@@ -21,13 +34,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
 
-// API에서 받는 데이터 타입 (userEmail 필드 추가)
-interface AiUseCaseWithEmail extends AiUseCase {
-  userEmail: string
-}
-
 interface Props {
-  useCase: AiUseCaseWithEmail
+  useCase: PostDetailData
 }
 
 export function AiUseCaseActions({ useCase }: Props) {
@@ -42,7 +50,7 @@ export function AiUseCaseActions({ useCase }: Props) {
     if (!confirm('정말로 삭제하시겠습니까?')) return
 
     try {
-      const response = await fetch(`/api/ai-use-case?id=${useCase.id}`, {
+      const response = await fetch(`/api/post?id=${useCase.postId}`, {
         method: 'DELETE',
       })
 
@@ -61,7 +69,7 @@ export function AiUseCaseActions({ useCase }: Props) {
   }
 
   return (
-    <>
+    <div className="flex gap-4">
       <Tooltip>
         <TooltipTrigger asChild>
           <button type="button" onClick={handleShare}>
@@ -81,7 +89,7 @@ export function AiUseCaseActions({ useCase }: Props) {
         <DropdownMenuContent>
           <DropdownMenuItem asChild>
             <Link
-              href={`/ai-use-case/${useCase.id}/edit`}
+              href={`/ai-use-case/${useCase.postId}/edit`}
               className="cursor-pointer"
             >
               수정
@@ -98,6 +106,6 @@ export function AiUseCaseActions({ useCase }: Props) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+    </div>
   )
 }

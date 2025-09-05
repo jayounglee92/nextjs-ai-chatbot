@@ -59,7 +59,7 @@ export default function NewsLetterWritePage() {
       content: content.trim(),
       category: category.trim() || undefined,
       tags: tags,
-      userId: session?.user?.id || '',
+      postType: 'news',
     })
 
     if (!validation.success) {
@@ -73,10 +73,10 @@ export default function NewsLetterWritePage() {
     try {
       // SWR mutate를 사용한 낙관적 업데이트
       await mutate(
-        '/api/news-letter',
+        '/api/post',
         async (currentData: PostContents[] | undefined) => {
           // 서버에 POST 요청
-          const response = await fetch('/api/news-letter', {
+          const response = await fetch('/api/post', {
             method: 'POST',
             body: JSON.stringify({
               title: title.trim(),

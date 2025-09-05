@@ -9,21 +9,14 @@ import { SearchBar } from '@/components/search-bar'
 import Link from 'next/link'
 import { PencilLineIcon } from 'lucide-react'
 import useSWR from 'swr'
-import type { AiUseCase } from '@/lib/db/schema'
-
-// API에서 받는 데이터 타입 (summary, userEmail 필드 추가)
-interface ClientAiUseCase extends AiUseCase {
-  summary: string
-  userEmail: string
-  cleanText: string
-}
 import { fetcher } from '@/lib/utils'
 import { ErrorPage } from '@/components/error-page'
 import { Button } from '@/components/ui/button'
+import type { AiUseCase } from '@/components/ai-use-case-list'
 
 // 페이지네이션 응답 타입 정의
 interface PaginatedResponse {
-  data: ClientAiUseCase[]
+  data: AiUseCase[]
   pagination: {
     currentPage: number
     totalPages: number
@@ -51,7 +44,7 @@ export default function AiUseCasePage() {
     isLoading,
   } = useSWR<PaginatedResponse>(
     session
-      ? `/api/ai-use-case?itemsPerPage=${itemsPerPage}&page=${currentPage}${searchWord ? `&search=${encodeURIComponent(searchWord)}` : ''}`
+      ? `/api/post?postType=aiusecase&itemsPerPage=${itemsPerPage}&page=${currentPage}${searchWord ? `&search=${encodeURIComponent(searchWord)}` : ''}`
       : null,
     fetcher,
     {
@@ -63,6 +56,14 @@ export default function AiUseCasePage() {
   // 서버에서 받은 데이터와 페이지네이션 정보
   const aiUseCases = response?.data || []
   const pagination = response?.pagination
+
+  const handleWriteClick = () => {
+    if (!session) {
+      router.push('/auth/signin')
+      return
+    }
+    router.push('/ai-use-case/write')
+  }
 
   useEffect(() => {
     if (status === 'loading') return
@@ -104,13 +105,11 @@ export default function AiUseCasePage() {
   }
 
   if (error) {
-    return (
-      <ErrorPage
-        title="데이터를 불러올 수 없습니다"
-        description="잠시 후 다시 시도해주세요."
-        actions={<Button onClick={() => router.push('/')}>홈으로</Button>}
-      />
-    )
+    return ErrorPage({
+      title: '데이터를 불러올 수 없습니다',
+      description: '잠시 후 다시 시도해주세요.',
+      actions: <Button onClick={() => router.push('/')}>홈으로</Button>,
+    })
   }
 
   if (!session) {
@@ -124,12 +123,14 @@ export default function AiUseCasePage() {
           <h1 className="text-2xl font-semibold text-foreground">
             AI 활용 사례
           </h1>
-          <Link
-            href="/ai-use-case/write"
-            className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+          {/* 데스크톱에서만 보이는 버튼 */}
+          <Button
+            onClick={handleWriteClick}
+            className="hidden md:flex items-center gap-2"
           >
-            <PencilLineIcon className="size-4" /> 글쓰기
-          </Link>
+            <PencilLineIcon className="w-4 h-4" />
+            글쓰기
+          </Button>
         </div>
         <p className="text-muted-foreground">
           사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.
@@ -152,6 +153,14 @@ export default function AiUseCasePage() {
         hasNextPage={pagination?.hasNextPage || false}
         hasPrevPage={pagination?.hasPrevPage || false}
       />
+      {/* 모바일에서만 보이는 floating 버튼 */}
+      <Button
+        onClick={handleWriteClick}
+        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+        size="icon"
+      >
+        <PencilLineIcon className="w-6 h-6" />
+      </Button>
     </>
   )
 }

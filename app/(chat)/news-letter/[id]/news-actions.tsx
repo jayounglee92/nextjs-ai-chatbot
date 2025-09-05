@@ -36,7 +36,7 @@ export function NewsActions({ postId }: Props) {
     if (!confirm('정말로 삭제하시겠습니까?')) return
 
     try {
-      const response = await fetch(`/api/news-letter?id=${postId}`, {
+      const response = await fetch(`/api/post?id=${postId}`, {
         method: 'DELETE',
       })
 

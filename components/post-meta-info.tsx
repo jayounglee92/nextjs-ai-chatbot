@@ -11,7 +11,6 @@ export type MetaItemType =
   | 'readingTime'
   | 'category'
   | 'custom'
-  | 'actions'
 
 interface MetaItem {
   type: MetaItemType
@@ -27,7 +26,6 @@ interface PostMetaInfoProps {
 export function PostMetaInfo({ items, className = '' }: PostMetaInfoProps) {
   const renderMetaItem = (item: MetaItem, index: number) => {
     const isLast = index === items.length - 1
-    const separator = isLast ? null : <span className="text-gray-300">|</span>
 
     switch (item.type) {
       case 'author': {
@@ -51,11 +49,11 @@ export function PostMetaInfo({ items, className = '' }: PostMetaInfoProps) {
       }
 
       case 'readingTime': {
-        const content = item.data as string
+        const readingTime = item.data as number
         return (
           <span className="flex gap-2 items-center">
             <Clock className="size-5" />
-            {calculateReadingTime(content)}
+            {readingTime}분
           </span>
         )
       }
@@ -74,12 +72,12 @@ export function PostMetaInfo({ items, className = '' }: PostMetaInfoProps) {
   }
 
   return (
-    <div className={`flex flex-wrap gap-4 ${className}`}>
+    <div className={`flex flex-wrap ${className}`}>
       {items.map((item, index) => (
         <React.Fragment key={`${item.type}-${index}`}>
           {renderMetaItem(item, index)}
           {index !== items.length - 1 && (
-            <span className="text-gray-300">|</span>
+            <span className="text-gray-300 mx-4">|</span>
           )}
         </React.Fragment>
       ))}

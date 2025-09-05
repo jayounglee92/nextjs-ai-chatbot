@@ -3,17 +3,17 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Clock, Calendar, User } from 'lucide-react'
 import Link from 'next/link'
 import { Pagination } from './pagination'
-import type { AiUseCase } from '@/lib/db/schema'
-import { calculateReadingTime, getRelativeTimeString } from '@/lib/utils'
+import { getRelativeTimeString } from '@/lib/utils'
 import { EmptyPage } from './empty-page'
 import { decode } from 'he'
-// API에서 받는 데이터 타입 (summary, userEmail 필드 추가)
-interface ProcessedAiUseCase extends AiUseCase {
+
+export interface AiUseCase extends PostContents {
+  summary: string
+  readingTime: number
   userEmail: string
-  cleanText: string
 }
 interface AiUseCaseListProps {
-  useCases: ProcessedAiUseCase[]
+  useCases: AiUseCase[]
   totalItems: number
   itemsPerPage: number
   currentPage: number
@@ -56,9 +56,7 @@ export function AiUseCaseList({
                       <div className="flex items-center gap-4 text-xs md:text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="size-4" />
-                          <span>
-                            {calculateReadingTime(useCase.cleanText) || '5분'}
-                          </span>
+                          <span>{useCase.readingTime}분</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="size-4" />
@@ -69,11 +67,7 @@ export function AiUseCaseList({
                       </div>
                     </div>
                     <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 h-12">
-                      {decode(
-                        useCase.cleanText.length > 200
-                          ? useCase.cleanText.substring(0, 200)
-                          : useCase.cleanText,
-                      )}
+                      {useCase.summary}
                     </p>
                     <div className="flex items-center gap-2">
                       <User className="size-4 text-muted-foreground" />

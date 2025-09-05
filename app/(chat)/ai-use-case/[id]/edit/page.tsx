@@ -19,10 +19,10 @@ import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
 import useSWR, { useSWRConfig } from 'swr'
 import { fetcher, formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
-import type { AiUseCase } from '@/lib/db/schema'
-import { validateAiUseCaseUpdate } from '@/lib/validators/ai-use-case'
+import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
 import sanitizeHtml from 'sanitize-html'
+import { TagInput } from '@/components/tag-input'
 
 export default function AiUseCaseEditPage() {
   const { data: session, status } = useSession()
@@ -32,15 +32,32 @@ export default function AiUseCaseEditPage() {
   const [title, setTitle] = useState<string | null>(null)
   const [content, setContent] = useState<string | null>(null)
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
+  const [category, setCategory] = useState<string | null>(null)
+  const [tags, setTags] = useState<string[] | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // API에서 받는 데이터 타입 (getPostById 반환 타입)
+  interface PostDetailData {
+    id: string
+    postId: string
+    content: string
+    category: string | null
+    tags: string[]
+    userId: string
+    title: string | null
+    thumbnailUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    userEmail: string | null
+  }
 
   // SWR을 사용하여 AI 활용사례 데이터 조회
   const {
     data: aiUseCase,
     error,
     isLoading,
-  } = useSWR(
-    session && params.id ? `/api/ai-use-case?id=${params.id}` : null,
+  } = useSWR<PostDetailData>(
+    session && params.id ? `/api/post?id=${params.id}` : null,
     fetcher,
     {
       onSuccess: (data) => {
@@ -54,6 +71,12 @@ export default function AiUseCaseEditPage() {
         if (thumbnailUrl === null) {
           setThumbnailUrl(data.thumbnailUrl || '')
         }
+        if (category === null) {
+          setCategory(data.category || '')
+        }
+        if (tags === null) {
+          setTags(data.tags || [])
+        }
       },
       onError: (error) => {
         console.error('Failed to fetch AI use case:', error)
@@ -61,12 +84,13 @@ export default function AiUseCaseEditPage() {
     },
   )
 
-  // 실제 사용할 title, content, thumbnailUrl 값 계산
-  // state가 null이 아니면 사용자가 입력한 값, null이면 서버 데이터 사용
+  // 실제 사용할 값들 계산
   const currentTitle = title !== null ? title : aiUseCase?.title
   const currentContent = content !== null ? content : aiUseCase?.content
   const currentThumbnailUrl =
     thumbnailUrl !== null ? thumbnailUrl : aiUseCase?.thumbnailUrl
+  const currentCategory = category !== null ? category : aiUseCase?.category
+  const currentTags = tags !== null ? tags : aiUseCase?.tags || []
   const isDisabledSaveButton =
     isSubmitting ||
     !currentTitle?.trim() ||
@@ -77,14 +101,17 @@ export default function AiUseCaseEditPage() {
     !currentThumbnailUrl
   const handleSubmit = async () => {
     // 유효성 검사
-    const validation = validateAiUseCaseUpdate({
+    const validation = validatePostContentsUpdate({
       title: currentTitle?.trim() || '',
       content: currentContent || '',
+      category: currentCategory?.trim(),
+      tags: currentTags,
       thumbnailUrl: currentThumbnailUrl || '',
     })
 
     if (!validation.success) {
-      alert(formatValidationErrors(validation.errors || ['유효성 검사 실패']))
+      const errorMessages = validation.error.errors.map((err) => err.message)
+      alert(formatValidationErrors(errorMessages))
       return
     }
 
@@ -93,14 +120,16 @@ export default function AiUseCaseEditPage() {
     try {
       // SWR mutate를 사용한 낙관적 업데이트
       await mutate(
-        `/api/ai-use-case?id=${params.id}`,
-        async (currentData: AiUseCase | undefined) => {
+        `/api/post?id=${params.id}`,
+        async (currentData: PostDetailData | undefined) => {
           // 서버에 PUT 요청
-          const response = await fetch(`/api/ai-use-case?id=${params.id}`, {
+          const response = await fetch(`/api/post?id=${params.id}`, {
             method: 'PUT',
             body: JSON.stringify({
               title: currentTitle?.trim() || '',
               content: currentContent || '',
+              category: currentCategory?.trim(),
+              tags: currentTags,
               thumbnailUrl: currentThumbnailUrl || undefined,
             }),
           })
@@ -190,7 +219,7 @@ export default function AiUseCaseEditPage() {
           id="title"
           type="text"
           placeholder="제목을 입력하세요"
-          value={currentTitle}
+          value={currentTitle || ''}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full rounded-none !text-lg h-12"
         />
@@ -225,6 +254,32 @@ export default function AiUseCaseEditPage() {
               toast.error(`이미지 업로드에 실패했습니다.\n ${error.message}`)
             },
           }}
+        />
+      </div>
+
+      {/* 카테고리 입력 */}
+      <div className="mb-6">
+        <Label htmlFor="category" className="text-sm font-medium block mb-2">
+          카테고리
+        </Label>
+        <Input
+          id="category"
+          type="text"
+          placeholder="카테고리를 입력하세요"
+          value={currentCategory || ''}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full"
+        />
+      </div>
+
+      {/* 태그 입력 */}
+      <div className="mb-6">
+        <TagInput
+          tags={currentTags}
+          onTagsChange={setTags}
+          label="태그"
+          placeholder="태그를 입력하고 Enter를 누르세요"
+          maxTags={10}
         />
       </div>
 

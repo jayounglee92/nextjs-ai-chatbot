@@ -1,17 +1,22 @@
 import { z } from 'zod'
-import { NEWS_LETTER_MESSAGES } from '@/app/(chat)/api/news-letter/schema'
+
+const POST_MESSAGES = {
+  TITLE_REQUIRED: '제목은 필수입니다',
+  CONTENT_REQUIRED: '내용은 필수입니다',
+}
 
 export const postContentsCreateSchema = z.object({
-  title: z.string().min(1, NEWS_LETTER_MESSAGES.TITLE_REQUIRED),
-  content: z.string().min(1, NEWS_LETTER_MESSAGES.CONTENT_REQUIRED),
+  title: z.string().min(1, POST_MESSAGES.TITLE_REQUIRED),
+  content: z.string().min(1, POST_MESSAGES.CONTENT_REQUIRED),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  userId: z.string().min(1, '사용자 ID는 필수입니다'),
+  thumbnailUrl: z.string().optional(),
+  postType: z.enum(['news', 'aiusecase', 'learningcenter']),
 })
 
 export const postContentsUpdateSchema = z.object({
-  title: z.string().min(1, NEWS_LETTER_MESSAGES.TITLE_REQUIRED),
-  content: z.string().min(1, NEWS_LETTER_MESSAGES.CONTENT_REQUIRED),
+  title: z.string().min(1, POST_MESSAGES.TITLE_REQUIRED),
+  content: z.string().min(1, POST_MESSAGES.CONTENT_REQUIRED),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
   thumbnailUrl: z.string().optional(),

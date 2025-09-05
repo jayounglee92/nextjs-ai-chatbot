@@ -1,15 +1,25 @@
 import { auth } from '@/app/(auth)/auth'
 import { redirect } from 'next/navigation'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
-import { getAiUseCaseById } from '@/lib/db/queries'
-import type { AiUseCase } from '@/lib/db/schema'
+import { getPostById } from '@/lib/db/queries'
 import Link from 'next/link'
 import { AiUseCaseActions } from './ai-use-case-actions'
 import { PostMetaInfo } from '@/components/post-meta-info'
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
 
-// API에서 받는 데이터 타입 (userEmail 필드 추가)
-interface AiUseCaseWithEmail extends AiUseCase {
-  userEmail: string
+// API에서 받는 데이터 타입 (getPostById 반환 타입)
+interface PostDetailData {
+  id: string
+  postId: string
+  content: string
+  category: string | null
+  tags: string[]
+  userId: string
+  title: string | null
+  thumbnailUrl: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
+  userEmail: string | null
 }
 
 interface Props {
@@ -24,10 +34,10 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
   }
 
   const { id } = await params
-  let useCase: AiUseCaseWithEmail | null = null
+  let useCase: PostDetailData | null = null
 
   try {
-    useCase = await getAiUseCaseById({ id })
+    useCase = await getPostById({ id })
   } catch (error) {
     console.error('Failed to fetch AI use case:', error)
     useCase = null
@@ -53,34 +63,43 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
       </div>
     )
   }
-
+  console.log(useCase.readingTime)
   return (
     <div className="max-w-4xl mx-auto">
       <div className="grid grid-cols-1">
         {/* 제목 */}
         <div>
-          <Link
-            href="/ai-use-case"
-            className="text-gray-500 hover:underline underline-offset-4"
-          >
-            AI 활용 사례
-          </Link>
+          <PageBreadcrumb
+            items={[{ label: 'AI 활용 사례', href: '/ai-use-case' }]}
+          />
           <h1 className="text-4xl font-bold text-foreground my-6">
             {useCase.title}
           </h1>
 
           {/* 메타 정보 */}
-          <PostMetaInfo
-            items={[
-              { type: 'author', data: { email: useCase.userEmail } },
-              { type: 'readingTime', data: useCase.content },
-              { type: 'relativeTime', data: useCase.createdAt },
-              {
-                type: 'actions',
-                content: <AiUseCaseActions useCase={useCase} />,
-              },
-            ]}
-          />
+          <div className="flex justify-between">
+            <PostMetaInfo
+              items={[
+                { type: 'author', data: { email: useCase.userEmail } },
+                { type: 'readingTime', data: useCase.readingTime },
+                { type: 'relativeTime', data: useCase.createdAt },
+              ]}
+            />
+            <AiUseCaseActions useCase={useCase} />
+          </div>
+          {/* 태그 */}
+          {useCase.tags && useCase.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {useCase.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <hr className="my-10 border-t-2 border-primary" />
         <SimpleEditor viewMode={true} initialContent={useCase.content} />

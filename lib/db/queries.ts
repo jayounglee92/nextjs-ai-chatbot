@@ -17,6 +17,8 @@ import {
 } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
+import { calculateReadingTime } from '@/lib/utils'
+import sanitizeHtml from 'sanitize-html'
 
 import {
   user,
@@ -44,7 +46,6 @@ import { generateUUID } from '../utils'
 import { generateHashedPassword } from './utils'
 import type { VisibilityType } from '@/components/visibility-selector'
 import { ChatSDKError } from '../errors'
-import sanitizeHtml from 'sanitize-html'
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -1488,7 +1489,7 @@ export async function getAllPosts({
   visibility?: string
 }) {
   try {
-    let data: Array<Posts>
+    let data: Array<Posts & { readingTime: number; userEmail: string | null }>
     let totalCount: number
 
     const searchTerm = search && search.trim() ? `%${search.trim()}%` : null
@@ -1529,9 +1530,12 @@ export async function getAllPosts({
           updatedAt: posts.updatedAt,
           category: postContents.category,
           tags: postContents.tags,
+          content: postContents.content,
+          userEmail: user.email,
         })
         .from(posts)
         .leftJoin(postContents, eq(posts.id, postContents.postId))
+        .leftJoin(user, eq(posts.userId, user.id))
         .where(finalWhereCondition)
         .orderBy(desc(posts.createdAt))
         .limit(limit)
@@ -1539,11 +1543,21 @@ export async function getAllPosts({
       db.select({ count: count() }).from(posts).where(finalWhereCondition),
     ])
 
-    // tags를 쉼표로 구분된 문자열에서 배열로 변환
-    data = dataResult.map((item) => ({
-      ...item,
-      tags: item.tags ? item.tags.split(',') : [],
-    }))
+    // tags를 쉼표로 구분된 문자열에서 배열로 변환하고 readingTime 계산
+    data = dataResult.map((item) => {
+      // content에서 HTML 제거
+      const cleanContent = item.content
+        ? sanitizeHtml(item.content, { allowedTags: [] })
+        : ''
+      // readingTime 계산
+      const readingTime = calculateReadingTime(cleanContent)
+
+      return {
+        ...item,
+        tags: item.tags ? item.tags.split(',') : [],
+        readingTime,
+      }
+    })
     totalCount = totalCountResult[0]?.count || 0
 
     return {
@@ -1638,7 +1652,20 @@ export async function incrementPostLikeCount({ id }: { id: string }) {
   }
 }
 
-export async function getPostById({ id }: { id: string }) {
+export async function getPostById({ id }: { id: string }): Promise<{
+  id: string
+  postId: string
+  content: string
+  category: string | null
+  tags: string[]
+  userId: string
+  title: string | null
+  thumbnailUrl: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
+  userEmail: string | null
+  readingTime: number
+} | null> {
   try {
     const [selectedPost] = await db
       .select({
@@ -1666,10 +1693,16 @@ export async function getPostById({ id }: { id: string }) {
       return null
     }
 
-    // tags를 쉼표로 구분된 문자열에서 배열로 변환
+    // tags를 쉼표로 구분된 문자열에서 배열로 변환하고 readingTime 계산
+    const cleanContent = selectedPost.content
+      ? sanitizeHtml(selectedPost.content, { allowedTags: [] })
+      : ''
+    const readingTime = calculateReadingTime(cleanContent)
+
     const result = {
       ...selectedPost,
       tags: selectedPost.tags ? selectedPost.tags.split(',') : [],
+      readingTime,
     }
 
     return result
