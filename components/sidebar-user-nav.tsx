@@ -18,13 +18,10 @@ import {
 import { useRouter } from 'next/navigation'
 import { toast } from './toast'
 import { LoaderIcon } from './icons'
-import { guestRegex } from '@/lib/constants'
 
 export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter()
   const { data, status } = useSession()
-
-  const isGuest = guestRegex.test(data?.user?.email ?? '')
 
   // 클라이언트 사이드에서 세션 정보 로그 출력
   React.useEffect(() => {
@@ -38,10 +35,9 @@ export function SidebarUserNav({ user }: { user: User }) {
           type: data.user?.type,
         },
         expires: data.expires,
-        isGuest,
       })
     }
-  }, [data, status, isGuest])
+  }, [data, status])
 
   return (
     <SidebarMenu>
@@ -66,7 +62,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 className="h-10 data-[state=open]:text-sidebar-accent-foreground hover:bg-none! "
               >
                 <div className="bg-muted rounded-full size-8 flex items-center justify-center font-bold">
-                  {isGuest ? 'G' : user?.name?.charAt(0)}
+                  {user?.name?.charAt(0)}
                 </div>
                 <span data-testid="user-email" className="truncate">
                   {user?.email}
@@ -104,7 +100,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                     return
                   }
 
-                  if (isGuest) {
+                  if (status === 'unauthenticated') {
                     router.push('/login')
                   } else {
                     signOut({
@@ -113,20 +109,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   }
                 }}
               >
-                {isGuest ? '로그인' : '로그아웃'}
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild data-testid="user-nav-item-auth">
-              <button
-                type="button"
-                className="w-full cursor-pointer"
-                onClick={() => {
-                  signOut({
-                    redirectTo: '/',
-                  })
-                }}
-              >
-                무조건 로그아웃
+                {status === 'unauthenticated' ? '로그인' : '로그아웃'}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

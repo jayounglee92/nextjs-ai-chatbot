@@ -1,11 +1,9 @@
 import NextAuth, { type DefaultSession } from 'next-auth'
 import Keycloak from 'next-auth/providers/keycloak'
-import Credentials from 'next-auth/providers/credentials'
-import { createGuestUser } from '@/lib/db/queries'
 import { authConfig } from './auth.config'
 import type { DefaultJWT } from 'next-auth/jwt'
 
-export type UserType = 'guest' | 'regular' | 'keycloak'
+export type UserType = 'keycloak'
 
 declare module 'next-auth' {
   interface Session extends DefaultSession {
@@ -29,13 +27,6 @@ declare module 'next-auth/jwt' {
   }
 }
 
-// Keycloak 설정 디버깅
-console.log('🔧 Keycloak 설정 확인:', {
-  clientId: process.env.AUTH_KEYCLOAK_ID,
-  clientSecret: process.env.AUTH_KEYCLOAK_SECRET ? '✅ 설정됨' : '❌ 없음',
-  issuer: process.env.AUTH_KEYCLOAK_ISSUER,
-})
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   debug: false, // Keycloak fetch 오류 로그 숨기기
@@ -45,7 +36,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_KEYCLOAK_ID || '',
       clientSecret: process.env.AUTH_KEYCLOAK_SECRET || '',
       issuer: process.env.AUTH_KEYCLOAK_ISSUER || '',
-      // 디버깅을 위한 로그 추가
       profile(profile) {
         console.log('🔍 Keycloak 프로필 정보:', profile)
         return {
@@ -70,17 +60,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
       },
     }),
-    // 게스트 프로바이더 (자동 로그인용)
-    // Credentials({
-    //   id: 'guest',
-    //   credentials: {},
-    //   async authorize() {
-    //     console.log('🎭 게스트 사용자 생성 중...')
-    //     const [guestUser] = await createGuestUser()
-    //     console.log('🎭 게스트 사용자 생성 완료:', guestUser)
-    //     return { ...guestUser, type: 'guest' }
-    //   },
-    // }),
     // 기존 Credentials 프로바이더들 (필요시 주석 해제)
     // Credentials({
     //   credentials: {},
@@ -119,46 +98,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           token.id = user.id as string
           token.type = 'keycloak'
-        } else if (account?.provider === 'guest') {
-          // 게스트 로그인한 경우
-          console.log('🎭 게스트 로그인 성공!')
-          console.log('👤 게스트 사용자 정보:', {
-            id: user.id,
-            email: user.email,
-            type: user.type,
-          })
-
-          token.id = user.id as string
-          token.type = 'guest'
-        } else {
-          // 기존 로직 (Credentials)
-          console.log('🔐 Credentials 로그인 성공!')
-          console.log('👤 사용자 정보:', user)
-
-          token.id = user.id as string
-          token.type = user.type
         }
       }
 
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token, account }) {
+      console.log('🔍 session:', session)
+
+      // Keycloak에서 받은 refresh_expires_in 값을 세션에 반영
+      if (token.refresh_expires_at) {
+        session.expires = new Date(
+          account.refresh_expires_at * 1000,
+        ).toISOString()
+        console.log(
+          '⏰ 세션 만료 시간 (Keycloak 설정):',
+          new Date(token.refresh_expires_at * 1000).toLocaleString('ko-KR'),
+        )
+      }
+
       if (session.user) {
-        console.log('🎫 세션 생성됨:', session)
         session.user.id = token.id
         session.user.type = token.type
-
-        // 세션 생성 시 로그 출력
-        console.log('🎫 세션 생성됨:', {
-          user: {
-            id: session.user.id,
-            name: session.user.name,
-            email: session.user.email,
-            type: session.user.type,
-            image: session.user.image,
-          },
-          expires: session.expires,
-        })
       }
 
       return session
