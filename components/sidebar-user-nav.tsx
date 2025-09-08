@@ -1,16 +1,13 @@
 'use client'
 
-import { ChevronUp } from 'lucide-react'
-import Image from 'next/image'
+import React from 'react'
 import type { User } from 'next-auth'
 import { signOut, useSession } from 'next-auth/react'
-import { useTheme } from 'next-themes'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -20,15 +17,31 @@ import {
 } from '@/components/ui/sidebar'
 import { useRouter } from 'next/navigation'
 import { toast } from './toast'
-import { LoaderIcon, UserIcon } from './icons'
+import { LoaderIcon } from './icons'
 import { guestRegex } from '@/lib/constants'
 
 export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter()
   const { data, status } = useSession()
-  const { setTheme, resolvedTheme } = useTheme()
 
   const isGuest = guestRegex.test(data?.user?.email ?? '')
+
+  // 클라이언트 사이드에서 세션 정보 로그 출력
+  React.useEffect(() => {
+    if (data) {
+      console.log('🎯 클라이언트 사이드 세션 정보:', {
+        status,
+        user: {
+          id: data.user?.id,
+          name: data.user?.name,
+          email: data.user?.email,
+          type: data.user?.type,
+        },
+        expires: data.expires,
+        isGuest,
+      })
+    }
+  }, [data, status, isGuest])
 
   return (
     <SidebarMenu>
@@ -56,7 +69,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   {isGuest ? 'G' : user?.name?.charAt(0)}
                 </div>
                 <span data-testid="user-email" className="truncate">
-                  {isGuest ? 'Guest' : user?.email}
+                  {user?.email}
                 </span>
               </SidebarMenuButton>
             )}
@@ -101,6 +114,19 @@ export function SidebarUserNav({ user }: { user: User }) {
                 }}
               >
                 {isGuest ? '로그인' : '로그아웃'}
+              </button>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild data-testid="user-nav-item-auth">
+              <button
+                type="button"
+                className="w-full cursor-pointer"
+                onClick={() => {
+                  signOut({
+                    redirectTo: '/',
+                  })
+                }}
+              >
+                무조건 로그아웃
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
