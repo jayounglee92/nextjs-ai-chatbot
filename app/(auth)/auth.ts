@@ -71,16 +71,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
     // 게스트 프로바이더 (자동 로그인용)
-    Credentials({
-      id: 'guest',
-      credentials: {},
-      async authorize() {
-        console.log('🎭 게스트 사용자 생성 중...')
-        const [guestUser] = await createGuestUser()
-        console.log('🎭 게스트 사용자 생성 완료:', guestUser)
-        return { ...guestUser, type: 'guest' }
-      },
-    }),
+    // Credentials({
+    //   id: 'guest',
+    //   credentials: {},
+    //   async authorize() {
+    //     console.log('🎭 게스트 사용자 생성 중...')
+    //     const [guestUser] = await createGuestUser()
+    //     console.log('🎭 게스트 사용자 생성 완료:', guestUser)
+    //     return { ...guestUser, type: 'guest' }
+    //   },
+    // }),
     // 기존 Credentials 프로바이더들 (필요시 주석 해제)
     // Credentials({
     //   credentials: {},
@@ -113,13 +113,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Keycloak에서 로그인한 경우
         if (account?.provider === 'keycloak') {
           console.log('🔐 Keycloak 로그인 성공!')
-          console.log('👤 사용자 정보:', {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-          })
-          console.log('🔑 계정 정보:', account)
+          console.log('👤 사용자 정보 user :', user)
+          console.log('🔑 계정 정보 account:', account)
+          console.log('🔑 계정 정보 token:', token)
 
           token.id = user.id as string
           token.type = 'keycloak'
@@ -148,6 +144,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
+        console.log('🎫 세션 생성됨:', session)
         session.user.id = token.id
         session.user.type = token.type
 
@@ -158,6 +155,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: session.user.name,
             email: session.user.email,
             type: session.user.type,
+            image: session.user.image,
           },
           expires: session.expires,
         })
