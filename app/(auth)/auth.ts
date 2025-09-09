@@ -24,6 +24,7 @@ declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     id: string
     type: UserType
+    accessToken?: string
   }
 }
 
@@ -40,27 +41,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_KEYCLOAK_ID,
       clientSecret: process.env.AUTH_KEYCLOAK_SECRET,
       issuer: process.env.AUTH_KEYCLOAK_ISSUER,
+      profile(profile) {
+        return profile
+      },
     }),
   ],
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
         if (account?.provider === 'keycloak') {
-          console.log('🔐 Keycloak 로그인 성공!')
-          console.log('👤 사용자 정보 user :', user)
-          console.log('ℹ️ 계정 정보 account:', account)
-          console.log('🔑 토큰 정보 token:', token)
-
           token.id = user.id as string
           token.type = 'keycloak'
+          token.accessToken = account.access_token
         }
       }
 
       return token
     },
     async session({ session, token }) {
-      console.log('🔍 세션 정보 session:', session)
-
       if (session.user) {
         session.user.id = token.id
         session.user.type = token.type
