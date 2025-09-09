@@ -18,6 +18,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { toast } from './toast'
 import { LoaderIcon } from './icons'
+import { LogInIcon, LogOutIcon } from 'lucide-react'
 
 export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter()
@@ -109,7 +110,17 @@ export function SidebarUserNav({ user }: { user: User }) {
                   }
                 }}
               >
-                {status === 'unauthenticated' ? '로그인' : '로그아웃'}
+                {status === 'unauthenticated' ? (
+                  <>
+                    <LogInIcon />
+                    로그인
+                  </>
+                ) : (
+                  <>
+                    <LogOutIcon />
+                    로그아웃
+                  </>
+                )}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
