@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import * as React from 'react'
 import { Input } from '@/components/ui/input'
@@ -90,10 +90,6 @@ export default function LearningCenterWritePage() {
     ],
   )
 
-  if (!session) {
-    return <div />
-  }
-
   const handleSubmit = React.useCallback(async () => {
     // 유효성 검사
     const validation = validateLearningCenterCreate({
@@ -172,6 +168,10 @@ export default function LearningCenterWritePage() {
     mutate,
     router,
   ])
+
+  if (!session) {
+    return redirect('/login')
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

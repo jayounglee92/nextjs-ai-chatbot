@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
@@ -307,17 +307,12 @@ export default function LearningCenterEditPage() {
     if (status === 'loading') return
 
     if (!session) {
-      router.push('/login')
-      return
+      redirect('/login')
     }
   }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
     return <LearningCenterEditSkeleton />
-  }
-
-  if (!session) {
-    return <div />
   }
 
   if (error) {

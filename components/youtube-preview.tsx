@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useMemo } from 'react'
 import { getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from '@/lib/youtube-utils'
 
@@ -76,10 +77,12 @@ export function YoutubeNotExistsState({ videoId }: { videoId: string }) {
 export function YoutubeInfo({ videoId }: { videoId: string }) {
   return (
     <div className="flex items-center gap-2 text-xs text-gray-500">
-      <img
+      <Image
         src={getYouTubeThumbnailUrl(videoId, 'default')}
         alt="비디오 썸네일"
         className="size-12 rounded object-cover"
+        width={48}
+        height={48}
       />
       <div>
         <p className="font-medium">YouTube 비디오</p>

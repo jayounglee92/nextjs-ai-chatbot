@@ -83,7 +83,7 @@ export default function NewsLetterPage() {
             onClick={handleWriteClick}
             className="hidden sm:flex items-center gap-2"
           >
-            <PencilLineIcon className="w-4 h-4" />
+            <PencilLineIcon className="size-4" />
             뉴스 작성하기
           </Button>
         </div>
@@ -93,10 +93,10 @@ export default function NewsLetterPage() {
         {/* 모바일에서만 보이는 floating 버튼 */}
         <Button
           onClick={handleWriteClick}
-          className="fixed bottom-6 right-6 z-50 sm:hidden rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+          className="fixed bottom-6 right-6 z-50 sm:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
           size="icon"
         >
-          <PencilLineIcon className="w-6 h-6" />
+          <PencilLineIcon className="size-6" />
         </Button>
       </>
     )
@@ -116,7 +116,7 @@ export default function NewsLetterPage() {
           onClick={handleWriteClick}
           className="hidden md:flex items-center gap-2"
         >
-          <PencilLineIcon className="w-4 h-4" />
+          <PencilLineIcon className="size-4" />
           뉴스 작성하기
         </Button>
       </div>
@@ -145,7 +145,7 @@ export default function NewsLetterPage() {
                 variant={page === currentPage ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setCurrentPage(page)}
-                className="w-10 h-10"
+                className="size-10"
               >
                 {page}
               </Button>
@@ -166,10 +166,10 @@ export default function NewsLetterPage() {
       {/* 모바일에서만 보이는 floating 버튼 */}
       <Button
         onClick={handleWriteClick}
-        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
         size="icon"
       >
-        <PencilLineIcon className="w-6 h-6" />
+        <PencilLineIcon className="size-6" />
       </Button>
     </>
   )

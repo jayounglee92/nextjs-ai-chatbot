@@ -6,7 +6,7 @@ export function LearningCenterEditSkeleton() {
       {/* Breadcrumb 스켈레톤 */}
       <nav className="flex items-center space-x-2">
         <Skeleton className="h-4 w-16" />
-        <Skeleton className="h-4 w-4" />
+        <Skeleton className="size-4" />
         <Skeleton className="h-4 w-20" />
       </nav>
 
@@ -68,7 +68,7 @@ export function LearningCenterEditSkeleton() {
       </div>
 
       {/* Fixed Bottom Buttons 스켈레톤 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
+      <div className="fixed bottom-0 inset-x-0 bg-background border-t p-4">
         <div className="max-w-4xl mx-auto flex justify-end gap-2">
           <Skeleton className="h-10 w-16" />
           <Skeleton className="h-10 w-16" />

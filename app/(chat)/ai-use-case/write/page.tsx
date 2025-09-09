@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -42,7 +42,7 @@ export default function CommunityPage() {
     !thumbnailUrl
 
   if (!session) {
-    return <div />
+    return redirect('/login')
   }
 
   const handleSubmit = async () => {

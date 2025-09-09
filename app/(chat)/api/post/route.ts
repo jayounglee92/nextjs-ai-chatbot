@@ -8,8 +8,10 @@ import {
   updatePostContents,
   deletePostContentsById,
 } from '@/lib/db/queries'
-import { postContentsCreateSchema } from '@/lib/validators/post-contents'
-import { postContentsUpdateSchema } from '@/lib/validators/post-contents'
+import {
+  postContentsCreateSchema,
+  postContentsUpdateSchema,
+} from '@/lib/validators/post-contents'
 
 // GET: 포스트 목록 조회 또는 단일 포스트 조회
 export async function GET(request: NextRequest) {

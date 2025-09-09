@@ -17,7 +17,7 @@ import {
 } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { calculateReadingTime } from '@/lib/utils'
+import { calculateReadingTime, generateUUID } from '@/lib/utils'
 import sanitizeHtml from 'sanitize-html'
 
 import {
@@ -42,10 +42,13 @@ import {
   type PostContents,
 } from './schema'
 import type { ArtifactKind } from '@/components/artifact'
-import { generateUUID } from '../utils'
 import { generateHashedPassword } from './utils'
 import type { VisibilityType } from '@/components/visibility-selector'
 import { ChatSDKError } from '../errors'
+import type {
+  PostContentsWithTagsArray,
+  PostContentsWithTagsArrayResponse,
+} from '../types'
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -1217,9 +1220,9 @@ export async function getAllPostContents({
   offset?: number
   search?: string
   category?: string
-}) {
+}): Promise<PostContentsWithTagsArrayResponse> {
   try {
-    let data: Array<PostContents>
+    let data: PostContentsWithTagsArray[]
     let totalCount: number
 
     const searchTerm = search && search.trim() ? `%${search.trim()}%` : null
@@ -1451,6 +1454,7 @@ export async function savePost({
   try {
     const now = new Date()
     const data = {
+      ...(id && { id }),
       title,
       summary,
       summaryType,
@@ -1463,10 +1467,6 @@ export async function savePost({
       openType,
       createdAt: now,
       updatedAt: now,
-    }
-
-    if (id) {
-      data.id = id
     }
 
     return await db.insert(posts).values(data).returning()

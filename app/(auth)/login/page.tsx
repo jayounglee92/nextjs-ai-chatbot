@@ -5,8 +5,9 @@ import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { LogInIcon } from 'lucide-react'
 import Image from 'next/image'
+import { Suspense } from 'react'
 
-export default function Page() {
+function LoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/'
 
@@ -46,13 +47,22 @@ export default function Page() {
         </div>
         <div className="flex justify-center">
           <Image
-            src={'images/logo-text.png'}
+            src={'/images/logo-text.png'}
             alt="logo"
-            width={100}
-            height={100}
+            width={175}
+            height={31}
+            priority
           />
         </div>
       </div>
     </div>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

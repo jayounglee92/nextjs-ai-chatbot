@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { redirect, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { LearningList } from '@/components/learning-list'
 import { LearningSkeleton } from '@/components/learning-skeleton'
@@ -67,8 +67,7 @@ export default function LearningCenterPage() {
     if (status === 'loading') return
 
     if (!session) {
-      router.push('/login')
-      return
+      redirect('/login')
     }
   }, [session, status, router])
 
@@ -107,10 +106,6 @@ export default function LearningCenterPage() {
       description: '잠시 후 다시 시도해주세요.',
       actions: <Button onClick={() => router.push('/')}>홈으로</Button>,
     })
-  }
-
-  if (!session) {
-    return <div />
   }
 
   return (

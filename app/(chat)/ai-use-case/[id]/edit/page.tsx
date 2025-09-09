@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
@@ -175,17 +175,12 @@ export default function AiUseCaseEditPage() {
     if (status === 'loading') return
 
     if (!session) {
-      router.push('/login')
-      return
+      redirect('/login')
     }
   }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
     return <AiUseCaseEditSkeleton />
-  }
-
-  if (!session) {
-    return <div />
   }
 
   if (error) {

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from '@/lib/youtube-utils'
 
 // YouTube ID 없음 상태
@@ -86,10 +87,12 @@ interface YoutubeInfoProps {
 export function YoutubeInfo({ videoId }: YoutubeInfoProps) {
   return (
     <div className="flex items-center gap-2 text-xs text-gray-500">
-      <img
+      <Image
         src={getYouTubeThumbnailUrl(videoId, 'default')}
         alt="비디오 썸네일"
         className="size-12 rounded object-cover"
+        width={48}
+        height={48}
       />
       <div>
         <p className="font-medium">YouTube 비디오</p>

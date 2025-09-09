@@ -5,12 +5,13 @@ import Link from 'next/link'
 import { Pagination } from './pagination'
 import { getRelativeTimeString } from '@/lib/utils'
 import { EmptyPage } from './empty-page'
-import { decode } from 'he'
-
+import type { PostContents } from '@/lib/db/schema'
 export interface AiUseCase extends PostContents {
   summary: string
   readingTime: number
   userEmail: string
+  title: string
+  thumbnailUrl: string
 }
 interface AiUseCaseListProps {
   useCases: AiUseCase[]

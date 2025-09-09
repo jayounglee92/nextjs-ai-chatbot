@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import * as React from 'react'
 import { Input } from '@/components/ui/input'
@@ -121,10 +121,10 @@ export default function NewsLetterWritePage() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [title, content, category, tags, session?.user?.id, mutate, router])
+  }, [title, content, category, tags, mutate, router, thumbnailUrl])
 
   if (!session) {
-    return <div />
+    return redirect('/login')
   }
 
   return (

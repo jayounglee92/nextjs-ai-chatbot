@@ -89,3 +89,19 @@ export interface PostContentsResponse {
   }>
   totalCount: number
 }
+
+export interface PostContentsWithTagsArray {
+  id: string
+  postId: string
+  content: string
+  category: string | null
+  tags: string[]
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface PostContentsWithTagsArrayResponse {
+  data: PostContentsWithTagsArray[]
+  totalCount: number
+}

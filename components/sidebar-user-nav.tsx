@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import { useEffect } from 'react'
 import type { User } from 'next-auth'
 import { signOut, useSession } from 'next-auth/react'
 
@@ -15,7 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { toast } from './toast'
 import { LoaderIcon } from './icons'
 import { LogInIcon, LogOutIcon } from 'lucide-react'
@@ -25,7 +25,7 @@ export function SidebarUserNav({ user }: { user: User }) {
   const { data, status } = useSession()
 
   // 클라이언트 사이드에서 세션 정보 로그 출력
-  React.useEffect(() => {
+  useEffect(() => {
     if (data) {
       console.log('🎯 클라이언트 사이드 세션 정보:', {
         status,
@@ -63,7 +63,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 className="h-10 data-[state=open]:text-sidebar-accent-foreground hover:bg-none! "
               >
                 <div className="bg-muted rounded-full size-8 flex items-center justify-center font-bold">
-                  {user?.name?.charAt(0)}
+                  {user?.name?.charAt(0) || user.email?.charAt(0)}
                 </div>
                 <span data-testid="user-email" className="truncate">
                   {user?.email}
@@ -102,7 +102,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   }
 
                   if (status === 'unauthenticated') {
-                    router.push('/login')
+                    redirect('/login')
                   } else {
                     signOut({
                       redirectTo: '/',

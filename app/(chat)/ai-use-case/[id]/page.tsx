@@ -20,6 +20,7 @@ interface PostDetailData {
   createdAt: Date | null
   updatedAt: Date | null
   userEmail: string | null
+  readingTime: number
 }
 
 interface Props {

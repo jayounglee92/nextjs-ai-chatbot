@@ -13,12 +13,12 @@ export function AiUseCaseEditSkeleton() {
         <div className="min-h-[400px] p-4 space-y-3">
           {/* 에디터 툴바 스켈레톤 */}
           <div className="flex items-center gap-2 p-2 border-b">
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="h-8 w-8" />
+            <Skeleton className="size-8" />
+            <Skeleton className="size-8" />
+            <Skeleton className="size-8" />
+            <Skeleton className="size-8" />
+            <Skeleton className="size-8" />
+            <Skeleton className="size-8" />
           </div>
 
           {/* 에디터 내용 스켈레톤 */}
@@ -46,11 +46,11 @@ export function AiUseCaseEditSkeleton() {
         <div className="flex items-center">
           <Skeleton className="h-4 w-24" />
         </div>
-        <Skeleton className="aspect-square w-32 h-32 rounded-lg" />
+        <Skeleton className="aspect-square size-32 rounded-lg" />
       </div>
 
       {/* Fixed Bottom Buttons 스켈레톤 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
+      <div className="fixed bottom-0 inset-x-0 bg-background border-t p-4">
         <div className="max-w-4xl mx-auto flex justify-end gap-2">
           <Skeleton className="h-10 w-16" />
           <Skeleton className="h-10 w-20" />

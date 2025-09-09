@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, redirect } from 'next/navigation'
 import { useEffect } from 'react'
 import { AiUseCaseList } from '@/components/ai-use-case-list'
 import { AiUseCaseSkeleton } from '@/components/ai-use-case-skeleton'
@@ -59,7 +59,7 @@ export default function AiUseCasePage() {
 
   const handleWriteClick = () => {
     if (!session) {
-      router.push('/auth/signin')
+      redirect('/login')
       return
     }
     router.push('/ai-use-case/write')
@@ -69,8 +69,7 @@ export default function AiUseCasePage() {
     if (status === 'loading') return
 
     if (!session) {
-      router.push('/login')
-      return
+      redirect('/login')
     }
   }, [session, status, router])
 
@@ -112,10 +111,6 @@ export default function AiUseCasePage() {
     })
   }
 
-  if (!session) {
-    return <div />
-  }
-
   return (
     <>
       <div className="space-y-4 flex flex-col mb-8">
@@ -128,7 +123,7 @@ export default function AiUseCasePage() {
             onClick={handleWriteClick}
             className="hidden md:flex items-center gap-2"
           >
-            <PencilLineIcon className="w-4 h-4" />
+            <PencilLineIcon className="size-4" />
             글쓰기
           </Button>
         </div>
@@ -156,10 +151,10 @@ export default function AiUseCasePage() {
       {/* 모바일에서만 보이는 floating 버튼 */}
       <Button
         onClick={handleWriteClick}
-        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
         size="icon"
       >
-        <PencilLineIcon className="w-6 h-6" />
+        <PencilLineIcon className="size-6" />
       </Button>
     </>
   )

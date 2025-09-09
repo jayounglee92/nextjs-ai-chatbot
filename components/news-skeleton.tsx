@@ -37,7 +37,7 @@ export function NewsSkeleton() {
 
           {/* 이미지 스켈레톤 */}
           <div className="relative md:col-span-2 overflow-hidden h-48 md:h-60 rounded-lg order-1 md:order-2">
-            <Skeleton className="w-full h-full" />
+            <Skeleton className="size-fulll" />
             {/* 카테고리 스켈레톤 */}
             <div className="absolute top-3 left-3">
               <Skeleton className="h-6 w-12 rounded-full" />
@@ -94,7 +94,7 @@ export function NewsSkeleton() {
                     isWideRight ? 'md:order-1' : 'md:order-2'
                   }`}
                 >
-                  <Skeleton className="w-full h-full" />
+                  <Skeleton className="size-fulll" />
                   {/* 카테고리 스켈레톤 */}
                   <div className="absolute top-3 left-3">
                     <Skeleton className="h-6 w-12 rounded-full" />
@@ -114,7 +114,7 @@ export function NewsSkeleton() {
               <div className="flex flex-col">
                 {/* 이미지 스켈레톤 */}
                 <div className="relative rounded-lg overflow-hidden h-48">
-                  <Skeleton className="w-full h-full" />
+                  <Skeleton className="size-fulll" />
                   {/* 카테고리 스켈레톤 */}
                   <div className="absolute top-3 left-3">
                     <Skeleton className="h-6 w-12 rounded-full" />

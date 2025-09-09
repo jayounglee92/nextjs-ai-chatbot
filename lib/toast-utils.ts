@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
+import { redirect } from 'next/navigation'
 
 /**
  * HTTP 상태 코드별 토스트 메시지를 표시하는 유틸리티 함수
@@ -23,7 +24,7 @@ export function showErrorToast(
         description: '다시 로그인해주세요',
       })
       if (router) {
-        setTimeout(() => router.push('/login'), 2000)
+        setTimeout(() => redirect('/login'), 2000)
       }
       break
 
