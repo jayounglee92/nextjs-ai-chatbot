@@ -3,29 +3,23 @@
 import { useSession } from 'next-auth/react'
 import { redirect, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
-import { LearningList } from '@/components/learning-list'
+import {
+  type LearningCenterDetailData,
+  LearningList,
+} from '@/components/learning-list'
 import { LearningSkeleton } from '@/components/learning-skeleton'
 import { SearchBar } from '@/components/search-bar'
 import Link from 'next/link'
 import { PencilLineIcon } from 'lucide-react'
 import useSWR from 'swr'
-import type { Posts } from '@/lib/db/schema'
 import { fetcher } from '@/lib/utils'
 import { ErrorPage } from '@/components/error-page'
 import { Button } from '@/components/ui/button'
 import { USER_TYPES } from '@/app/(auth)/auth'
 
-// API에서 받는 데이터 타입 (추가 필드 포함)
-interface ClientLearningCenter extends Omit<Posts, 'tags'> {
-  userEmail?: string | null
-  tags?: string[] // API에서 배열로 변환되어 넘어옴
-  category?: string | null
-  readingTime?: string
-}
-
 // 페이지네이션 응답 타입 정의
 interface PaginatedResponse {
-  data: ClientLearningCenter[]
+  data: LearningCenterDetailData[]
   pagination: {
     currentPage: number
     totalPages: number
@@ -44,6 +38,7 @@ export default function LearningCenterPage() {
   // URL 파라미터에서 페이지 번호와 검색어 읽기
   const currentPage = Number.parseInt(searchParams.get('page') || '1', 10)
   const searchWord = searchParams.get('search') || ''
+
   const itemsPerPage = 6
 
   // SWR을 사용하여 Learning Center 데이터 조회 (서버 사이드 페이지네이션)
@@ -62,18 +57,7 @@ export default function LearningCenterPage() {
     },
   )
 
-  // 서버에서 받은 데이터와 페이지네이션 정보
-  const learningItems = (response?.data || []).map((post) => ({
-    ...post,
-    tags: Array.isArray(post.tags)
-      ? post.tags
-      : post.tags && typeof post.tags === 'string'
-        ? (post.tags as string).split(',').filter(Boolean)
-        : [],
-    userEmail: post.userEmail || null,
-    category: post.category || null,
-    readingTime: post.readingTime || undefined,
-  }))
+  const learningItems = response?.data
   const pagination = response?.pagination
 
   const handleWriteClick = () => {
@@ -155,9 +139,8 @@ export default function LearningCenterPage() {
           basePath="/learning-center"
         />
       </div>
-
       <LearningList
-        learningItems={learningItems}
+        learningItems={learningItems || []}
         totalItems={pagination?.totalCount || 0}
         itemsPerPage={itemsPerPage}
         currentPage={currentPage}

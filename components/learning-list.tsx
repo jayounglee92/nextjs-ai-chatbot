@@ -1,32 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
-import type { Posts } from '@/lib/db/schema'
-
-// API에서 받는 데이터 타입 (tags가 배열로 변환됨, userEmail 필드 추가)
-interface ProcessedLearningCenter extends Omit<Posts, 'tags'> {
-  tags: string[]
-  userEmail?: string | null
-  category?: string | null
-  readingTime?: string
-}
 import { LearningVideoDialog } from './learning-video-dialog'
 import { Badge } from './ui/badge'
 import { Pagination } from './pagination'
 import { EmptyPage } from './empty-page'
 import { LearningListActions } from './learning-list-actions'
+import { useSearchParams, useRouter } from 'next/navigation'
 const MAX_TAGS_COUNT = 6
 
+export interface LearningCenterDetailData {
+  id: string
+  postId: string
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+  content: string
+  category: string | null
+  summary: string
+  readingTime: number
+  title: string
+  thumbnailUrl: string
+  tags: string[]
+}
 interface LearningListProps {
-  learningItems: ProcessedLearningCenter[]
+  learningItems: LearningCenterDetailData[]
   totalItems: number
   itemsPerPage: number
   currentPage: number
   totalPages?: number
   hasNextPage?: boolean
   hasPrevPage?: boolean
+  openId?: string | null // 모달로 열 항목 ID
 }
 
 export function LearningList({
@@ -38,11 +45,13 @@ export function LearningList({
   hasNextPage,
   hasPrevPage,
 }: LearningListProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [selectedItem, setSelectedItem] =
-    useState<ProcessedLearningCenter | null>(null)
+    useState<LearningCenterDetailData | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const handleItemClick = (item: ProcessedLearningCenter) => {
+  const handleItemClick = (item: LearningCenterDetailData) => {
     setSelectedItem(item)
     setIsDialogOpen(true)
   }
@@ -52,7 +61,7 @@ export function LearningList({
     setSelectedItem(null)
   }
 
-  if (learningItems.length === 0) {
+  if (learningItems && learningItems.length === 0) {
     return (
       <EmptyPage
         title="검색 결과가 없습니다."
@@ -102,18 +111,23 @@ export function LearningList({
               </div>
 
               {/* 콘텐츠 영역 */}
-              <div className="pt-4 px-4 space-y-2 relative flex-1 flex flex-col pb-2">
+              <div className="pt-4 px-4 space-y-3 relative flex-1 flex flex-col pb-2">
                 {/* 제목 */}
                 <h3 className="text-lg font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-200 h-11">
                   {item.title}
                 </h3>
                 {/* 태그들 */}
-                <div className="flex flex-wrap gap-1 h-11 overflow-y-hidden">
-                  {item.tags.slice(0, MAX_TAGS_COUNT).map((tag: string) => (
-                    <Badge key={tag} variant="outline" className="text-xs h-5">
-                      {tag}
-                    </Badge>
-                  ))}
+                <div className="flex flex-wrap gap-1 h-5 overflow-y-hidden">
+                  {item?.tags?.length &&
+                    item?.tags?.map((tag: string) => (
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="text-xs h-5"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
                 </div>
 
                 {/* 액션 버튼들 */}

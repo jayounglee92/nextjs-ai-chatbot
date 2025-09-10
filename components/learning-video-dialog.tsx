@@ -10,24 +10,12 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { X } from 'lucide-react'
 import { SimpleEditor } from './tiptap-templates/simple/simple-editor'
+import type { LearningCenterDetailData } from './learning-list'
 
-interface PostDetailData {
-  id: string
-  postId: string
-  content: string
-  category: string | null
-  tags: string[]
-  userId: string
-  title: string
-  createdAt: Date
-  updatedAt: Date
-  userEmail: string
-  readingTime: number
-}
 interface LearningVideoDialogProps {
   isOpen: boolean
   onClose: () => void
-  learningItem: PostDetailData
+  learningItem: LearningCenterDetailData | null
 }
 
 export function LearningVideoDialog({
@@ -36,7 +24,7 @@ export function LearningVideoDialog({
   learningItem,
 }: LearningVideoDialogProps) {
   if (!learningItem) return null
-
+  console.log(learningItem)
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
@@ -65,18 +53,16 @@ export function LearningVideoDialog({
               <Badge variant="secondary">{learningItem.category}</Badge>
             </div>
 
-            {learningItem.tags.length > 0 && (
-              <div className="space-y-1">
-                <h3 className="font-semibold text-sm lg:text-base">태그</h3>
-                <div className="flex flex-wrap gap-2">
-                  {learningItem.tags.map((tag: string) => (
-                    <Badge key={tag} variant="outline">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold text-sm lg:text-base">태그</h3>
+              <div className="flex flex-wrap gap-2">
+                {learningItem.tags?.map((tag: string) => (
+                  <Badge key={tag} variant="outline">
+                    {tag}
+                  </Badge>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </DialogContent>
