@@ -11,6 +11,7 @@ import type { Posts } from '@/lib/db/schema'
 import { ErrorPage } from '@/components/error-page'
 import { fetcher } from '@/lib/utils'
 import { useState } from 'react'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 interface PaginatedResponse {
   data: (Posts & {
@@ -112,13 +113,15 @@ export default function NewsLetterPage() {
           </p>
         </div>
         {/* 데스크톱에서만 보이는 버튼 */}
-        <Button
-          onClick={handleWriteClick}
-          className="hidden md:flex items-center gap-2"
-        >
-          <PencilLineIcon className="size-4" />
-          뉴스 작성하기
-        </Button>
+        {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+          <Button
+            onClick={handleWriteClick}
+            className="hidden md:flex items-center gap-2"
+          >
+            <PencilLineIcon className="size-4" />
+            뉴스 작성하기
+          </Button>
+        )}
       </div>
 
       <NewsList newsData={newsData} />
@@ -164,13 +167,15 @@ export default function NewsLetterPage() {
       )}
 
       {/* 모바일에서만 보이는 floating 버튼 */}
-      <Button
-        onClick={handleWriteClick}
-        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
-        size="icon"
-      >
-        <PencilLineIcon className="size-6" />
-      </Button>
+      {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+        <Button
+          onClick={handleWriteClick}
+          className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+          size="icon"
+        >
+          <PencilLineIcon className="size-6" />
+        </Button>
+      )}
     </>
   )
 }

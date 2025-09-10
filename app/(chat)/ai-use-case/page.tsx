@@ -13,6 +13,7 @@ import { fetcher } from '@/lib/utils'
 import { ErrorPage } from '@/components/error-page'
 import { Button } from '@/components/ui/button'
 import type { AiUseCase } from '@/components/ai-use-case-list'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 // 페이지네이션 응답 타입 정의
 interface PaginatedResponse {
@@ -81,12 +82,15 @@ export default function AiUseCasePage() {
             <h1 className="text-2xl font-semibold text-foreground">
               AI 활용 사례
             </h1>
-            <Link
-              href="/ai-use-case/write"
-              className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <PencilLineIcon className="size-4" /> 글쓰기
-            </Link>
+            {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+              <Link
+                href="/ai-use-case/write"
+                className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <PencilLineIcon className="size-4" /> 글쓰기
+                {session?.user.types.includes(USER_TYPES.AI_ADMIN).toString()}
+              </Link>
+            )}
           </div>
           <p className="text-muted-foreground">
             사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.
@@ -149,13 +153,15 @@ export default function AiUseCasePage() {
         hasPrevPage={pagination?.hasPrevPage || false}
       />
       {/* 모바일에서만 보이는 floating 버튼 */}
-      <Button
-        onClick={handleWriteClick}
-        className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
-        size="icon"
-      >
-        <PencilLineIcon className="size-6" />
-      </Button>
+      {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+        <Button
+          onClick={handleWriteClick}
+          className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+          size="icon"
+        >
+          <PencilLineIcon className="size-6" />
+        </Button>
+      )}
     </>
   )
 }

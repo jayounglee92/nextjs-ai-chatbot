@@ -4,10 +4,10 @@ import { useSession } from 'next-auth/react'
 import { useRouter, useParams, redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { ErrorPage } from '@/components/error-page'
 import { LearningCenterEditSkeleton } from './skeleton'
 import {
@@ -25,14 +25,13 @@ import {
 import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
 import useSWR, { useSWRConfig } from 'swr'
 import { fetcher, formatValidationErrors } from '@/lib/utils'
+import sanitizeHtml from 'sanitize-html'
 import { handleImageUpload } from '@/lib/tiptap-utils'
-import type { LearningCenter } from '@/lib/db/schema'
-import { validateLearningCenterUpdate } from '@/lib/validators/learning-center'
+import { postContentsUpdateSchema } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { ChevronRightIcon, XIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { MAX_TAGS_COUNT } from '@/app/(chat)/api/learning-center/schema'
 import { YoutubePreview } from '@/components/youtube-preview'
 import { useYoutubeVideo } from '@/hooks/use-youtube-video'
 import * as React from 'react'
@@ -52,6 +51,8 @@ const CATEGORY_OPTIONS = [
   'Other',
 ]
 
+const MAX_TAGS_COUNT = 6
+
 export default function LearningCenterEditPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -60,7 +61,7 @@ export default function LearningCenterEditPage() {
 
   // 폼 상태
   const [title, setTitle] = useState<string | null>(null)
-  const [description, setDescription] = useState<string | null>(null)
+  const [content, setContent] = useState<string | null>(null)
   const [category, setCategory] = useState<string | null>(null)
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [tags, setTags] = useState<string[] | null>(null)
@@ -81,7 +82,7 @@ export default function LearningCenterEditPage() {
     error,
     isLoading,
   } = useSWR(
-    session && params.id ? `/api/learning-center?id=${params.id}` : null,
+    session && params.id ? `/api/post?id=${params.id}` : null,
     fetcher,
     {
       onSuccess: async (data) => {
@@ -89,14 +90,14 @@ export default function LearningCenterEditPage() {
         if (title === null) {
           setTitle(data.title || '')
         }
-        if (description === null) {
-          setDescription(data.description || '')
+        if (content === null) {
+          setContent(data.content || '')
         }
         if (category === null) {
           setCategory(data.category || '')
         }
         if (thumbnailUrl === null) {
-          setThumbnailUrl(data.thumbnail || '')
+          setThumbnailUrl(data.thumbnailUrl || '')
         }
         if (videoId === '') {
           // 기존 비디오 ID가 있으면 자동으로 검증
@@ -119,17 +120,17 @@ export default function LearningCenterEditPage() {
     () => (title !== null ? title : learningCenter?.title),
     [title, learningCenter?.title],
   )
-  const currentDescription = React.useMemo(
-    () => (description !== null ? description : learningCenter?.description),
-    [description, learningCenter?.description],
+  const currentContent = React.useMemo(
+    () => (content !== null ? content : learningCenter?.content),
+    [content, learningCenter?.content],
   )
   const currentCategory = React.useMemo(
     () => (category !== null ? category : learningCenter?.category),
     [category, learningCenter?.category],
   )
   const currentThumbnailUrl = React.useMemo(
-    () => (thumbnailUrl !== null ? thumbnailUrl : learningCenter?.thumbnail),
-    [thumbnailUrl, learningCenter?.thumbnail],
+    () => (thumbnailUrl !== null ? thumbnailUrl : learningCenter?.thumbnailUrl),
+    [thumbnailUrl, learningCenter?.thumbnailUrl],
   )
   const currentTags = React.useMemo(
     () => (tags !== null ? tags : learningCenter?.tags || []),
@@ -141,7 +142,10 @@ export default function LearningCenterEditPage() {
     () =>
       isSubmitting ||
       !currentTitle?.trim() ||
-      !currentDescription?.trim() ||
+      sanitizeHtml(currentContent || '', {
+        allowedTags: [],
+        allowedAttributes: {},
+      }).length === 0 ||
       !currentCategory?.trim() ||
       !currentThumbnailUrl ||
       !videoId?.trim() ||
@@ -149,7 +153,7 @@ export default function LearningCenterEditPage() {
     [
       isSubmitting,
       currentTitle,
-      currentDescription,
+      currentContent,
       currentCategory,
       currentThumbnailUrl,
       videoId,
@@ -194,68 +198,54 @@ export default function LearningCenterEditPage() {
 
   const handleSubmit = React.useCallback(async () => {
     // 유효성 검사
-    const validation = validateLearningCenterUpdate({
+    const validation = postContentsUpdateSchema.safeParse({
       title: currentTitle?.trim() || '',
-      description: currentDescription?.trim() || '',
+      content: currentContent?.trim() || '',
       category: currentCategory?.trim() || '',
-      thumbnail: currentThumbnailUrl || '',
-      videoId: videoId?.trim() || '',
+      thumbnailUrl: currentThumbnailUrl || undefined,
       tags: currentTags,
     })
 
     if (!validation.success) {
-      alert(formatValidationErrors(validation.errors || ['유효성 검사 실패']))
+      alert(
+        formatValidationErrors(validation.error.errors.map((e) => e.message)),
+      )
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      // SWR mutate를 사용한 낙관적 업데이트
-      await mutate(
-        `/api/learning-center?id=${params.id}`,
-        async (currentData: LearningCenter | undefined) => {
-          // 서버에 PUT 요청
-          const response = await fetch(`/api/learning-center?id=${params.id}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-              title: currentTitle?.trim() || '',
-              description: currentDescription?.trim() || '',
-              category: currentCategory?.trim() || '',
-              thumbnail: currentThumbnailUrl || undefined,
-              videoId: videoId?.trim() || '',
-              tags: currentTags,
-            }),
-          })
-
-          if (!response.ok) {
-            await handleApiError(response, router, {
-              forbiddenMessage:
-                '본인이 작성한 학습센터 항목만 수정할 수 있습니다',
-              notFoundMessage: '삭제되었거나 존재하지 않는 학습센터 항목입니다',
-              validationMessage: '모든 필드를 올바르게 입력했는지 확인해보세요',
-            })
-            // 에러 시 기존 데이터 유지
-            return currentData
-          }
-
-          const updatedLearningCenter = await response.json()
-
-          // ✅ 성공 케이스
-          showSuccessToast('성공적으로 수정되었습니다!')
-          router.push(`/learning-center`)
-
-          // 업데이트된 데이터를 캐시에 반영 (낙관적 업데이트)
-          return updatedLearningCenter
+      // 서버에 PUT 요청
+      const response = await fetch(`/api/post?id=${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          // 자동 재검증 활성화 (서버에서 최신 데이터 확인)
-          revalidate: true,
-        },
-      )
+        body: JSON.stringify({
+          title: currentTitle?.trim() || '',
+          content: currentContent?.trim() || '',
+          category: currentCategory?.trim() || '',
+          thumbnailUrl: currentThumbnailUrl || undefined,
+          tags: currentTags,
+        }),
+      })
+
+      if (!response.ok) {
+        await handleApiError(response, router, {
+          forbiddenMessage: '본인이 작성한 학습센터 항목만 수정할 수 있습니다',
+          notFoundMessage: '삭제되었거나 존재하지 않는 학습센터 항목입니다',
+          validationMessage: '모든 필드를 올바르게 입력했는지 확인해보세요',
+        })
+        return
+      }
+
+      // ✅ 성공 케이스
+      showSuccessToast('성공적으로 수정되었습니다!')
+      router.push(`/learning-center`)
 
       // 목록 캐시도 업데이트 (수정된 항목이 목록에서도 반영되도록)
-      mutate('/api/learning-center')
+      mutate('/api/post?postType=learningcenter')
     } catch (error) {
       // 네트워크 오류나 기타 런타임 오류 처리
       handleFetchError(error, router, '수정')
@@ -264,7 +254,7 @@ export default function LearningCenterEditPage() {
     }
   }, [
     currentTitle,
-    currentDescription,
+    currentContent,
     currentCategory,
     currentThumbnailUrl,
     videoId,
@@ -280,14 +270,14 @@ export default function LearningCenterEditPage() {
     setIsDeleting(true)
 
     try {
-      const response = await fetch(`/api/learning-center?id=${params.id}`, {
+      const response = await fetch(`/api/post?id=${params.id}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
         showSuccessToast('학습센터 항목이 삭제되었습니다!')
         // 목록 캐시 업데이트
-        mutate('/api/learning-center')
+        mutate('/api/post?postType=learningcenter')
         router.push('/learning-center')
       } else {
         await handleApiError(response, router, {
@@ -367,17 +357,12 @@ export default function LearningCenterEditPage() {
         />
       </div>
 
-      {/* 설명 입력 필드 */}
-      <div>
-        <Label htmlFor="description" className="text-sm font-medium">
-          설명 <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="description"
-          placeholder="학습 자료에 대한 설명을 입력하세요"
-          value={currentDescription}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full mt-1 min-h-[100px]"
+      {/* 내용 입력 필드 */}
+      {/* 에디터 */}
+      <div className="border rounded-lg overflow-hidden pb-2">
+        <SimpleEditor
+          onContentChange={(newContent) => setContent(newContent)}
+          initialContent={currentContent}
         />
       </div>
 

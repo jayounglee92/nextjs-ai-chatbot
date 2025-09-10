@@ -9,8 +9,8 @@ import {
   deletePostContentsById,
 } from '@/lib/db/queries'
 import {
-  postContentsCreateSchema,
   postContentsUpdateSchema,
+  validatePostContentsCreate,
 } from '@/lib/validators/post-contents'
 
 // GET: 포스트 목록 조회 또는 단일 포스트 조회
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const validation = postContentsCreateSchema.safeParse(body)
+    const validation = validatePostContentsCreate(body)
     if (!validation.success) {
       return NextResponse.json(
         { error: 'Validation failed', details: validation.error },
@@ -91,7 +91,20 @@ export async function POST(request: NextRequest) {
       tags,
       thumbnailUrl,
       postType = 'news',
+      openType,
     } = validation.data
+
+    console.log({
+      title,
+      content,
+      category,
+      tags: tags && tags.length > 0 ? tags.join(',') : null,
+      thumbnailUrl,
+      userId: session.user.id,
+      postType: postType as 'news' | 'aiusecase' | 'learningcenter',
+      openType: openType || 'page',
+      summaryType: 'auto_truncated',
+    })
 
     const newPost = await savePostWithContents({
       title,
@@ -101,6 +114,7 @@ export async function POST(request: NextRequest) {
       thumbnailUrl,
       userId: session.user.id,
       postType: postType as 'news' | 'aiusecase' | 'learningcenter',
+      openType: openType || 'page',
       summaryType: 'auto_truncated',
     })
 

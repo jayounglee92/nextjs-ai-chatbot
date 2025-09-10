@@ -10,8 +10,9 @@ export const postContentsCreateSchema = z.object({
   content: z.string().min(1, POST_MESSAGES.CONTENT_REQUIRED),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  thumbnailUrl: z.string().optional(),
+  thumbnailUrl: z.string(),
   postType: z.enum(['news', 'aiusecase', 'learningcenter']),
+  openType: z.enum(['page', 'modal', 'new_tab']).optional(),
 })
 
 export const postContentsUpdateSchema = z.object({

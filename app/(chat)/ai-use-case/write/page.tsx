@@ -54,6 +54,7 @@ export default function CommunityPage() {
       tags: tags,
       thumbnailUrl: thumbnailUrl || '',
       postType: 'aiusecase',
+      openType: 'page',
     })
 
     if (!validation.success) {
@@ -79,6 +80,7 @@ export default function CommunityPage() {
               tags: tags,
               thumbnailUrl: thumbnailUrl || undefined,
               postType: 'aiusecase',
+              openType: 'page',
             }),
           })
 

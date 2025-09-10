@@ -69,12 +69,28 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
-export async function createUser(email: string, password: string) {
-  const hashedPassword = generateHashedPassword(password)
+export async function createUser(
+  email: string,
+  password?: string,
+  userId?: string,
+) {
+  const hashedPassword = password ? generateHashedPassword(password) : null
 
   try {
-    return await db.insert(user).values({ email, password: hashedPassword })
+    console.log('🔍 createUser 호출:', { email, password: !!password, userId })
+
+    // userId가 제공되면 사용, 아니면 자동 생성
+    const finalUserId = userId || generateUUID()
+
+    const result = await db.insert(user).values({
+      id: finalUserId, // Keycloak username 또는 자동 생성된 ID
+      email,
+      password: hashedPassword,
+    })
+    console.log('✅ createUser 성공:', result)
+    return result
   } catch (error) {
+    console.error('❌ createUser 오류:', error)
     throw new ChatSDKError('bad_request:database', 'Failed to create user')
   }
 }
@@ -1720,6 +1736,7 @@ export async function savePostWithContents({
   thumbnailUrl,
   userId,
   postType,
+  openType,
   visibility = 'private',
   summary,
   summaryType = 'auto_truncated',
@@ -1731,6 +1748,7 @@ export async function savePostWithContents({
   thumbnailUrl?: string
   userId: string
   postType: 'aiusecase' | 'learningcenter' | 'news'
+  openType: 'page' | 'modal' | 'new_tab'
   visibility?: 'public' | 'private'
   summary?: string
   summaryType?: 'ai_generated' | 'auto_truncated'
@@ -1757,7 +1775,7 @@ export async function savePostWithContents({
         visibility,
         viewCount: 0,
         likeCount: 0,
-        openType: 'page',
+        openType,
         createdAt: now,
         updatedAt: now,
       })
@@ -1770,7 +1788,7 @@ export async function savePostWithContents({
         postId: savedPost.id,
         content,
         category,
-        tags: tags || null,
+        tags,
         userId,
         createdAt: now,
         updatedAt: now,
@@ -1782,6 +1800,7 @@ export async function savePostWithContents({
       postContents: savedPostContents,
     }
   } catch (error) {
+    console.error('Failed to save post with contents:', error)
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to save post with contents',

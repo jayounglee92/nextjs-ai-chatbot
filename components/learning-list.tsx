@@ -3,19 +3,21 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
-import type { LearningCenter } from '@/lib/db/schema'
+import type { Posts } from '@/lib/db/schema'
 
 // API에서 받는 데이터 타입 (tags가 배열로 변환됨, userEmail 필드 추가)
-interface ProcessedLearningCenter extends Omit<LearningCenter, 'tags'> {
+interface ProcessedLearningCenter extends Omit<Posts, 'tags'> {
   tags: string[]
-  userEmail: string
+  userEmail?: string | null
+  category?: string | null
+  readingTime?: string
 }
 import { LearningVideoDialog } from './learning-video-dialog'
 import { Badge } from './ui/badge'
 import { Pagination } from './pagination'
 import { EmptyPage } from './empty-page'
 import { LearningListActions } from './learning-list-actions'
-import { MAX_TAGS_COUNT } from '@/app/(chat)/api/learning-center/schema'
+const MAX_TAGS_COUNT = 6
 
 interface LearningListProps {
   learningItems: ProcessedLearningCenter[]
@@ -73,7 +75,7 @@ export function LearningList({
               <div className="relative">
                 <div className="aspect-video w-full overflow-hidden rounded-t-lg">
                   <Image
-                    src={item.thumbnail}
+                    src={item.thumbnailUrl ?? ''}
                     alt={item.title}
                     width={400}
                     height={225}
@@ -105,12 +107,6 @@ export function LearningList({
                 <h3 className="text-lg font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-200 h-11">
                   {item.title}
                 </h3>
-
-                {/* 설명 */}
-                <p className="text-sm text-muted-foreground h-11 leading-relaxed line-clamp-2">
-                  {item.description}
-                </p>
-
                 {/* 태그들 */}
                 <div className="flex flex-wrap gap-1 h-11 overflow-y-hidden">
                   {item.tags.slice(0, MAX_TAGS_COUNT).map((tag: string) => (

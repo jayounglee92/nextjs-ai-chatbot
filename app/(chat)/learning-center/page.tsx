@@ -9,15 +9,18 @@ import { SearchBar } from '@/components/search-bar'
 import Link from 'next/link'
 import { PencilLineIcon } from 'lucide-react'
 import useSWR from 'swr'
-import type { LearningCenter } from '@/lib/db/schema'
+import type { Posts } from '@/lib/db/schema'
 import { fetcher } from '@/lib/utils'
 import { ErrorPage } from '@/components/error-page'
 import { Button } from '@/components/ui/button'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 // API에서 받는 데이터 타입 (추가 필드 포함)
-interface ClientLearningCenter extends Omit<LearningCenter, 'tags'> {
-  userEmail: string
-  tags: string[] // API에서 배열로 변환되어 넘어옴
+interface ClientLearningCenter extends Omit<Posts, 'tags'> {
+  userEmail?: string | null
+  tags?: string[] // API에서 배열로 변환되어 넘어옴
+  category?: string | null
+  readingTime?: string
 }
 
 // 페이지네이션 응답 타입 정의
@@ -50,7 +53,7 @@ export default function LearningCenterPage() {
     isLoading,
   } = useSWR<PaginatedResponse>(
     session
-      ? `/api/learning-center?itemsPerPage=${itemsPerPage}&page=${currentPage}${searchWord ? `&search=${encodeURIComponent(searchWord)}` : ''}`
+      ? `/api/post?postType=learningcenter&itemsPerPage=${itemsPerPage}&page=${currentPage}${searchWord ? `&search=${encodeURIComponent(searchWord)}` : ''}`
       : null,
     fetcher,
     {
@@ -60,8 +63,26 @@ export default function LearningCenterPage() {
   )
 
   // 서버에서 받은 데이터와 페이지네이션 정보
-  const learningItems = response?.data || []
+  const learningItems = (response?.data || []).map((post) => ({
+    ...post,
+    tags: Array.isArray(post.tags)
+      ? post.tags
+      : post.tags && typeof post.tags === 'string'
+        ? (post.tags as string).split(',').filter(Boolean)
+        : [],
+    userEmail: post.userEmail || null,
+    category: post.category || null,
+    readingTime: post.readingTime || undefined,
+  }))
   const pagination = response?.pagination
+
+  const handleWriteClick = () => {
+    if (!session) {
+      router.push('/auth/signin')
+      return
+    }
+    router.push('/learning-center/write')
+  }
 
   useEffect(() => {
     if (status === 'loading') return
@@ -113,12 +134,14 @@ export default function LearningCenterPage() {
       <div className="space-y-4 flex flex-col mb-8">
         <div className="flex items-center gap-2 justify-between">
           <h1 className="text-2xl font-semibold text-foreground">학습센터</h1>
-          <Link
-            href="/learning-center/write"
-            className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <PencilLineIcon className="size-4" /> 동영상 올리기
-          </Link>
+          {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+            <Link
+              href="/learning-center/write"
+              className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <PencilLineIcon className="size-4" /> 동영상 올리기
+            </Link>
+          )}
         </div>
         <p className="text-muted-foreground">
           최신 개발 트렌드와 기술을 배우고, 실무에 바로 적용할 수 있는
@@ -142,6 +165,17 @@ export default function LearningCenterPage() {
         hasNextPage={pagination?.hasNextPage || false}
         hasPrevPage={pagination?.hasPrevPage || false}
       />
+
+      {/* 모바일에서만 보이는 floating 버튼 */}
+      {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+        <Button
+          onClick={handleWriteClick}
+          className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+          size="icon"
+        >
+          <PencilLineIcon className="size-6" />
+        </Button>
+      )}
     </>
   )
 }

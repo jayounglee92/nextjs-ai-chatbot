@@ -24,7 +24,7 @@ import sanitizeHtml from 'sanitize-html'
 import { TagInput } from '@/components/tag-input'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 
-const MAX_TAGS_COUNT = 10
+const MAX_TAGS_COUNT = 6
 
 export default function NewsLetterWritePage() {
   const { data: session } = useSession()
@@ -84,6 +84,7 @@ export default function NewsLetterWritePage() {
               category: category.trim() || undefined,
               tags: tags,
               postType: 'news',
+              openType: 'page',
               thumbnailUrl,
             }),
           })
