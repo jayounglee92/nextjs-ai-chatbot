@@ -1,5 +1,5 @@
 import { User, Clock } from 'lucide-react'
-import { calculateReadingTime, getRelativeTimeString } from '@/lib/utils'
+import { getRelativeTimeString } from '@/lib/utils'
 import React from 'react'
 import type { ReactNode } from 'react'
 
@@ -45,7 +45,13 @@ export function PostMetaInfo({ items, className = '' }: PostMetaInfoProps) {
 
       case 'relativeTime': {
         const createdAt = item.data as Date
-        return <span>{getRelativeTimeString(createdAt)}</span>
+        return (
+          <span>
+            {getRelativeTimeString({
+              dateString: createdAt,
+            })}
+          </span>
+        )
       }
 
       case 'readingTime': {

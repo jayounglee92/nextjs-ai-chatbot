@@ -19,6 +19,7 @@ interface PostDetailData {
   createdAt: Date
   updatedAt: Date
   userEmail: string
+  readingTime: number
 }
 
 interface Props {
@@ -76,8 +77,8 @@ export default async function NewsDetailPage({ params }: Props) {
         <div className="flex justify-between">
           <PostMetaInfo
             items={[
-              { type: 'readingTime', data: post.content },
               { type: 'relativeTime', data: post.createdAt },
+              { type: 'readingTime', data: post.readingTime },
             ]}
           />
           <NewsActions postId={post.postId} />

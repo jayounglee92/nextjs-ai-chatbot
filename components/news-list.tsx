@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { Clock } from 'lucide-react'
-import { cn, formatPublishedDate } from '@/lib/utils'
+import { cn, getRelativeTimeString } from '@/lib/utils'
 import { notoSerifKR } from '@/lib/fonts'
 import { EmptyPage } from './empty-page'
 import Link from 'next/link'
@@ -33,7 +33,17 @@ function NewsSubTitle({ publishedAt }: { publishedAt: string | Date }) {
     <div className="flex items-center gap-3 text-xs text-gray-500">
       <div className="flex items-center gap-1">
         <Clock className="size-3" />
-        <span>{formatPublishedDate(publishedAt)}</span> 게시됨
+        <span>
+          {getRelativeTimeString({
+            dateString: publishedAt,
+            options: {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            },
+          })}
+        </span>{' '}
+        게시됨
       </div>
     </div>
   )

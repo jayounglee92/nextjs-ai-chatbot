@@ -116,45 +116,6 @@ export function getTextFromMessage(message: ChatMessage): string {
 }
 
 /**
- * 상대적인 시간 문자열을 반환하는 함수
- * @param dateString 날짜 문자열 또는 Date 객체
- * @returns 상대적인 시간 문자열
- * @example
- * getRelativeTimeString('2024-12-31') // 오늘
- * getRelativeTimeString('2024-12-30') // 1일 전
- * getRelativeTimeString('2024-12-25') // 6일 전
- * getRelativeTimeString('2024-12-01') // 2024. 12. 1.
- */
-export function getRelativeTimeString(dateString: string | Date): string {
-  const now = new Date()
-  const date = new Date(dateString)
-
-  // 날짜만 비교하기 위해 시간을 00:00:00으로 설정
-  const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const targetDate = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  )
-
-  const diffInMs = nowDate.getTime() - targetDate.getTime()
-  const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24))
-
-  if (diffInDays === 0) {
-    return '오늘'
-  } else if (diffInDays === 1) {
-    return '1일 전'
-  } else if (diffInDays === 2) {
-    return '2일 전'
-  } else if (diffInDays <= 7) {
-    return `${diffInDays}일 전`
-  } else {
-    // 일주일이 지나면 날짜로 표시
-    return date.toLocaleDateString('ko-KR')
-  }
-}
-
-/**
  * HTML 콘텐츠에서 읽는 시간을 계산하는 함수
  * @param htmlContent HTML 콘텐츠
  * @returns 읽는 시간
@@ -184,40 +145,18 @@ export function formatValidationErrors(errors: string[]): string {
   return errors.join('\n')
 }
 
-// 날짜 포맷팅 함수
-export function formatCreatedAt(dateString: string | Date): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffInMs = now.getTime() - date.getTime()
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
-
-  // 오늘 내에 게시된 경우
-  if (diffInDays === 0) {
-    if (diffInMinutes < 1) {
-      return '방금 전'
-    } else if (diffInMinutes < 60) {
-      return `${diffInMinutes}분 전`
-    } else {
-      return `${diffInHours}시간 전`
-    }
-  }
-
-  // 어제나 과거에 게시된 경우
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
 /*
  * 게시된 날짜를 포맷팅하는 함수
  * @param dateString 날짜 문자열 또는 Date 객체
  * @returns 날짜 포맷팅 문자열
  */
-export function formatPublishedDate(dateString: string | Date): string {
+export function getRelativeTimeString({
+  dateString,
+  options,
+}: {
+  dateString: string | Date
+  options?: Intl.DateTimeFormatOptions
+}): string {
   const date = new Date(dateString)
   const now = new Date()
   const diffInMs = now.getTime() - date.getTime()
@@ -240,9 +179,6 @@ export function formatPublishedDate(dateString: string | Date): string {
 
   // 어제나 과거에 게시된 경우
   return date.toLocaleDateString('ko-KR', {
-    // 2024. 12. 31.
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    ...options,
   })
 }

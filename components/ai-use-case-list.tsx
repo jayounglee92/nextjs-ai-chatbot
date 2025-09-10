@@ -62,7 +62,9 @@ export function AiUseCaseList({
                         <div className="flex items-center gap-1">
                           <Calendar className="size-4" />
                           <span>
-                            {getRelativeTimeString(useCase.createdAt)}
+                            {getRelativeTimeString({
+                              dateString: useCase.createdAt,
+                            })}
                           </span>
                         </div>
                       </div>
