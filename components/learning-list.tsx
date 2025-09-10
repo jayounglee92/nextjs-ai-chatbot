@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { LearningVideoDialog } from './learning-video-dialog'
@@ -8,8 +8,8 @@ import { Badge } from './ui/badge'
 import { Pagination } from './pagination'
 import { EmptyPage } from './empty-page'
 import { LearningListActions } from './learning-list-actions'
-import { useSearchParams, useRouter } from 'next/navigation'
-const MAX_TAGS_COUNT = 6
+import { USER_TYPES } from '@/app/(auth)/auth'
+import { useSession } from 'next-auth/react'
 
 export interface LearningCenterDetailData {
   id: string
@@ -45,8 +45,7 @@ export function LearningList({
   hasNextPage,
   hasPrevPage,
 }: LearningListProps) {
-  const searchParams = useSearchParams()
-  const router = useRouter()
+  const { data: session } = useSession()
   const [selectedItem, setSelectedItem] =
     useState<LearningCenterDetailData | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -111,7 +110,7 @@ export function LearningList({
               </div>
 
               {/* 콘텐츠 영역 */}
-              <div className="pt-4 px-4 space-y-3 relative flex-1 flex flex-col pb-2">
+              <div className="py-4 px-4 space-y-3 relative flex-1 flex flex-col">
                 {/* 제목 */}
                 <h3 className="text-lg font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-200 h-11">
                   {item.title}
@@ -131,9 +130,11 @@ export function LearningList({
                 </div>
 
                 {/* 액션 버튼들 */}
-                <div className="flex justify-end mt-auto -mb-4">
-                  <LearningListActions id={item.id} />
-                </div>
+                {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+                  <div className="flex justify-end mt-auto -mb-4">
+                    <LearningListActions id={item.id} />
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

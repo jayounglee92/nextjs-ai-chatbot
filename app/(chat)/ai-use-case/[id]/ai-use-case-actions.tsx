@@ -33,6 +33,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
+import { USER_TYPES } from '@/app/(auth)/auth'
+import { useSession } from 'next-auth/react'
 
 interface Props {
   useCase: PostDetailData
@@ -40,7 +42,7 @@ interface Props {
 
 export function AiUseCaseActions({ useCase }: Props) {
   const router = useRouter()
-
+  const { data: session } = useSession()
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href)
     showSuccessToast('링크가 클립보드에 복사되었습니다!')
@@ -80,32 +82,34 @@ export function AiUseCaseActions({ useCase }: Props) {
           <p>공유</p>
         </TooltipContent>
       </Tooltip>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button type="button">
-            <EllipsisVertical className="size-6" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem asChild>
-            <Link
-              href={`/ai-use-case/${useCase.postId}/edit`}
-              className="cursor-pointer"
-            >
-              수정
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="w-full text-left cursor-pointer"
-            >
-              삭제
+      {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button">
+              <EllipsisVertical className="size-6" />
             </button>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/ai-use-case/${useCase.postId}/edit`}
+                className="cursor-pointer"
+              >
+                수정
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="w-full text-left cursor-pointer"
+              >
+                삭제
+              </button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   )
 }
