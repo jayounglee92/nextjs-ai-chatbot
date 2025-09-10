@@ -2,29 +2,40 @@ import NextAuth, { type DefaultSession } from 'next-auth'
 import Keycloak from 'next-auth/providers/keycloak'
 import { authConfig } from './auth.config'
 import type { DefaultJWT } from 'next-auth/jwt'
+import { extractRolesFromToken } from '@/lib/auth'
 
-export type UserType = 'keycloak'
+export const KEYCLOAK_PROVIDER_ID = 'keycloak'
+export type ProviderType = typeof KEYCLOAK_PROVIDER_ID
+
+export const USER_TYPES = {
+  AI_ADMIN: 'AI_ADMIN',
+  GENERAL: 'GENERAL',
+} as const
+export type UserTypes = (typeof USER_TYPES)[keyof typeof USER_TYPES]
 
 declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
       id: string
-      type: UserType
+      provider: ProviderType
+      types: string[]
     } & DefaultSession['user']
   }
 
   interface User {
     id?: string
     email?: string | null
-    type: UserType
+    provider: ProviderType
+    types?: string[]
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     id: string
-    type: UserType
+    provider: ProviderType
     accessToken?: string
+    types?: string[]
   }
 }
 
@@ -42,32 +53,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.AUTH_KEYCLOAK_SECRET,
       issuer: process.env.AUTH_KEYCLOAK_ISSUER,
       profile(profile) {
-        console.log('🔍 Keycloak 프로필 정보 profile:', profile)
+        // console.log('🔍 Keycloak 프로필 정보 profile:', profile)
         return profile
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, profile }) {
       console.log('🔐 Keycloak 로그인 성공!')
-      console.log('👤 사용자 정보 user :', user)
-      console.log('ℹ️ 계정 정보 account:', account)
       console.log('🔑 토큰 정보 token:', token)
+
       if (user) {
-        if (account?.provider === 'keycloak') {
+        if (
+          account?.provider === KEYCLOAK_PROVIDER_ID &&
+          account.access_token
+        ) {
           token.id = user.id as string
-          token.type = 'keycloak'
+          token.provider = KEYCLOAK_PROVIDER_ID
           token.accessToken = account.access_token
+          token.name = profile?.preferred_username as string
+          token.types = extractRolesFromToken(account.access_token)
         }
       }
 
       return token
     },
     async session({ session, token }) {
-      console.log('🔍 세션 정보 session:', session)
       if (session.user) {
         session.user.id = token.id
-        session.user.type = token.type
+        session.user.provider = token.provider
+        session.user.name = token.name
+        session.user.types = token.types || []
       }
 
       return session

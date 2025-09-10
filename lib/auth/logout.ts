@@ -42,13 +42,15 @@ export async function performLogout(
     })
 
     if (logoutResponse.ok) {
-      console.log('✅ Logout API called successfully')
+      console.log('✅ 로그아웃 API 호출 성공')
       return true
     } else {
-      throw new Error(`Logout API failed with status: ${logoutResponse.status}`)
+      throw new Error(
+        ` Logout API failed with status: ${logoutResponse.status}`,
+      )
     }
   } catch (error) {
-    console.error('❌ Logout API call failed:', error)
+    console.error('❌ 로그아웃 API 호출 실패:', error)
     return false
   }
 }

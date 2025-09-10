@@ -27,16 +27,7 @@ export function SidebarUserNav({ user }: { user: User }) {
   // 클라이언트 사이드에서 세션 정보 로그 출력
   useEffect(() => {
     if (data) {
-      console.log('🎯 클라이언트 사이드 세션 정보:', {
-        status,
-        user: {
-          id: data.user?.id,
-          name: data.user?.name,
-          email: data.user?.email,
-          type: data.user?.type,
-        },
-        expires: data.expires,
-      })
+      console.log('🎯 클라이언트 사이드 세션 정보:', data)
     }
   }, [data, status])
 
@@ -62,67 +53,72 @@ export function SidebarUserNav({ user }: { user: User }) {
                 data-testid="user-nav-button"
                 className="h-10 data-[state=open]:text-sidebar-accent-foreground hover:bg-none! "
               >
-                <div className="bg-muted rounded-full size-8 flex items-center justify-center font-bold">
-                  {user?.name?.charAt(0) || user.email?.charAt(0)}
+                <div className="size-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-semibold text-lg">
+                  {user?.name?.charAt(0).toUpperCase()}
                 </div>
-                <span data-testid="user-email" className="truncate">
-                  {user?.email}
-                </span>
               </SidebarMenuButton>
             )}
           </DropdownMenuTrigger>
           <DropdownMenuContent
             data-testid="user-nav-menu"
             side="top"
-            className="w-[--radix-popper-anchor-width]"
+            className="w-fit p-0"
+            align="end"
           >
-            {/* <DropdownMenuItem
-              data-testid="user-nav-item-theme"
-              className="cursor-pointer"
-              onSelect={() =>
-                setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-              }
-            >
-              {`${resolvedTheme === 'light' ? '다크' : '라이트'} 모드로 변경`}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator /> */}
-            <DropdownMenuItem asChild data-testid="user-nav-item-auth">
-              <button
-                type="button"
-                className="w-full cursor-pointer"
-                onClick={() => {
-                  if (status === 'loading') {
-                    toast({
-                      type: 'error',
-                      description:
-                        '인증 상태를 확인하는 중입니다. 다시 시도해주세요!',
-                    })
+            <div className="p-4 border-b">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-semibold text-lg">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1">
+                  <div className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                    {user?.name || '사용자'}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    {user?.email || '이메일 없음'}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="py-1">
+              <DropdownMenuItem asChild data-testid="user-nav-item-auth">
+                <button
+                  type="button"
+                  className="w-full cursor-pointer flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => {
+                    if (status === 'loading') {
+                      toast({
+                        type: 'error',
+                        description:
+                          '인증 상태를 확인하는 중입니다. 다시 시도해주세요!',
+                      })
 
-                    return
-                  }
+                      return
+                    }
 
-                  if (status === 'unauthenticated') {
-                    redirect('/login')
-                  } else {
-                    signOut({
-                      redirectTo: '/',
-                    })
-                  }
-                }}
-              >
-                {status === 'unauthenticated' ? (
-                  <>
-                    <LogInIcon />
-                    로그인
-                  </>
-                ) : (
-                  <>
-                    <LogOutIcon />
-                    로그아웃
-                  </>
-                )}
-              </button>
-            </DropdownMenuItem>
+                    if (status === 'unauthenticated') {
+                      redirect('/login')
+                    } else {
+                      signOut({
+                        redirectTo: '/',
+                      })
+                    }
+                  }}
+                >
+                  {status === 'unauthenticated' ? (
+                    <>
+                      <LogInIcon className="w-4 h-4" />
+                      로그인
+                    </>
+                  ) : (
+                    <>
+                      <LogOutIcon className="w-4 h-4" />
+                      로그아웃
+                    </>
+                  )}
+                </button>
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

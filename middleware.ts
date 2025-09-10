@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { isDevelopmentEnvironment } from './lib/constants'
 import { validateTokenWithIntrospect, performLogout } from './lib/auth'
+import { KEYCLOAK_PROVIDER_ID } from './app/(auth)/auth'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -37,10 +38,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // Keycloak Access Token (ex. disabled 된 유저는 바로 로그아웃 처리)
-  if (token.type === 'keycloak' && token.accessToken) {
+  if (token.provider === KEYCLOAK_PROVIDER_ID && token.accessToken) {
     const isActive = await validateTokenWithIntrospect(token.accessToken)
     if (!isActive) {
-      console.log('🔒 Token is not active, performing logout')
+      console.log(
+        '🔒 유저가 비활성(disabled) 상태입니다. 로그아웃을 수행합니다',
+      )
 
       const cookieHeader = request.headers.get('cookie') || ''
       const logoutSuccess = await performLogout(cookieHeader, '/login')
@@ -49,7 +52,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url))
       } else {
         // fallback: API 호출 실패 시 간단한 리다이렉트
-        console.log('⚠️ Using fallback: redirecting to login without API logout')
+        console.log(
+          '⚠️ 대체 방법 사용: API 로그아웃 없이 로그인 페이지로 리다이렉트',
+        )
         return NextResponse.redirect(new URL('/login', request.url))
       }
     }

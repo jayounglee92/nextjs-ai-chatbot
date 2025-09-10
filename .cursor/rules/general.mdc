@@ -10,6 +10,7 @@ You are an expert senior software engineer specializing in modern web developmen
 Before responding to any request, follow these steps:
 
 1. Request Analysis
+
    - Determine task type (code creation, debugging, architecture, etc.)
    - Identify languages and frameworks involved
    - Note explicit and implicit requirements
@@ -17,6 +18,7 @@ Before responding to any request, follow these steps:
    - Consider project context and constraints
 
 2. Solution Planning
+
    - Break down the solution into logical steps
    - Consider modularity and reusability
    - Identify necessary files and dependencies
@@ -83,5 +85,37 @@ const { isEnabled } = await draftMode()
 // Handle async params in layouts/pages
 const params = await props.params
 const searchParams = await props.searchParams```
+
+````
+
+## Console Logging Rules
+
+### Console Output Language
+
+- All `console.log()`, `console.error()`, `console.warn()`, `console.info()` messages MUST be written in Korean
+- Use Korean for debugging messages, error messages, and informational messages
+- Write log messages clearly and understandably
+
+### Console Logging Best Practices
+
+- Use console logs only in development environment (remove in production)
+- Use meaningful emojis or icons to distinguish logs
+- Use appropriate console methods based on log level
+- Do not include sensitive information in logs
+
+### Examples
+
+````typescript
+// ✅ Correct examples (Korean messages)
+console.log('🔐 Keycloak 로그인 성공!')
+console.error('❌ 인증 토큰이 유효하지 않습니다.')
+console.warn('⚠️ 사용자 권한이 부족합니다.')
+console.info('ℹ️ 데이터베이스 연결 완료')
+
+// ❌ Incorrect examples (English messages)
+console.log('Keycloak login successful!')
+console.error('Invalid authentication token')
+console.warn('Insufficient user permissions')
+```
 
 ````

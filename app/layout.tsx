@@ -58,6 +58,7 @@ export default async function RootLayout({
           }}
         />
       </head>
+      {/* suppressHydrationWarning: 브라우저 확장프로그램으로 인한 하이드레이션 에러 방지 */}
       <body className="antialiased">
         <ThemeProvider
           attribute="class"

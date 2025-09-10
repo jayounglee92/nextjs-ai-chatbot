@@ -1,21 +1,22 @@
-'use client';
+'use client'
 
-import { startTransition, useMemo, useOptimistic, useState } from 'react';
+import { startTransition, useMemo, useOptimistic, useState } from 'react'
 
-import { saveChatModelAsCookie } from '@/app/(chat)/actions';
-import { Button } from '@/components/ui/button';
+import { saveChatModelAsCookie } from '@/app/(chat)/actions'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { chatModels } from '@/lib/ai/models';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/dropdown-menu'
+import { chatModels } from '@/lib/ai/models'
+import { cn } from '@/lib/utils'
 
-import { CheckCircleFillIcon, ChevronDownIcon } from './icons';
-import { entitlementsByUserType } from '@/lib/ai/entitlements';
-import type { Session } from 'next-auth';
+import { CheckCircleFillIcon, ChevronDownIcon } from './icons'
+import { entitlementsByUserType } from '@/lib/ai/entitlements'
+import type { Session } from 'next-auth'
+import { USER_TYPES, type UserTypes } from '@/app/(auth)/auth'
 
 /**
  * AI 모델 선택 드롭다운 컴포넌트
@@ -32,26 +33,28 @@ export function ModelSelector({
   selectedModelId,
   className,
 }: {
-  session: Session; // 사용자 세션 (권한 확인용)
-  selectedModelId: string; // 현재 선택된 모델 ID
+  session: Session // 사용자 세션 (권한 확인용)
+  selectedModelId: string // 현재 선택된 모델 ID
 } & React.ComponentProps<typeof Button>) {
   // 드롭다운 열림/닫힘 상태
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   // 낙관적 업데이트: UI를 먼저 업데이트하고 서버 요청은 백그라운드에서 처리
   // 사용자에게 즉각적인 반응을 제공하여 UX 향상
   const [optimisticModelId, setOptimisticModelId] =
-    useOptimistic(selectedModelId);
+    useOptimistic(selectedModelId)
 
   // 사용자 타입별 권한 확인
-  const userType = session.user.type; // 'free', 'pro', 'admin' 등
-  const { availableChatModelIds } = entitlementsByUserType[userType];
+  const userType: UserTypes = session.user.types.includes(USER_TYPES.AI_ADMIN)
+    ? USER_TYPES.AI_ADMIN
+    : USER_TYPES.GENERAL // AI_ADMIN, GENERAL
+  const { availableChatModelIds } = entitlementsByUserType[userType]
 
   // 사용자가 사용할 수 있는 모델만 필터링
   // 예: 무료 사용자는 GPT-3.5만, 프로 사용자는 GPT-4, Claude 등 모든 모델
   const availableChatModels = chatModels.filter((chatModel) =>
     availableChatModelIds.includes(chatModel.id),
-  );
+  )
 
   // 현재 선택된 모델 객체 찾기 (이름, 설명 등 전체 정보)
   const selectedChatModel = useMemo(
@@ -60,7 +63,7 @@ export function ModelSelector({
         (chatModel) => chatModel.id === optimisticModelId,
       ),
     [optimisticModelId, availableChatModels],
-  );
+  )
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -87,7 +90,7 @@ export function ModelSelector({
       <DropdownMenuContent align="start" className="min-w-[300px]">
         {/* 사용 가능한 모든 모델을 리스트로 표시 */}
         {availableChatModels.map((chatModel) => {
-          const { id } = chatModel;
+          const { id } = chatModel
 
           return (
             <DropdownMenuItem
@@ -95,18 +98,18 @@ export function ModelSelector({
               key={id}
               onSelect={() => {
                 // 드롭다운 닫기
-                setOpen(false);
+                setOpen(false)
 
                 // React 18의 startTransition으로 비긴급 업데이트 처리
                 // UI 반응성을 해치지 않으면서 백그라운드에서 상태 업데이트
                 startTransition(() => {
                   // 1. 낙관적 업데이트: UI 즉시 변경
-                  setOptimisticModelId(id);
+                  setOptimisticModelId(id)
 
                   // 2. 서버 액션: 쿠키에 선택된 모델 저장
                   // 다음 페이지 로드 시에도 선택된 모델 유지
-                  saveChatModelAsCookie(id);
-                });
+                  saveChatModelAsCookie(id)
+                })
               }}
               data-active={id === optimisticModelId} // 현재 선택된 항목 표시용
               asChild
@@ -138,9 +141,9 @@ export function ModelSelector({
                 </div>
               </button>
             </DropdownMenuItem>
-          );
+          )
         })}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
