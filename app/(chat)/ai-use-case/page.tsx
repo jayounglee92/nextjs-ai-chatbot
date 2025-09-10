@@ -123,13 +123,15 @@ export default function AiUseCasePage() {
             AI 활용 사례
           </h1>
           {/* 데스크톱에서만 보이는 버튼 */}
-          <Button
-            onClick={handleWriteClick}
-            className="hidden md:flex items-center gap-2"
-          >
-            <PencilLineIcon className="size-4" />
-            글쓰기
-          </Button>
+          {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+            <Button
+              onClick={handleWriteClick}
+              className="hidden md:flex items-center gap-2"
+            >
+              <PencilLineIcon className="size-4" />
+              글쓰기
+            </Button>
+          )}
         </div>
         <p className="text-muted-foreground">
           사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.

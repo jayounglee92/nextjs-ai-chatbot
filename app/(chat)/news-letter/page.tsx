@@ -80,13 +80,15 @@ export default function NewsLetterPage() {
             </p>
           </div>
           {/* 데스크톱에서만 보이는 버튼 */}
-          <Button
-            onClick={handleWriteClick}
-            className="hidden sm:flex items-center gap-2"
-          >
-            <PencilLineIcon className="size-4" />
-            뉴스 작성하기
-          </Button>
+          {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+            <Button
+              onClick={handleWriteClick}
+              className="hidden md:flex items-center gap-2"
+            >
+              <PencilLineIcon className="size-4" />
+              뉴스 작성하기
+            </Button>
+          )}
         </div>
 
         <NewsSkeleton />

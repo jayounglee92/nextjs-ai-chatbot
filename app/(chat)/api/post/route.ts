@@ -94,18 +94,6 @@ export async function POST(request: NextRequest) {
       openType,
     } = validation.data
 
-    console.log({
-      title,
-      content,
-      category,
-      tags: tags && tags.length > 0 ? tags.join(',') : null,
-      thumbnailUrl,
-      userId: session.user.id,
-      postType: postType as 'news' | 'aiusecase' | 'learningcenter',
-      openType: openType || 'page',
-      summaryType: 'auto_truncated',
-    })
-
     const newPost = await savePostWithContents({
       title,
       content,

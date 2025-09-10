@@ -1,7 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { isDevelopmentEnvironment } from './lib/constants'
-import { validateTokenWithIntrospect, performLogout } from './lib/auth'
+import {
+  validateTokenWithIntrospect,
+  performLogout,
+} from './app/(auth)/actions'
 import { KEYCLOAK_PROVIDER_ID } from './app/(auth)/auth'
 
 export async function middleware(request: NextRequest) {

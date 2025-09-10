@@ -82,12 +82,14 @@ export default function LearningCenterPage() {
         <div className="space-y-4 flex flex-col mb-8">
           <div className="flex items-center gap-2 justify-between">
             <h1 className="text-2xl font-semibold text-foreground">학습센터</h1>
-            <Link
-              href="/learning-center/write"
-              className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <PencilLineIcon className="size-4" /> 동영상 올리기
-            </Link>
+            {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
+              <Link
+                href="/learning-center/write"
+                className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <PencilLineIcon className="size-4" /> 동영상 올리기
+              </Link>
+            )}
           </div>
           <p className="text-muted-foreground">
             최신 개발 트렌드와 기술을 배우고, 실무에 바로 적용할 수 있는

@@ -3,7 +3,6 @@ import Keycloak from 'next-auth/providers/keycloak'
 import { authConfig } from './auth.config'
 import type { DefaultJWT } from 'next-auth/jwt'
 import { extractRolesFromToken } from '@/lib/auth'
-import { registerKeycloakUser } from './actions'
 
 export const KEYCLOAK_PROVIDER_ID = 'keycloak'
 export type ProviderType = typeof KEYCLOAK_PROVIDER_ID
@@ -74,20 +73,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         ) {
           // Keycloak 사용자를 데이터베이스에 생성하거나 가져오기
           const keycloakUserId = profile?.preferred_username as string
-          const userEmail = user.email || 'unknown@example.com'
+          // const userEmail = user.email || 'unknown@example.com'
 
-          try {
-            const result = await registerKeycloakUser(keycloakUserId, userEmail)
-            if (result.status === 'success') {
-              console.log('👤 데이터베이스 사용자 생성/조회 완료')
-            } else if (result.status === 'user_exists') {
-              console.log('👤 기존 사용자 발견')
-            } else {
-              console.error('❌ 사용자 생성/조회 실패')
-            }
-          } catch (error) {
-            console.error('❌ 사용자 생성/조회 실패:', error)
-          }
+          // try {
+          //   const result = await registerKeycloakUser(keycloakUserId, userEmail)
+          //   if (result.status === 'success') {
+          //     console.log('👤 데이터베이스 사용자 생성/조회 완료')
+          //   } else if (result.status === 'user_exists') {
+          //     console.log('👤 기존 사용자 발견')
+          //   } else {
+          //     console.error('❌ 사용자 생성/조회 실패')
+          //   }
+          // } catch (error) {
+          //   console.error('❌ 사용자 생성/조회 실패:', error)
+          // }
 
           token.id = keycloakUserId
           token.provider = KEYCLOAK_PROVIDER_ID
