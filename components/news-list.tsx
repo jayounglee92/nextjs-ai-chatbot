@@ -4,28 +4,25 @@ import { cn, getRelativeTimeString } from '@/lib/utils'
 import { notoSerifKR } from '@/lib/fonts'
 import { EmptyPage } from './empty-page'
 import Link from 'next/link'
+import { Pagination } from './pagination'
+import type { PostContents } from '@/lib/db/schema'
 
-export interface NewsItem {
-  id: string
+export interface NewsItem extends PostContents {
+  summary: string
+  readingTime: number
+  userEmail: string
   title: string
-  description: string
-  image: string
-  category: string
-  publishedAt: string | Date
-  sourceCount: number
-}
-
-interface WideArticleProps {
-  item: NewsItem
-  isWideRight?: boolean
-}
-
-interface ThreeColumnArticleProps {
-  item: NewsItem
+  thumbnailUrl: string
 }
 
 interface NewsListProps {
   newsData: NewsItem[]
+  totalItems: number
+  itemsPerPage: number
+  currentPage: number
+  totalPages?: number
+  hasNextPage?: boolean
+  hasPrevPage?: boolean
 }
 
 function NewsSubTitle({ publishedAt }: { publishedAt: string | Date }) {
@@ -59,7 +56,13 @@ function NewsCategory({ category }: { category: string }) {
   )
 }
 
-export function WideArticle({ item, isWideRight = false }: WideArticleProps) {
+export function WideArticle({
+  item,
+  isWideRight = false,
+}: {
+  item: NewsItem
+  isWideRight?: boolean
+}) {
   return (
     <article
       className={cn(
@@ -83,9 +86,9 @@ export function WideArticle({ item, isWideRight = false }: WideArticleProps) {
               {item.title}
             </h3>
             <p className="text-gray-600 text-sm mb-4 md:line-clamp-3 hidden">
-              {item.description}
+              {item.summary}
             </p>
-            <NewsSubTitle publishedAt={item.publishedAt} />
+            <NewsSubTitle publishedAt={item.createdAt} />
           </div>
         </div>
 
@@ -94,7 +97,7 @@ export function WideArticle({ item, isWideRight = false }: WideArticleProps) {
           className={`relative overflow-hidden h-48 md:h-60 rounded-t-lg md:rounded-b-lg md:col-span-2 ${isWideRight ? 'md:order-1' : 'md:order-2'}`}
         >
           <Image
-            src={item.image}
+            src={item.thumbnailUrl}
             alt={item.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -106,7 +109,11 @@ export function WideArticle({ item, isWideRight = false }: WideArticleProps) {
   )
 }
 
-export function ThreeColumnArticle({ item }: ThreeColumnArticleProps) {
+export function ThreeColumnArticle({
+  item,
+}: {
+  item: NewsItem
+}) {
   return (
     <article className="group border rounded-lg cursor-pointer transition-transform overflow-hidden bg-white col-span-12 md:col-span-4">
       <Link
@@ -117,7 +124,7 @@ export function ThreeColumnArticle({ item }: ThreeColumnArticleProps) {
         {/* 이미지 */}
         <div className="relative rounded-t-lg overflow-hidden h-48">
           <Image
-            src={item.image}
+            src={item.thumbnailUrl}
             alt={item.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -132,14 +139,22 @@ export function ThreeColumnArticle({ item }: ThreeColumnArticleProps) {
           >
             {item.title}
           </h3>
-          <NewsSubTitle publishedAt={item.publishedAt} />
+          <NewsSubTitle publishedAt={item.createdAt} />
         </div>
       </Link>
     </article>
   )
 }
 
-export function NewsList({ newsData }: NewsListProps) {
+export function NewsList({
+  newsData,
+  totalItems,
+  itemsPerPage,
+  currentPage,
+  totalPages,
+  hasNextPage,
+  hasPrevPage,
+}: NewsListProps) {
   if (newsData.length === 0) {
     return (
       <EmptyPage
@@ -149,29 +164,46 @@ export function NewsList({ newsData }: NewsListProps) {
     )
   }
   return (
-    <div className="grid grid-cols-12 gap-4">
-      {/* 첫 번째 아이템 - Wide (글 왼쪽, 그림 오른쪽) */}
-      {newsData[0] && <WideArticle key={newsData[0].id} item={newsData[0]} />}
+    <div className="space-y-6">
+      <div className="grid grid-cols-12 gap-4">
+        {/* 첫 번째 아이템 - Wide (글 왼쪽, 그림 오른쪽) */}
+        {newsData[0] && <WideArticle key={newsData[0].id} item={newsData[0]} />}
 
-      {/* 나머지 아이템들 - 3,2,3,2 패턴 */}
-      {newsData.slice(1).map((item, index) => {
-        const position = index % 5 // 0,1,2,3,4 반복
-        const isWide = position === 3 || position === 4 // 2줄 그리드
-        const isWideRight = position === 4 // 4번째 (2줄 그리드 - 글 오른쪽, 그림 왼쪽)
-        const isThreeColumn = position === 0 || position === 1 || position === 2 // 0,1,2번째 (3줄 그리드)
+        {/* 나머지 아이템들 - 3,2,3,2 패턴 */}
+        {newsData.slice(1).map((item, index) => {
+          const position = index % 5 // 0,1,2,3,4 반복
+          const isWide = position === 3 || position === 4 // 2줄 그리드
+          const isWideRight = position === 4 // 4번째 (2줄 그리드 - 글 오른쪽, 그림 왼쪽)
+          const isThreeColumn =
+            position === 0 || position === 1 || position === 2 // 0,1,2번째 (3줄 그리드)
 
-        if (isWide) {
-          return (
-            <WideArticle key={item.id} item={item} isWideRight={isWideRight} />
-          )
-        }
+          if (isWide) {
+            return (
+              <WideArticle
+                key={item.id}
+                item={item}
+                isWideRight={isWideRight}
+              />
+            )
+          }
 
-        if (isThreeColumn) {
-          return <ThreeColumnArticle key={item.id} item={item} />
-        }
+          if (isThreeColumn) {
+            return <ThreeColumnArticle key={item.id} item={item} />
+          }
 
-        return null
-      })}
+          return null
+        })}
+      </div>
+
+      {/* 페이지네이션 */}
+      <Pagination
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
     </div>
   )
 }

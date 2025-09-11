@@ -40,12 +40,12 @@ export default function LearningCenterWritePage() {
 
   // 유효성 검사
   const isDisabledSaveButton = React.useMemo(
-    () => isSubmitting || !title?.trim() || !category?.trim() || !thumbnailUrl,
-    [isSubmitting, title, content, category, thumbnailUrl],
+    () => isSubmitting || !title?.trim() || !thumbnailUrl,
+    [isSubmitting, title, thumbnailUrl],
   )
 
   const handleSubmit = React.useCallback(async () => {
-    const validation = validatePostContentsCreate({
+    const payload = {
       title: title.trim(),
       content: content.trim(),
       category: category.trim(),
@@ -53,7 +53,8 @@ export default function LearningCenterWritePage() {
       thumbnailUrl,
       postType: 'learningcenter',
       openType: 'modal',
-    })
+    }
+    const validation = validatePostContentsCreate(payload)
 
     if (!validation.success) {
       const errorMessages = validation.error.errors.map((err) => err.message)
@@ -71,15 +72,7 @@ export default function LearningCenterWritePage() {
           // 서버에 POST 요청
           const response = await fetch('/api/post', {
             method: 'POST',
-            body: JSON.stringify({
-              title: title.trim(),
-              content: content.trim(),
-              category: category.trim(),
-              tags: tags,
-              postType: 'learningcenter',
-              openType: 'modal',
-              thumbnailUrl,
-            }),
+            body: JSON.stringify(payload),
           })
 
           if (!response.ok) {

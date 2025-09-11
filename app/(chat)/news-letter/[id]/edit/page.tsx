@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ErrorPage } from '@/components/error-page'
 import { TagInput } from '@/components/tag-input'
-import { NewsEditSkeleton } from './skeleton'
 import {
   handleFetchError,
   handleApiError,
@@ -22,6 +21,7 @@ import { fetcher, formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
+import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
 
 // API에서 받는 데이터 타입 (getPostById 반환 타입)
 interface PostDetailData {
@@ -90,19 +90,21 @@ export default function NewsEditPage() {
     thumbnailUrl !== null ? thumbnailUrl : newsPost?.thumbnailUrl
   const currentCategory = category !== null ? category : newsPost?.category
   const currentTags = tags !== null ? tags : newsPost?.tags || []
-
   const isDisabledSaveButton =
     isSubmitting || !currentTitle?.trim() || !currentThumbnailUrl
 
   const handleSubmit = async () => {
-    // 유효성 검사
-    const validation = validatePostContentsUpdate({
+    const payload = {
       title: currentTitle?.trim(),
-      content: currentContent || '',
+      content: currentContent,
       category: currentCategory?.trim(),
       tags: currentTags,
-      userId: session?.user?.id,
-    })
+      thumbnailUrl: currentThumbnailUrl,
+      postType: 'news',
+      openType: 'page',
+    }
+    // 유효성 검사
+    const validation = validatePostContentsUpdate(payload)
 
     if (!validation.success) {
       const errorMessages = validation.error.errors.map((err) => err.message)
@@ -120,13 +122,7 @@ export default function NewsEditPage() {
           // 서버에 PUT 요청
           const response = await fetch(`/api/post?id=${params.id}`, {
             method: 'PUT',
-            body: JSON.stringify({
-              title: currentTitle?.trim(),
-              content: currentContent,
-              category: currentCategory?.trim(),
-              tags: currentTags,
-              thumbnailUrl: currentThumbnailUrl,
-            }),
+            body: JSON.stringify(payload),
           })
 
           if (!response.ok) {
@@ -174,7 +170,7 @@ export default function NewsEditPage() {
   }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
-    return <NewsEditSkeleton />
+    return <EditorFormSkeleton />
   }
 
   if (error) {

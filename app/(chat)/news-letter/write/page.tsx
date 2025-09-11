@@ -41,11 +41,11 @@ export default function NewsLetterWritePage() {
   // 유효성 검사
   const isDisabledSaveButton = React.useMemo(
     () => isSubmitting || !title?.trim() || !thumbnailUrl,
-    [isSubmitting, title, content, thumbnailUrl],
+    [isSubmitting, title, thumbnailUrl],
   )
 
   const handleSubmit = React.useCallback(async () => {
-    const validation = validatePostContentsCreate({
+    const payload = {
       title: title.trim(),
       content: content.trim(),
       category: category.trim(),
@@ -53,7 +53,8 @@ export default function NewsLetterWritePage() {
       thumbnailUrl,
       postType: 'news',
       openType: 'page',
-    })
+    }
+    const validation = validatePostContentsCreate(payload)
 
     if (!validation.success) {
       const errorMessages = validation.error.errors.map((err) => err.message)
@@ -71,15 +72,7 @@ export default function NewsLetterWritePage() {
           // 서버에 POST 요청
           const response = await fetch('/api/post', {
             method: 'POST',
-            body: JSON.stringify({
-              title: title.trim(),
-              content: content.trim(),
-              category: category.trim() || undefined,
-              tags: tags,
-              postType: 'news',
-              openType: 'page',
-              thumbnailUrl,
-            }),
+            body: JSON.stringify(payload),
           })
 
           if (!response.ok) {

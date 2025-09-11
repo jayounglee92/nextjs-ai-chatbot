@@ -1,7 +1,5 @@
-import type { NewsItem } from '@/components/news-list'
-
 // 더미 데이터
-export const dummyNewsData: NewsItem[] = [
+export const dummyNewsData = [
   {
     id: '1',
     title: '웹 우주 망원경이 최초의 원시 블랙홀을 발견했을 수 있다',

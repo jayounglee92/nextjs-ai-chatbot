@@ -93,12 +93,14 @@ export function LearningList({
 
                 {/* 카테고리 배지 */}
                 <div className="absolute top-3 left-3">
-                  <Badge
-                    variant="secondary"
-                    className="bg-black/70 text-white hover:bg-black/80"
-                  >
-                    {item.category}
-                  </Badge>
+                  {item.category && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-black/70 text-white hover:bg-black/80"
+                    >
+                      {item.category}
+                    </Badge>
+                  )}
                 </div>
 
                 {/* 플레이 버튼 오버레이 */}
@@ -117,7 +119,7 @@ export function LearningList({
                 </h3>
                 {/* 태그들 */}
                 <div className="flex flex-wrap gap-1 h-5 overflow-y-hidden">
-                  {item?.tags?.length &&
+                  {item?.tags?.length > 0 &&
                     item?.tags?.map((tag: string) => (
                       <Badge
                         key={tag}
@@ -128,13 +130,6 @@ export function LearningList({
                       </Badge>
                     ))}
                 </div>
-
-                {/* 액션 버튼들 */}
-                {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
-                  <div className="flex justify-end mt-auto -mb-4">
-                    <LearningListActions id={item.id} />
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>

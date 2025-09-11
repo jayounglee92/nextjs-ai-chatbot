@@ -54,42 +54,7 @@ export interface Attachment {
   contentType: string
 }
 
-// PostContents related types
-export interface PostContentsCreateData {
-  postId: string
-  content: string
-  category?: string
-  tags?: string
-  userId: string
-}
-
-export interface PostContentsUpdateData {
-  content?: string
-  category?: string
-  tags?: string
-}
-
-export interface PostContentsQueryParams {
-  limit?: number
-  offset?: number
-  search?: string
-  category?: string
-}
-
-export interface PostContentsResponse {
-  data: Array<{
-    id: string
-    postId: string
-    content: string
-    category: string | null
-    tags: string | null
-    userId: string
-    createdAt: Date
-    updatedAt: Date
-  }>
-  totalCount: number
-}
-
+// PostContents related type
 export interface PostContentsWithTagsArray {
   id: string
   postId: string

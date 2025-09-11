@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ErrorPage } from '@/components/error-page'
 import { TagInput } from '@/components/tag-input'
-import { LearningCenterEditSkeleton } from './skeleton'
 import {
   handleFetchError,
   handleApiError,
@@ -22,6 +21,7 @@ import { fetcher, formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
+import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
 interface PostDetailData {
   id: string
   postId: string
@@ -93,14 +93,17 @@ export default function LearningEditPage() {
     isSubmitting || !currentTitle?.trim() || !currentThumbnailUrl
 
   const handleSubmit = async () => {
-    // 유효성 검사
-    const validation = validatePostContentsUpdate({
+    const payload = {
       title: currentTitle?.trim(),
-      content: currentContent || '',
+      content: currentContent,
       category: currentCategory?.trim(),
       tags: currentTags,
-      userId: session?.user?.id,
-    })
+      thumbnailUrl: currentThumbnailUrl,
+      postType: 'learningcenter',
+      openType: 'modal',
+    }
+    // 유효성 검사
+    const validation = validatePostContentsUpdate(payload)
 
     if (!validation.success) {
       const errorMessages = validation.error.errors.map((err) => err.message)
@@ -118,13 +121,7 @@ export default function LearningEditPage() {
           // 서버에 PUT 요청
           const response = await fetch(`/api/post?id=${params.id}`, {
             method: 'PUT',
-            body: JSON.stringify({
-              title: currentTitle?.trim(),
-              content: currentContent,
-              category: currentCategory?.trim(),
-              tags: currentTags,
-              thumbnailUrl: currentThumbnailUrl,
-            }),
+            body: JSON.stringify(payload),
           })
 
           if (!response.ok) {
@@ -172,7 +169,7 @@ export default function LearningEditPage() {
   }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
-    return <LearningCenterEditSkeleton />
+    return <EditorFormSkeleton />
   }
 
   if (error) {
@@ -281,7 +278,7 @@ export default function LearningEditPage() {
           {
             onClick: () => {
               if (confirm('정말로 취소하시겠습니까?')) {
-                router.push(`/learning-center/${params.id}`)
+                router.back()
               }
             },
             text: '취소',

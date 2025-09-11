@@ -9,7 +9,6 @@ import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ErrorPage } from '@/components/error-page'
-import { AiUseCaseEditSkeleton } from './skeleton'
 import {
   handleFetchError,
   handleApiError,
@@ -22,6 +21,7 @@ import { handleImageUpload } from '@/lib/tiptap-utils'
 import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
+import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
 
 export default function AiUseCaseEditPage() {
   const { data: session, status } = useSession()
@@ -93,14 +93,17 @@ export default function AiUseCaseEditPage() {
   const isDisabledSaveButton =
     isSubmitting || !currentTitle?.trim() || !currentThumbnailUrl
   const handleSubmit = async () => {
-    // 유효성 검사
-    const validation = validatePostContentsUpdate({
-      title: currentTitle?.trim() || '',
-      content: currentContent || '',
+    const payload = {
+      title: currentTitle?.trim(),
+      content: currentContent,
       category: currentCategory?.trim(),
       tags: currentTags,
-      thumbnailUrl: currentThumbnailUrl || '',
-    })
+      thumbnailUrl: currentThumbnailUrl,
+      postType: 'aiusecase',
+      openType: 'page',
+    }
+    // 유효성 검사
+    const validation = validatePostContentsUpdate(payload)
 
     if (!validation.success) {
       const errorMessages = validation.error.errors.map((err) => err.message)
@@ -118,13 +121,7 @@ export default function AiUseCaseEditPage() {
           // 서버에 PUT 요청
           const response = await fetch(`/api/post?id=${params.id}`, {
             method: 'PUT',
-            body: JSON.stringify({
-              title: currentTitle?.trim() || '',
-              content: currentContent || '',
-              category: currentCategory?.trim(),
-              tags: currentTags,
-              thumbnailUrl: currentThumbnailUrl || undefined,
-            }),
+            body: JSON.stringify(payload),
           })
 
           if (!response.ok) {
@@ -173,7 +170,7 @@ export default function AiUseCaseEditPage() {
   }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
-    return <AiUseCaseEditSkeleton />
+    return <EditorFormSkeleton />
   }
 
   if (error) {

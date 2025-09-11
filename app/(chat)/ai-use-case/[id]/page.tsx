@@ -81,7 +81,7 @@ export default async function AiUseCaseDetailPage({ params }: Props) {
           <div className="flex justify-between">
             <PostMetaInfo
               items={[
-                { type: 'author', data: { email: useCase.userEmail } },
+                { type: 'author', data: { email: useCase.userId } },
                 { type: 'readingTime', data: useCase.readingTime },
                 { type: 'relativeTime', data: useCase.createdAt },
               ]}

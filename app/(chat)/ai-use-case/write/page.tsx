@@ -38,7 +38,7 @@ export default function CommunityPage() {
   }
 
   const handleSubmit = async () => {
-    const validation = validatePostContentsCreate({
+    const payload = {
       title: title.trim(),
       content: content.trim(),
       category: category.trim(),
@@ -46,7 +46,8 @@ export default function CommunityPage() {
       thumbnailUrl,
       postType: 'aiusecase',
       openType: 'page',
-    })
+    }
+    const validation = validatePostContentsCreate(payload)
 
     if (!validation.success) {
       const errorMessages = validation.error.errors.map((err) => err.message)
@@ -64,15 +65,7 @@ export default function CommunityPage() {
           // 서버에 POST 요청
           const response = await fetch('/api/post', {
             method: 'POST',
-            body: JSON.stringify({
-              title: title.trim(),
-              content: content.trim(),
-              category: category.trim(),
-              tags: tags,
-              thumbnailUrl: thumbnailUrl || undefined,
-              postType: 'aiusecase',
-              openType: 'page',
-            }),
+            body: JSON.stringify(payload),
           })
 
           if (!response.ok) {

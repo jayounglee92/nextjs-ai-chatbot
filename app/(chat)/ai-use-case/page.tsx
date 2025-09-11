@@ -53,7 +53,6 @@ export default function AiUseCasePage() {
     },
   )
 
-  // 서버에서 받은 데이터와 페이지네이션 정보
   const aiUseCases = response?.data || []
   const pagination = response?.pagination
 
