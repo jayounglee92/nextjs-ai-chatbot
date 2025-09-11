@@ -7,8 +7,6 @@ import { LearningVideoDialog } from './learning-video-dialog'
 import { Badge } from './ui/badge'
 import { Pagination } from './pagination'
 import { EmptyPage } from './empty-page'
-import { LearningListActions } from './learning-list-actions'
-import { USER_TYPES } from '@/app/(auth)/auth'
 import { useSession } from 'next-auth/react'
 
 export interface LearningCenterDetailData {
@@ -112,7 +110,7 @@ export function LearningList({
               </div>
 
               {/* 콘텐츠 영역 */}
-              <div className="py-4 px-4 space-y-3 relative flex-1 flex flex-col">
+              <div className="p-4 space-y-3 relative flex-1 flex flex-col">
                 {/* 제목 */}
                 <h3 className="text-lg font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-200 h-11">
                   {item.title}

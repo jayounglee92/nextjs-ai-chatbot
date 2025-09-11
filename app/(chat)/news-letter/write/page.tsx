@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { redirect, useRouter } from 'next/navigation'
+import { forbidden, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import * as React from 'react'
 import { Input } from '@/components/ui/input'
@@ -22,10 +22,11 @@ import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 const MAX_TAGS_COUNT = 6
 
-export default function NewsLetterWritePage() {
+export default function Page() {
   const { data: session } = useSession()
   const router = useRouter()
   const { mutate } = useSWRConfig()
@@ -37,6 +38,10 @@ export default function NewsLetterWritePage() {
   const [tags, setTags] = useState<string[]>([])
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
+    forbidden()
+  }
 
   // 유효성 검사
   const isDisabledSaveButton = React.useMemo(
@@ -110,16 +115,12 @@ export default function NewsLetterWritePage() {
     }
   }, [title, content, category, tags, mutate, router, thumbnailUrl])
 
-  if (!session) {
-    return redirect('/login')
-  }
-
   return (
     <div className="space-y-5">
       <PageBreadcrumb
         items={[
           { label: '뉴스레터', href: '/news-letter' },
-          { label: '뉴스 작성하기' },
+          { label: '작성하기' },
         ]}
       />
 

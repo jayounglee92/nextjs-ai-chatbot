@@ -1,5 +1,5 @@
-import { auth } from '@/app/(auth)/auth'
-import { redirect } from 'next/navigation'
+import { auth, USER_TYPES } from '@/app/(auth)/auth'
+import { forbidden } from 'next/navigation'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { getPostById } from '@/lib/db/queries'
 import { NewsActions } from './news-actions'
@@ -26,11 +26,11 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
-export default async function NewsDetailPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const session = await auth()
 
-  if (!session) {
-    redirect('/login')
+  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
+    forbidden()
   }
 
   const { id } = await params

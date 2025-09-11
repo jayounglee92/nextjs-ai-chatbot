@@ -1,8 +1,8 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams, redirect } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useRouter, useParams, forbidden } from 'next/navigation'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
@@ -22,6 +22,8 @@ import { handleImageUpload } from '@/lib/tiptap-utils'
 import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
 import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { USER_TYPES } from '@/app/(auth)/auth'
 interface PostDetailData {
   id: string
   postId: string
@@ -36,8 +38,8 @@ interface PostDetailData {
   userEmail: string
 }
 
-export default function LearningEditPage() {
-  const { data: session, status } = useSession()
+export default function Page() {
+  const { data: session } = useSession()
   const router = useRouter()
   const params = useParams()
   const { mutate } = useSWRConfig()
@@ -47,6 +49,10 @@ export default function LearningEditPage() {
   const [category, setCategory] = useState<string | null>(null)
   const [tags, setTags] = useState<string[] | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
+    forbidden()
+  }
 
   // SWR을 사용하여 학습 센터 데이터 조회
   const {
@@ -160,15 +166,7 @@ export default function LearningEditPage() {
     }
   }
 
-  useEffect(() => {
-    if (status === 'loading') return
-
-    if (!session) {
-      redirect('/login')
-    }
-  }, [session, status, router])
-
-  if (status === 'loading' || isLoading) {
+  if (isLoading) {
     return <EditorFormSkeleton />
   }
 
@@ -197,7 +195,14 @@ export default function LearningEditPage() {
   }
 
   return (
-    <div>
+    <div className="space-y-5">
+      <PageBreadcrumb
+        items={[
+          { label: '학습센터', href: '/learning-center' },
+          { label: '수정하기' },
+        ]}
+      />
+
       {/* 제목 입력 필드 */}
       <div className="mb-6">
         <Label htmlFor="title" className="text-sm font-medium block mb-2">

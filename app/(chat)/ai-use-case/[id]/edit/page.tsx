@@ -1,8 +1,8 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams, redirect } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useRouter, useParams, forbidden } from 'next/navigation'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
@@ -22,8 +22,25 @@ import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
 import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
-export default function AiUseCaseEditPage() {
+// API에서 받는 데이터 타입 (getPostById 반환 타입)
+interface PostDetailData {
+  id: string
+  postId: string
+  content: string
+  category: string | null
+  tags: string[]
+  userId: string
+  title: string | null
+  thumbnailUrl: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
+  userEmail: string | null
+}
+
+export default function Page() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
@@ -35,19 +52,8 @@ export default function AiUseCaseEditPage() {
   const [tags, setTags] = useState<string[] | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // API에서 받는 데이터 타입 (getPostById 반환 타입)
-  interface PostDetailData {
-    id: string
-    postId: string
-    content: string
-    category: string | null
-    tags: string[]
-    userId: string
-    title: string | null
-    thumbnailUrl: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-    userEmail: string | null
+  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
+    forbidden()
   }
 
   // SWR을 사용하여 AI 활용사례 데이터 조회
@@ -161,15 +167,7 @@ export default function AiUseCaseEditPage() {
     }
   }
 
-  useEffect(() => {
-    if (status === 'loading') return
-
-    if (!session) {
-      redirect('/login')
-    }
-  }, [session, status, router])
-
-  if (status === 'loading' || isLoading) {
+  if (isLoading) {
     return <EditorFormSkeleton />
   }
 
@@ -194,7 +192,14 @@ export default function AiUseCaseEditPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="space-y-5">
+      <PageBreadcrumb
+        items={[
+          { label: 'AI 활용 사례', href: '/ai-use-case' },
+          { label: '수정하기' },
+        ]}
+      />
+
       {/* 제목 입력 필드 */}
       <div className="mb-6">
         <Label htmlFor="title" className="sr-only">

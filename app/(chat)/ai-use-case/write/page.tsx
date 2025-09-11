@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { redirect, useRouter } from 'next/navigation'
+import { forbidden, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,8 +20,9 @@ import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { TagInput } from '@/components/tag-input'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
-export default function CommunityPage() {
+export default function Page() {
   const { data: session } = useSession()
   const router = useRouter()
   const { mutate } = useSWRConfig()
@@ -33,8 +34,8 @@ export default function CommunityPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const isDisabledSaveButton = isSubmitting || !title?.trim() || !thumbnailUrl
 
-  if (!session) {
-    return redirect('/login')
+  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
+    forbidden()
   }
 
   const handleSubmit = async () => {
@@ -104,11 +105,11 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-5">
       <PageBreadcrumb
         items={[
           { label: 'AI 활용 사례', href: '/ai-use-case' },
-          { label: '글쓰기' },
+          { label: '작성하기' },
         ]}
       />
 
