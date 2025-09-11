@@ -20,7 +20,6 @@ import { validatePostContentsCreate } from '@/lib/validators/post-contents'
 import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
-import sanitizeHtml from 'sanitize-html'
 import { TagInput } from '@/components/tag-input'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 
@@ -41,14 +40,7 @@ export default function NewsLetterWritePage() {
 
   // 유효성 검사
   const isDisabledSaveButton = React.useMemo(
-    () =>
-      isSubmitting ||
-      !title?.trim() ||
-      sanitizeHtml(content, {
-        allowedTags: [],
-        allowedAttributes: {},
-      }).length === 0 ||
-      !thumbnailUrl,
+    () => isSubmitting || !title?.trim() || !thumbnailUrl,
     [isSubmitting, title, content, thumbnailUrl],
   )
 

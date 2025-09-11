@@ -22,7 +22,6 @@ import { fetcher, formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
-import sanitizeHtml from 'sanitize-html'
 
 // API에서 받는 데이터 타입 (getPostById 반환 타입)
 interface PostDetailData {
@@ -93,13 +92,7 @@ export default function NewsEditPage() {
   const currentTags = tags !== null ? tags : newsPost?.tags || []
 
   const isDisabledSaveButton =
-    isSubmitting ||
-    !currentTitle?.trim() ||
-    sanitizeHtml(currentContent || '', {
-      allowedTags: [],
-      allowedAttributes: {},
-    }).length === 0 ||
-    !currentThumbnailUrl
+    isSubmitting || !currentTitle?.trim() || !currentThumbnailUrl
 
   const handleSubmit = async () => {
     // 유효성 검사

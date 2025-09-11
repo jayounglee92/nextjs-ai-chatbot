@@ -21,7 +21,6 @@ import { fetcher, formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
-import sanitizeHtml from 'sanitize-html'
 import { TagInput } from '@/components/tag-input'
 
 export default function AiUseCaseEditPage() {
@@ -92,13 +91,7 @@ export default function AiUseCaseEditPage() {
   const currentCategory = category !== null ? category : aiUseCase?.category
   const currentTags = tags !== null ? tags : aiUseCase?.tags || []
   const isDisabledSaveButton =
-    isSubmitting ||
-    !currentTitle?.trim() ||
-    sanitizeHtml(currentContent || '', {
-      allowedTags: [],
-      allowedAttributes: {},
-    }).length === 0 ||
-    !currentThumbnailUrl
+    isSubmitting || !currentTitle?.trim() || !currentThumbnailUrl
   const handleSubmit = async () => {
     // 유효성 검사
     const validation = validatePostContentsUpdate({

@@ -18,7 +18,6 @@ import { validatePostContentsCreate } from '@/lib/validators/post-contents'
 import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
-import sanitizeHtml from 'sanitize-html'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { TagInput } from '@/components/tag-input'
 
@@ -32,14 +31,7 @@ export default function CommunityPage() {
   const [category, setCategory] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const isDisabledSaveButton =
-    isSubmitting ||
-    !title?.trim() ||
-    sanitizeHtml(content, {
-      allowedTags: [],
-      allowedAttributes: {},
-    }).length === 0 ||
-    !thumbnailUrl
+  const isDisabledSaveButton = isSubmitting || !title?.trim() || !thumbnailUrl
 
   if (!session) {
     return redirect('/login')
