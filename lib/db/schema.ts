@@ -16,6 +16,7 @@ export const user = pgTable('User', {
   id: varchar('id', { length: 255 }).primaryKey().notNull(),
   email: varchar('email', { length: 64 }).notNull(),
   password: varchar('password', { length: 64 }),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
 })
 
 export type User = InferSelectModel<typeof user>

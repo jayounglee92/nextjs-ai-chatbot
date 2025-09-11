@@ -54,7 +54,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 className="h-10 data-[state=open]:text-sidebar-accent-foreground hover:bg-none! "
               >
                 <div className="size-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-semibold text-lg">
-                  {user?.name?.charAt(0).toUpperCase()}
+                  {user?.id?.charAt(0).toUpperCase()}
                 </div>
               </SidebarMenuButton>
             )}
@@ -72,7 +72,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                    {user?.name || '사용자'}
+                    {user?.id || '사용자'}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
                     {user?.email || '이메일 없음'}

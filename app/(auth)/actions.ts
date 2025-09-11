@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { createUser, getUser } from '@/lib/db/queries'
+import { createUser, getUser, getUserById } from '@/lib/db/queries'
 import { signIn } from './auth'
 
 const authFormSchema = z.object({
@@ -89,17 +89,17 @@ export const registerKeycloakUser = async (
   try {
     console.log('🔍 registerKeycloakUser 호출:', { userId, email })
 
-    const [user] = await getUser(email)
+    const [user] = await getUserById(userId)
     console.log('🔍 기존 사용자 조회 결과:', user)
 
     if (user) {
-      console.log('✅ 기존 사용자 발견:', user)
+      console.log('👤 기존 사용자 발견:', user)
       return { status: 'user_exists' }
     }
 
-    console.log('🆕 새 사용자 생성 시작')
+    console.log('👤 새 사용자 생성 시작')
     await createUser(email, undefined, userId) // 이메일, 비밀번호 없음, 특정 사용자 ID
-    console.log('✅ 사용자 생성 완료')
+    console.log('✅ 데이터베이스 사용자 생성/조회 완료')
 
     return { status: 'success' }
   } catch (error) {

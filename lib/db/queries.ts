@@ -69,6 +69,14 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
+export async function getUserById(id: string): Promise<Array<User>> {
+  try {
+    return await db.select().from(user).where(eq(user.id, id))
+  } catch (error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to get user by id')
+  }
+}
+
 export async function createUser(
   email: string,
   password?: string,
@@ -77,8 +85,6 @@ export async function createUser(
   const hashedPassword = password ? generateHashedPassword(password) : null
 
   try {
-    console.log('🔍 createUser 호출:', { email, password: !!password, userId })
-
     // userId가 제공되면 사용, 아니면 자동 생성
     const finalUserId = userId || generateUUID()
 
@@ -86,11 +92,10 @@ export async function createUser(
       id: finalUserId, // Keycloak username 또는 자동 생성된 ID
       email,
       password: hashedPassword,
+      createdAt: new Date(),
     })
-    console.log('✅ createUser 성공:', result)
     return result
   } catch (error) {
-    console.error('❌ createUser 오류:', error)
     throw new ChatSDKError('bad_request:database', 'Failed to create user')
   }
 }

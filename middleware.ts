@@ -41,6 +41,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Keycloak Access Token (ex. disabled 된 유저는 바로 로그아웃 처리)
+  /*
   if (token.provider === KEYCLOAK_PROVIDER_ID && token.accessToken) {
     const isActive = await validateTokenWithIntrospect(token.accessToken)
     if (!isActive) {
@@ -61,7 +62,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url))
       }
     }
-  }
+  }*/
 
   return NextResponse.next()
 }
