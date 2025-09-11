@@ -75,7 +75,7 @@ export function AiUseCaseList({
                     <div className="flex items-center gap-2">
                       <User className="size-4 text-muted-foreground" />
                       <span className="text-xs md:text-sm text-muted-foreground line-clamp-1">
-                        {useCase.userEmail}
+                        {useCase.userId}
                       </span>
                     </div>
                   </div>

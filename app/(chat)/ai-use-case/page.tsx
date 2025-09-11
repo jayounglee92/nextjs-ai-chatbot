@@ -6,14 +6,13 @@ import { useEffect } from 'react'
 import { AiUseCaseList } from '@/components/ai-use-case-list'
 import { AiUseCaseSkeleton } from '@/components/ai-use-case-skeleton'
 import { SearchBar } from '@/components/search-bar'
-import Link from 'next/link'
-import { PencilLineIcon } from 'lucide-react'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { ErrorPage } from '@/components/error-page'
 import { Button } from '@/components/ui/button'
 import type { AiUseCase } from '@/components/ai-use-case-list'
 import { USER_TYPES } from '@/app/(auth)/auth'
+import { LayoutHeader, WriteButton } from '@/components/layout-header'
 
 // 페이지네이션 응답 타입 정의
 interface PaginatedResponse {
@@ -58,14 +57,6 @@ export default function AiUseCasePage() {
   const aiUseCases = response?.data || []
   const pagination = response?.pagination
 
-  const handleWriteClick = () => {
-    if (!session) {
-      redirect('/login')
-      return
-    }
-    router.push('/ai-use-case/write')
-  }
-
   useEffect(() => {
     if (status === 'loading') return
 
@@ -77,25 +68,15 @@ export default function AiUseCasePage() {
   if (status === 'loading' || isLoading) {
     return (
       <>
-        <div className="space-y-4 flex flex-col mb-8">
-          <div className="flex items-center gap-2 justify-between">
-            <h1 className="text-2xl font-semibold text-foreground">
-              AI 활용 사례
-            </h1>
-            {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
-              <Link
-                href="/ai-use-case/write"
-                className="rounded-md px-3 py-2 flex items-center gap-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <PencilLineIcon className="size-4" /> 글쓰기
-                {session?.user.types.includes(USER_TYPES.AI_ADMIN).toString()}
-              </Link>
-            )}
-          </div>
-          <p className="text-muted-foreground">
-            사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.
-          </p>
-        </div>
+        <LayoutHeader
+          title="AI 활용 사례"
+          subtitle="사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다."
+          actions={
+            session?.user.types.includes(USER_TYPES.AI_ADMIN) ? (
+              <WriteButton href="/ai-use-case/write" text="글쓰기" />
+            ) : null
+          }
+        />
         <div className="mb-6">
           <SearchBar
             placeholder="제목, 내용으로 검색하세요"
@@ -117,27 +98,15 @@ export default function AiUseCasePage() {
 
   return (
     <>
-      <div className="space-y-4 flex flex-col mb-8">
-        <div className="flex items-center gap-2 justify-between">
-          <h1 className="text-2xl font-semibold text-foreground">
-            AI 활용 사례
-          </h1>
-          {/* 데스크톱에서만 보이는 버튼 */}
-          {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
-            <Button
-              onClick={handleWriteClick}
-              className="hidden md:flex items-center gap-2"
-            >
-              <PencilLineIcon className="size-4" />
-              글쓰기
-            </Button>
-          )}
-        </div>
-        <p className="text-muted-foreground">
-          사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다.
-        </p>
-      </div>
-
+      <LayoutHeader
+        title="AI 활용 사례"
+        subtitle="사내에서 실제로 사용되고 있는 AI 활용 사례를 공유합니다."
+        actions={
+          session?.user.types.includes(USER_TYPES.AI_ADMIN) ? (
+            <WriteButton href="/ai-use-case/write" text="글쓰기" />
+          ) : null
+        }
+      />
       <div className="mb-6">
         <SearchBar
           placeholder="제목, 내용으로 검색하세요"
@@ -154,16 +123,6 @@ export default function AiUseCasePage() {
         hasNextPage={pagination?.hasNextPage || false}
         hasPrevPage={pagination?.hasPrevPage || false}
       />
-      {/* 모바일에서만 보이는 floating 버튼 */}
-      {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
-        <Button
-          onClick={handleWriteClick}
-          className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
-          size="icon"
-        >
-          <PencilLineIcon className="size-6" />
-        </Button>
-      )}
     </>
   )
 }

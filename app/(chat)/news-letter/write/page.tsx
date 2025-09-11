@@ -53,13 +53,14 @@ export default function NewsLetterWritePage() {
   )
 
   const handleSubmit = React.useCallback(async () => {
-    // 유효성 검사
     const validation = validatePostContentsCreate({
       title: title.trim(),
       content: content.trim(),
-      category: category.trim() || undefined,
-      tags: tags,
+      category: category.trim(),
+      tags,
+      thumbnailUrl,
       postType: 'news',
+      openType: 'page',
     })
 
     if (!validation.success) {

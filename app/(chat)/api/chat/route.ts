@@ -6,7 +6,7 @@ import {
   stepCountIs,
   streamText,
 } from 'ai'
-import { auth, ROLES, type Roles } from '@/app/(auth)/auth'
+import { auth, USER_TYPES, type UserTypes } from '@/app/(auth)/auth'
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts'
 import {
   createStreamId,
@@ -91,9 +91,9 @@ export async function POST(request: Request) {
       return new ChatSDKError('unauthorized:chat').toResponse()
     }
 
-    const userRole: Roles = session.user.roles.includes(ROLES.AI_ADMIN)
-      ? ROLES.AI_ADMIN
-      : ROLES.GENERAL
+    const userRole: UserTypes = session.user.types.includes(USER_TYPES.AI_ADMIN)
+      ? USER_TYPES.AI_ADMIN
+      : USER_TYPES.GENERAL
 
     const messageCount = await getMessageCountByUserId({
       id: session.user.id,

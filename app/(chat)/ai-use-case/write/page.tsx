@@ -46,13 +46,12 @@ export default function CommunityPage() {
   }
 
   const handleSubmit = async () => {
-    // 유효성 검사
     const validation = validatePostContentsCreate({
       title: title.trim(),
       content: content.trim(),
       category: category.trim(),
-      tags: tags,
-      thumbnailUrl: thumbnailUrl || '',
+      tags,
+      thumbnailUrl,
       postType: 'aiusecase',
       openType: 'page',
     })

@@ -2,7 +2,6 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { PencilLineIcon } from 'lucide-react'
 import { NewsList } from '@/components/news-list'
 import { NewsSkeleton } from '@/components/news-skeleton'
 import { Button } from '@/components/ui/button'
@@ -12,6 +11,7 @@ import { ErrorPage } from '@/components/error-page'
 import { fetcher } from '@/lib/utils'
 import { useState } from 'react'
 import { USER_TYPES } from '@/app/(auth)/auth'
+import { LayoutHeader, WriteButton } from '@/components/layout-header'
 
 interface PaginatedResponse {
   data: (Posts & {
@@ -31,7 +31,7 @@ interface PaginatedResponse {
 }
 
 export default function NewsLetterPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(6)
@@ -53,14 +53,6 @@ export default function NewsLetterPage() {
     sourceCount: post.viewCount,
   }))
 
-  const handleWriteClick = () => {
-    if (!session) {
-      router.push('/auth/signin')
-      return
-    }
-    router.push('/news-letter/write')
-  }
-
   if (error) {
     return ErrorPage({
       title: '데이터를 불러오는 중 오류가 발생했습니다.',
@@ -69,63 +61,34 @@ export default function NewsLetterPage() {
     })
   }
 
-  if (isLoading) {
+  if (status === 'loading' || isLoading) {
     return (
       <>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">뉴스레터</h1>
-            <p className="text-gray-600 mt-2">
-              최신 뉴스와 인사이트를 확인해보세요
-            </p>
-          </div>
-          {/* 데스크톱에서만 보이는 버튼 */}
-          {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
-            <Button
-              onClick={handleWriteClick}
-              className="hidden md:flex items-center gap-2"
-            >
-              <PencilLineIcon className="size-4" />
-              뉴스 작성하기
-            </Button>
-          )}
-        </div>
-
+        <LayoutHeader
+          title="뉴스레터"
+          subtitle="최신 뉴스와 인사이트를 확인해보세요"
+          actions={
+            session?.user.types.includes(USER_TYPES.AI_ADMIN) ? (
+              <WriteButton href="/news-letter/write" text="뉴스 작성하기" />
+            ) : null
+          }
+        />
         <NewsSkeleton />
-
-        {/* 모바일에서만 보이는 floating 버튼 */}
-        <Button
-          onClick={handleWriteClick}
-          className="fixed bottom-6 right-6 z-50 sm:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
-          size="icon"
-        >
-          <PencilLineIcon className="size-6" />
-        </Button>
       </>
     )
   }
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">뉴스레터</h1>
-          <p className="text-gray-600 mt-2">
-            최신 뉴스와 인사이트를 확인해보세요
-          </p>
-        </div>
-        {/* 데스크톱에서만 보이는 버튼 */}
-        {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
-          <Button
-            onClick={handleWriteClick}
-            className="hidden md:flex items-center gap-2"
-          >
-            <PencilLineIcon className="size-4" />
-            뉴스 작성하기
-          </Button>
-        )}
-      </div>
-
+      <LayoutHeader
+        title="뉴스레터"
+        subtitle="최신 뉴스와 인사이트를 확인해보세요"
+        actions={
+          session?.user.types.includes(USER_TYPES.AI_ADMIN) ? (
+            <WriteButton href="/news-letter/write" text="뉴스 작성하기" />
+          ) : null
+        }
+      />
       <NewsList newsData={newsData} />
 
       {/* 페이지네이션 */}
@@ -166,17 +129,6 @@ export default function NewsLetterPage() {
             다음
           </Button>
         </div>
-      )}
-
-      {/* 모바일에서만 보이는 floating 버튼 */}
-      {session?.user.types.includes(USER_TYPES.AI_ADMIN) && (
-        <Button
-          onClick={handleWriteClick}
-          className="fixed bottom-6 right-6 z-50 md:hidden rounded-full size-14 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
-          size="icon"
-        >
-          <PencilLineIcon className="size-6" />
-        </Button>
       )}
     </>
   )
