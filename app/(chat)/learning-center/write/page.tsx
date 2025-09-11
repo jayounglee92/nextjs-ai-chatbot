@@ -16,15 +16,16 @@ import {
   showSuccessToast,
 } from '@/lib/toast-utils'
 import type { PostContents } from '@/lib/db/schema'
-import { validatePostContentsCreate } from '@/lib/validators/post-contents'
+import {
+  MAX_TAGS_COUNT,
+  validatePostContentsCreate,
+} from '@/lib/validators/post-contents'
 import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { USER_TYPES } from '@/app/(auth)/auth'
-
-const MAX_TAGS_COUNT = 6
 
 export default function Page() {
   const { data: session } = useSession()

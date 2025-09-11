@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+export const MAX_TAGS_COUNT = 6
+
 const POST_MESSAGES = {
   TITLE_REQUIRED: '제목은 필수입니다',
   CONTENT_REQUIRED: '내용은 필수입니다',
