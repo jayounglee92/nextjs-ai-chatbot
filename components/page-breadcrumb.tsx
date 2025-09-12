@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -26,12 +25,10 @@ export function PageBreadcrumb({ items, className = '' }: PageBreadcrumbProps) {
         {items.map((item, index) => (
           <Fragment key={item.label}>
             <BreadcrumbItem key={`${item.label}-${index}`}>
-              {index === items.length - 1 ? (
+              {index === items.length - 1 && !item.href ? (
                 <BreadcrumbPage>{item.label}</BreadcrumbPage>
               ) : (
-                <BreadcrumbLink href={item.href || '#'}>
-                  {item.label}
-                </BreadcrumbLink>
+                <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
               )}
             </BreadcrumbItem>
             {index !== items.length - 1 && <BreadcrumbSeparator />}

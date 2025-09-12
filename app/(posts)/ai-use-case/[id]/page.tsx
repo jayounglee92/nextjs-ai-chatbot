@@ -27,7 +27,7 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
-export default async function AiUseCaseDetailPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const session = await auth()
 
   if (!session) {

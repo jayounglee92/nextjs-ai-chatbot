@@ -1,45 +1,25 @@
-import { auth, USER_TYPES } from '@/app/(auth)/auth'
-import { forbidden } from 'next/navigation'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { getPostById } from '@/lib/db/queries'
 import { NewsActions } from './news-actions'
 import { PostMetaInfo } from '@/components/post-meta-info'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import Link from 'next/link'
-
-// API에서 받는 데이터 타입 (JOIN 결과)
-interface PostDetailData {
-  id: string
-  postId: string
-  content: string
-  category: string | null
-  tags: string[]
-  userId: string
-  title: string
-  createdAt: Date
-  updatedAt: Date
-  userEmail: string
-  readingTime: number
-}
-
 interface Props {
   params: Promise<{ id: string }>
 }
 
 export default async function Page({ params }: Props) {
-  const session = await auth()
-
   const { id } = await params
-  let post: PostDetailData | null = null
+  let newsData = null
 
   try {
-    post = (await getPostById({ id })) as PostDetailData | null
+    newsData = await getPostById({ id })
   } catch (error) {
     console.error('Failed to fetch news post:', error)
-    post = null
+    newsData = null
   }
 
-  if (!post) {
+  if (!newsData) {
     return (
       <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
         <div className="text-center">
@@ -66,24 +46,24 @@ export default async function Page({ params }: Props) {
       <div>
         <PageBreadcrumb items={[{ label: '뉴스레터', href: '/news-letter' }]} />
         <h1 className="text-4xl font-bold text-foreground my-6">
-          {post.title}
+          {newsData.title}
         </h1>
 
         {/* 메타 정보 */}
         <div className="flex justify-between">
           <PostMetaInfo
             items={[
-              { type: 'relativeTime', data: post.createdAt },
-              { type: 'readingTime', data: post.readingTime },
+              { type: 'relativeTime', data: newsData.createdAt },
+              { type: 'readingTime', data: newsData.readingTime },
             ]}
           />
-          <NewsActions postId={post.postId} />
+          <NewsActions postId={newsData.postId} />
         </div>
 
         {/* 태그 */}
-        {post.tags && post.tags.length > 0 && (
+        {newsData.tags && newsData.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
-            {post.tags.map((tag) => (
+            {newsData.tags.map((tag) => (
               <span
                 key={tag}
                 className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
@@ -97,7 +77,7 @@ export default async function Page({ params }: Props) {
       <hr className="my-10 border-t-2 border-primary" />
       {/* 컨텐츠 */}
 
-      <SimpleEditor viewMode={true} initialContent={post.content} />
+      <SimpleEditor viewMode={true} initialContent={newsData.content} />
     </div>
   )
 }

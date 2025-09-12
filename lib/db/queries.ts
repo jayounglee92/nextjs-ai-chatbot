@@ -49,6 +49,7 @@ import type {
   PostContentsWithTagsArray,
   PostContentsWithTagsArrayResponse,
 } from '../types'
+import type { OpenType, PostType } from '../validators/post-contents'
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -1466,11 +1467,11 @@ export async function savePost({
   summaryType?: 'ai_generated' | 'auto_truncated'
   thumbnailUrl?: string
   userId: string
-  postType: 'aiusecase' | 'learningcenter' | 'news'
+  postType: PostType
   visibility?: 'public' | 'private'
   viewCount?: number
   likeCount?: number
-  openType?: 'page' | 'modal' | 'new_tab'
+  openType?: openType
 }) {
   try {
     const now = new Date()
@@ -1605,7 +1606,7 @@ export async function updatePost({
   summaryType?: 'ai_generated' | 'auto_truncated'
   thumbnailUrl?: string
   visibility?: 'public' | 'private'
-  openType?: 'page' | 'modal' | 'new_tab'
+  openType?: openType
 }) {
   try {
     const updateData: Partial<Posts> = {
@@ -1676,6 +1677,8 @@ export async function incrementPostLikeCount({ id }: { id: string }) {
 export async function getPostById({ id }: { id: string }): Promise<{
   id: string
   postId: string
+  postType: PostType
+  openType: OpenType
   content: string
   category: string | null
   tags: string[]
@@ -1704,6 +1707,8 @@ export async function getPostById({ id }: { id: string }): Promise<{
         updatedAt: posts.updatedAt,
         // User에서 가져올 이메일
         userEmail: user.email,
+        postType: posts.postType,
+        openType: posts.openType,
       })
       .from(postContents)
       .leftJoin(posts, eq(postContents.postId, posts.id))
@@ -1752,8 +1757,8 @@ export async function savePostWithContents({
   tags?: string | null
   thumbnailUrl?: string
   userId: string
-  postType: 'aiusecase' | 'learningcenter' | 'news'
-  openType: 'page' | 'modal' | 'new_tab'
+  postType: PostType
+  openType: OpenType
   visibility?: 'public' | 'private'
   summary?: string
   summaryType?: 'ai_generated' | 'auto_truncated'

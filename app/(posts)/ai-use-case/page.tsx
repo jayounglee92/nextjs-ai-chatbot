@@ -1,8 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useSearchParams, redirect } from 'next/navigation'
-import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AiUseCaseList } from '@/components/ai-use-case-list'
 import { AiUseCaseSkeleton } from '@/components/ai-use-case-skeleton'
 import { SearchBar } from '@/components/search-bar'

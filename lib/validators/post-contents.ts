@@ -10,16 +10,40 @@ const POST_MESSAGES = {
   OPEN_TYPE_REQUIRED: '열기 타입은 필수입니다',
 }
 
+export const openType = {
+  page: 'page',
+  modal: 'modal',
+  new_tab: 'new_tab',
+} as const
+export type OpenType = keyof typeof openType
+
+export const POST_TYPE = {
+  aiusecase: {
+    path: 'ai-use-case',
+    openType: 'page',
+  },
+  news: {
+    path: 'news-letter',
+    openType: 'page',
+  },
+  learningcenter: {
+    path: 'learning-center',
+    openType: 'modal',
+  },
+} as const
+export type PostType = keyof typeof POST_TYPE
+export type PostTypePath = (typeof POST_TYPE)[PostType]['path']
+
 export const postContentsCreateSchema = z.object({
   title: z.string().min(1, POST_MESSAGES.TITLE_REQUIRED),
   content: z.string().min(1, POST_MESSAGES.CONTENT_REQUIRED),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
   thumbnailUrl: z.string().url(POST_MESSAGES.THUMBNAIL_REQUIRED),
-  postType: z.enum(['news', 'aiusecase', 'learningcenter'], {
+  postType: z.enum(Object.keys(POST_TYPE) as [PostType], {
     message: POST_MESSAGES.POST_TYPE_REQUIRED,
   }),
-  openType: z.enum(['page', 'modal', 'new_tab'], {
+  openType: z.enum(Object.keys(openType) as [OpenType], {
     message: POST_MESSAGES.OPEN_TYPE_REQUIRED,
   }),
 })
