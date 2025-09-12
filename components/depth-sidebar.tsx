@@ -9,27 +9,10 @@ import { SidebarHistory } from '@/components/sidebar-history'
 import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
 import Link from 'next/link'
-import {
-  WandSparklesIcon,
-  HomeIcon,
-  OrbitIcon,
-  FlaskConicalIcon,
-  NewspaperIcon,
-  SchoolIcon,
-} from 'lucide-react'
 import { PlusIcon } from './icons'
 import Image from 'next/image'
 import logo from '@/public/images/logo.png'
-
-// 메뉴 타입 정의
-type MenuType =
-  | 'home'
-  | 'space'
-  | 'ai-use-case'
-  | 'ai-lab'
-  | 'news-letter'
-  | 'learning-center'
-  | null
+import { routeConfig, type RouteItem } from '@/app/(auth)/auth.route.config'
 
 interface DepthSidebarProps {
   user: User | undefined
@@ -39,95 +22,47 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { setOpenMobile, open, setOpen, isMobile, openMobile } = useSidebar()
-  const [hoveredMenu, setHoveredMenu] = useState<MenuType>(null)
-  const [activeMenu, setActiveMenu] = useState<MenuType>('home')
+  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null)
+  const [activeMenu, setActiveMenu] = useState<string>('home')
 
   // 현재 경로에 따라 activeMenu 설정
   useEffect(() => {
-    if (pathname === '/') {
-      setActiveMenu('home')
-    } else if (pathname.startsWith('/ai-use-case')) {
-      setActiveMenu('ai-use-case')
-    } else if (pathname.startsWith('/space')) {
-      setActiveMenu('space')
-    } else if (pathname.startsWith('/ai-lab')) {
-      setActiveMenu('ai-lab')
-    } else if (pathname.startsWith('/news-letter')) {
-      setActiveMenu('news-letter')
-    } else if (pathname.startsWith('/learning-center')) {
-      setActiveMenu('learning-center')
+    const currentRoute = routeConfig.find((route) => {
+      if (route.url === pathname) return true
+      if (route.children) {
+        return route.children.some(
+          (child) =>
+            child.url && pathname.startsWith(child.url.replace(/\[.*?\]/g, '')),
+        )
+      }
+      return false
+    })
+
+    if (currentRoute) {
+      setActiveMenu(currentRoute.id)
     }
   }, [pathname])
 
   // 현재 사이드바가 열려있는지 확인 (모바일/데스크톱 상태에 따라)
   const isOpen = isMobile ? openMobile : open
 
-  // 메뉴 아이템 설정
-  const menuItems = [
-    {
-      id: 'home' as const,
-      label: '홈',
-      icon: HomeIcon,
-      hasSubmenu: true,
-    },
-    // {
-    //   id: 'space' as const,
-    //   label: '공간',
-    //   icon: OrbitIcon,
-    //   hasSubmenu: false,
-    // },
-    // {
-    //   id: 'ai-lab' as const,
-    //   label: 'AI Lab',
-    //   icon: FlaskConicalIcon,
-    //   hasSubmenu: false,
-    // },
-    {
-      id: 'ai-use-case' as const,
-      label: 'AI 활용 사례',
-      icon: WandSparklesIcon,
-      hasSubmenu: false,
-    },
-    {
-      id: 'news-letter' as const,
-      label: '뉴스레터',
-      icon: NewspaperIcon,
-      hasSubmenu: false,
-    },
-    {
-      id: 'learning-center' as const,
-      label: '학습센터',
-      icon: SchoolIcon,
-      hasSubmenu: false,
-    },
-  ]
+  // 사이드바에 표시할 메뉴 아이템들 (children이 있는 그룹만)
+  const sidebarMenuItems = routeConfig.filter((route) => route.type === 'group')
 
-  const handleMenuClick = (menuId: MenuType) => {
-    if (
-      menuId === 'ai-use-case' ||
-      menuId === 'space' ||
-      menuId === 'ai-lab' ||
-      menuId === 'news-letter' ||
-      menuId === 'learning-center'
-    ) {
-      setActiveMenu(menuId)
-      if (menuId === 'ai-use-case') {
-        router.push('/ai-use-case')
-      } else if (menuId === 'space') {
-        router.push('/space')
-      } else if (menuId === 'ai-lab') {
-        router.push('/ai-lab')
-      } else if (menuId === 'news-letter') {
-        router.push('/news-letter')
-      } else if (menuId === 'learning-center') {
-        router.push('/learning-center')
-      }
-    } else {
-      setActiveMenu(menuId)
-      if (menuId === 'home') {
-        router.push('/')
+  const handleMenuClick = (route: RouteItem) => {
+    setActiveMenu(route.id)
+
+    // URL이 있는 경우 해당 URL로 이동
+    if (route.url) {
+      router.push(route.url)
+    } else if (route.children && route.children.length > 0) {
+      // children이 있는 경우 첫 번째 child의 URL로 이동
+      const firstChild = route.children.find((child) => child.url)
+      if (firstChild?.url) {
+        router.push(firstChild.url)
       }
     }
+
     // 모바일에서만 사이드바 닫기
     if (isMobile) {
       setOpenMobile(false)
@@ -203,22 +138,27 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
                 >
                   <PlusIcon />
                 </Button>
-                {menuItems.map((item) => (
-                  <Button
-                    key={item.id}
-                    variant={activeMenu === item.id ? 'secondary' : 'ghost'}
-                    size="sm"
-                    className="flex flex-col size-16 gap-1 p-0 text-md text-left text-gray-700"
-                    onClick={() => handleMenuClick(item.id)}
-                    onMouseEnter={() =>
-                      item.hasSubmenu && setHoveredMenu(item.id)
-                    }
-                    onMouseLeave={() => setHoveredMenu(null)}
-                  >
-                    <item.icon className="!h-6 !w-6 shrink-0" />
-                    <span className="text-xs">{item.label}</span>
-                  </Button>
-                ))}
+                {sidebarMenuItems.map((route) => {
+                  const IconComponent = route.icon
+                  return (
+                    <Button
+                      key={route.id}
+                      variant={activeMenu === route.id ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="flex flex-col size-16 gap-1 p-0 text-md text-left text-gray-700"
+                      onClick={() => handleMenuClick(route)}
+                      onMouseEnter={() =>
+                        route.hasSubMenu && setHoveredMenu(route.id)
+                      }
+                      onMouseLeave={() => setHoveredMenu(null)}
+                    >
+                      {IconComponent && (
+                        <IconComponent className="!h-6 !w-6 shrink-0" />
+                      )}
+                      <span className="text-xs">{route.title}</span>
+                    </Button>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -257,6 +197,32 @@ export function DepthSidebar({ user }: DepthSidebarProps) {
               <div className="flex-1 overflow-hidden">
                 {hoveredMenu === 'home' && (
                   <SidebarHistory user={user} visibilityFilter="all" />
+                )}
+                {hoveredMenu && hoveredMenu !== 'home' && (
+                  <div className="p-4">
+                    <div className="space-y-2">
+                      {routeConfig
+                        .find((route) => route.id === hoveredMenu)
+                        ?.children?.filter(
+                          (child) => child.url && !child.url.includes('['),
+                        )
+                        .map((child) => (
+                          <Link
+                            key={child.id}
+                            href={child.url!}
+                            className="block px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors"
+                            onClick={() => {
+                              if (isMobile) {
+                                setOpenMobile(false)
+                              }
+                              setHoveredMenu(null)
+                            }}
+                          >
+                            {child.title}
+                          </Link>
+                        ))}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
