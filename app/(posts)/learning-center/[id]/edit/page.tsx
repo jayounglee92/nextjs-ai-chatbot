@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, forbidden } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
@@ -23,6 +23,7 @@ import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
 import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 interface PostDetailData {
   id: string
@@ -39,9 +40,16 @@ interface PostDetailData {
 }
 
 export default function Page() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
+
+  if (
+    status === 'authenticated' &&
+    !session?.user.types.includes(USER_TYPES.AI_ADMIN)
+  ) {
+    forbidden()
+  }
 
   const { mutate } = useSWRConfig()
   const [title, setTitle] = useState<string | null>(null)
@@ -163,7 +171,7 @@ export default function Page() {
     }
   }
 
-  if (isLoading || status === 'loading') {
+  if (isLoading) {
     return <EditorFormSkeleton />
   }
 
@@ -202,8 +210,8 @@ export default function Page() {
 
       {/* 제목 입력 필드 */}
       <div className="mb-6">
-        <Label htmlFor="title" className="text-sm font-medium block mb-2">
-          제목 <span className="text-red-500">*</span>
+        <Label htmlFor="title" className="sr-only">
+          제목
         </Label>
         <Input
           id="title"

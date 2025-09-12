@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, forbidden } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
 import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 // API에서 받는 데이터 타입 (getPostById 반환 타입)
 interface PostDetailData {
@@ -43,6 +44,13 @@ export default function Page() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
+
+  if (
+    status === 'authenticated' &&
+    !session?.user.types.includes(USER_TYPES.AI_ADMIN)
+  ) {
+    forbidden()
+  }
 
   const { mutate } = useSWRConfig()
   const [title, setTitle] = useState<string | null>(null)
@@ -163,7 +171,7 @@ export default function Page() {
     }
   }
 
-  if (isLoading || status === 'loading') {
+  if (isLoading) {
     return <EditorFormSkeleton />
   }
 

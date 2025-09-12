@@ -56,14 +56,6 @@ export default function AiUseCasePage() {
   const aiUseCases = response?.data || []
   const pagination = response?.pagination
 
-  useEffect(() => {
-    if (status === 'loading') return
-
-    if (!session) {
-      redirect('/login')
-    }
-  }, [session, status, router])
-
   if (status === 'loading' || isLoading) {
     return (
       <>

@@ -32,6 +32,13 @@ export default function Page() {
   const router = useRouter()
   const { mutate } = useSWRConfig()
 
+  if (
+    status === 'authenticated' &&
+    !session?.user.types.includes(USER_TYPES.AI_ADMIN)
+  ) {
+    forbidden()
+  }
+
   // 폼 상태
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -123,8 +130,8 @@ export default function Page() {
 
       {/* 제목 입력 필드 */}
       <div className="space-y-1">
-        <Label htmlFor="title" className="text-sm font-medium">
-          제목 <span className="text-red-500">*</span>
+        <Label htmlFor="title" className="sr-only">
+          제목
         </Label>
         <Input
           id="title"

@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { useRouter } from 'next/navigation'
+import { forbidden, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,11 +20,19 @@ import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { TagInput } from '@/components/tag-input'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 export default function Page() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { mutate } = useSWRConfig()
+
+  if (
+    status === 'authenticated' &&
+    !session?.user.types.includes(USER_TYPES.AI_ADMIN)
+  ) {
+    forbidden()
+  }
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')

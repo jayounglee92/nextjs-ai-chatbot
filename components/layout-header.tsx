@@ -11,7 +11,7 @@ export function WriteButton({
   return (
     <Link
       href={href}
-      className="fixed bottom-6 right-6 z-50 size-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm bg-primary text-primary-foreground hover:bg-primary/90 md:static md:rounded-lg md:h-10 md:w-auto md:px-4"
+      className="fixed bottom-6 right-6 z-50 size-14 rounded-full shadow-lg md:shadow-none hover:shadow-xl transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm bg-primary text-primary-foreground hover:bg-primary/90 md:static md:rounded-lg md:h-8 md:w-auto md:px-4"
     >
       <PencilLineIcon className="size-4" />
       <span className="hidden md:block">{text}</span>

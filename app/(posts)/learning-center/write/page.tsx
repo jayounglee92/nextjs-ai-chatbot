@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { useRouter } from 'next/navigation'
+import { forbidden, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import * as React from 'react'
 import { Input } from '@/components/ui/input'
@@ -25,11 +25,19 @@ import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { USER_TYPES } from '@/app/(auth)/auth'
 
 export default function Page() {
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const router = useRouter()
   const { mutate } = useSWRConfig()
+
+  if (
+    status === 'authenticated' &&
+    !session?.user.types.includes(USER_TYPES.AI_ADMIN)
+  ) {
+    forbidden()
+  }
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -121,8 +129,8 @@ export default function Page() {
 
       {/* 제목 입력 필드 */}
       <div className="space-y-1">
-        <Label htmlFor="title" className="text-sm font-medium">
-          제목 <span className="text-red-500">*</span>
+        <Label htmlFor="title" className="sr-only">
+          제목
         </Label>
         <Input
           id="title"

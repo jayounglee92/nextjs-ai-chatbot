@@ -1,8 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { redirect, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   type LearningCenterDetailData,
   LearningList,
@@ -58,14 +57,6 @@ export default function Page() {
 
   const learningItems = response?.data
   const pagination = response?.pagination
-
-  useEffect(() => {
-    if (status === 'loading') return
-
-    if (!session) {
-      redirect('/login')
-    }
-  }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
     return (
