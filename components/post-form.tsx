@@ -19,7 +19,7 @@ import {
   validatePostContentsCreate,
   validatePostContentsUpdate,
   type Visibility,
-} from '@/lib/validators/post-contents'
+} from '@/app/(posts)/validator'
 import { generateAISummary } from '@/app/(posts)/actions'
 import sanitizeHtml from 'sanitize-html'
 import { formatValidationErrors } from '@/lib/utils'
@@ -30,7 +30,7 @@ import {
   type PostType,
   type OpenType,
   POST_TYPE,
-} from '@/lib/validators/post-contents'
+} from '@/app/(posts)/validator'
 import { Button } from './ui/button'
 import { InfoIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'

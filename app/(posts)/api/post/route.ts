@@ -8,16 +8,12 @@ import {
   updatePostContents,
   deletePostContentsById,
 } from '@/lib/db/queries'
-import type {
-  PostType,
-  SummaryType,
-  Visibility,
-} from '@/lib/validators/post-contents'
+import type { PostType, SummaryType, Visibility } from '@/app/(posts)/validator'
 
 import {
   postContentsUpdateSchema,
   validatePostContentsCreate,
-} from '@/lib/validators/post-contents'
+} from '@/app/(posts)/validator'
 
 // GET: 포스트 목록 조회 또는 단일 포스트 조회
 export async function GET(request: NextRequest) {
