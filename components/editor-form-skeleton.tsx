@@ -2,7 +2,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function EditorFormSkeleton() {
   return (
-    <>
+    <div className="max-w-4xl mx-auto">
+      {/* 브레드크럼 스켈레톤 */}
+      <div className="mb-6">
+        <Skeleton className="h-4 w-16" />
+      </div>
+
       {/* 제목 라벨 스켈레톤 */}
       <div className="mb-2">
         <Skeleton className="h-4 w-16" />
@@ -75,6 +80,6 @@ export function EditorFormSkeleton() {
           <Skeleton className="h-10 w-20" />
         </div>
       </div>
-    </>
+    </div>
   )
 }
