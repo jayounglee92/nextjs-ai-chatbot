@@ -19,6 +19,9 @@ import {
   validatePostContentsCreate,
   validatePostContentsUpdate,
   type Visibility,
+  type PostType,
+  type OpenType,
+  POST_TYPE,
 } from '@/app/(posts)/validator'
 import { generateAISummary } from '@/app/(posts)/actions'
 import sanitizeHtml from 'sanitize-html'
@@ -26,11 +29,6 @@ import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
-import {
-  type PostType,
-  type OpenType,
-  POST_TYPE,
-} from '@/app/(posts)/validator'
 import { Button } from './ui/button'
 import { InfoIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
@@ -375,7 +373,7 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
               </Button>
               {isGeneratingSummary && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
+                  <div className="animate-spin rounded-full size-4 border-2 border-blue-600 border-t-transparent" />
                   <span>AI가 요약을 생성하고 있습니다...</span>
                 </div>
               )}

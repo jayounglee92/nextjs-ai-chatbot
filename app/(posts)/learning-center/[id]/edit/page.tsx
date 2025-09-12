@@ -75,8 +75,8 @@ export default async function Page({ params }: PageProps) {
           thumbnailUrl: learningData.thumbnailUrl || '',
           category: learningData.category || '',
           tags: learningData.tags || [],
-          openType: learningData.openType,
-          visibility: learningData.visibility,
+          openType: learningData.openType || 'modal',
+          visibility: learningData.visibility || 'private',
           summaryType: learningData.summaryType || 'auto_truncated',
           summary: learningData.summary || '',
         }}

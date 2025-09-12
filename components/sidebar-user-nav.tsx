@@ -107,12 +107,12 @@ export function SidebarUserNav({ user }: { user: User }) {
                 >
                   {status === 'unauthenticated' ? (
                     <>
-                      <LogInIcon className="w-4 h-4" />
+                      <LogInIcon className="size-4" />
                       로그인
                     </>
                   ) : (
                     <>
-                      <LogOutIcon className="w-4 h-4" />
+                      <LogOutIcon className="size-4" />
                       로그아웃
                     </>
                   )}

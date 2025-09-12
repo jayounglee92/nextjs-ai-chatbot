@@ -75,8 +75,8 @@ export default async function Page({ params }: PageProps) {
           thumbnailUrl: newsData.thumbnailUrl || '',
           category: newsData.category || '',
           tags: newsData.tags || [],
-          openType: newsData.openType,
-          visibility: newsData.visibility,
+          openType: newsData.openType || 'page',
+          visibility: newsData.visibility || 'private',
           summaryType: newsData.summaryType || 'auto_truncated',
           summary: newsData.summary || '',
         }}

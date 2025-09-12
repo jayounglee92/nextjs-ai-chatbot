@@ -52,8 +52,9 @@ import type {
 import type {
   OpenType,
   PostType,
+  SummaryType,
   Visibility,
-} from '../validators/post-contents'
+} from '../../app/(posts)/validator'
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -106,11 +107,12 @@ export async function createUser(
 }
 
 export async function createGuestUser() {
+  const id = generateUUID()
   const email = `guest-${Date.now()}`
   const password = generateHashedPassword(generateUUID())
 
   try {
-    return await db.insert(user).values({ email, password }).returning({
+    return await db.insert(user).values({ id, email, password }).returning({
       id: user.id,
       email: user.email,
     })
@@ -1261,7 +1263,7 @@ export async function getAllPostContents({
           ilike(postContents.content, searchTerm),
           ilike(postContents.category, searchTerm),
           ilike(postContents.tags, searchTerm),
-        ),
+        )!,
       )
     }
 
@@ -1692,8 +1694,8 @@ export async function incrementPostLikeCount({ id }: { id: string }) {
 export async function getPostById({ id }: { id: string }): Promise<{
   id: string
   postId: string
-  postType: PostType
-  openType: OpenType
+  postType: PostType | null
+  openType: OpenType | null
   content: string
   category: string | null
   tags: string[]
@@ -1705,8 +1707,8 @@ export async function getPostById({ id }: { id: string }): Promise<{
   userEmail: string | null
   readingTime: number
   summary: string | null
-  summaryType: 'ai_generated' | 'auto_truncated'
-  visibility: Visibility
+  summaryType: 'ai_generated' | 'auto_truncated' | null
+  visibility: Visibility | null
 } | null> {
   try {
     const [selectedPost] = await db
@@ -1782,7 +1784,7 @@ export async function savePostWithContents({
   openType: OpenType
   visibility?: Visibility
   summary?: string
-  summaryType?: 'ai_generated' | 'auto_truncated'
+  summaryType?: SummaryType
 }) {
   try {
     const now = new Date()

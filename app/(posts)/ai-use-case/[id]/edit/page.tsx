@@ -75,8 +75,8 @@ export default async function Page({ params }: PageProps) {
           thumbnailUrl: useCase.thumbnailUrl || '',
           category: useCase.category || '',
           tags: useCase.tags || [],
-          openType: useCase.openType,
-          visibility: useCase.visibility,
+          openType: useCase.openType || 'page',
+          visibility: useCase.visibility || 'private',
           summaryType: useCase.summaryType || 'auto_truncated',
           summary: useCase.summary || '',
         }}

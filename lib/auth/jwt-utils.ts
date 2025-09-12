@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import { decode } from 'jsonwebtoken'
 
 /**
  * JWT 토큰 디코딩 유틸리티
@@ -41,7 +41,7 @@ interface KeycloakTokenPayload {
  */
 export function extractRolesFromToken(token: string): string[] {
   try {
-    const decoded = jwt.decode(token, { complete: true })
+    const decoded = decode(token, { complete: true })
     if (!decoded || !decoded.payload) {
       console.error('❌ JWT 토큰 디코딩 실패: 유효하지 않은 토큰')
       return []
