@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams, forbidden } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
@@ -23,9 +23,7 @@ import { validatePostContentsUpdate } from '@/lib/validators/post-contents'
 import { toast } from 'sonner'
 import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
-import { USER_TYPES } from '@/app/(auth)/auth'
 
-// API에서 받는 데이터 타입 (getPostById 반환 타입)
 interface PostDetailData {
   id: string
   postId: string
@@ -44,6 +42,7 @@ export default function Page() {
   const { data: session } = useSession()
   const router = useRouter()
   const params = useParams()
+
   const { mutate } = useSWRConfig()
   const [title, setTitle] = useState<string | null>(null)
   const [content, setContent] = useState<string | null>(null)
@@ -52,13 +51,9 @@ export default function Page() {
   const [tags, setTags] = useState<string[] | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
-    forbidden()
-  }
-
-  // SWR을 사용하여 뉴스 데이터 조회
+  // SWR을 사용하여 학습 센터 데이터 조회
   const {
-    data: newsPost,
+    data: learningPost,
     error,
     isLoading,
   } = useSWR<PostDetailData>(
@@ -84,18 +79,19 @@ export default function Page() {
         }
       },
       onError: (error) => {
-        console.error('Failed to fetch news post:', error)
+        console.error('Failed to fetch learning post:', error)
       },
     },
   )
 
   // 실제 사용할 값들 계산
-  const currentTitle = title !== null ? title : newsPost?.title
-  const currentContent = content !== null ? content : newsPost?.content
+  const currentTitle = title !== null ? title : learningPost?.title
+  const currentContent = content !== null ? content : learningPost?.content
   const currentThumbnailUrl =
-    thumbnailUrl !== null ? thumbnailUrl : newsPost?.thumbnailUrl
-  const currentCategory = category !== null ? category : newsPost?.category
-  const currentTags = tags !== null ? tags : newsPost?.tags || []
+    thumbnailUrl !== null ? thumbnailUrl : learningPost?.thumbnailUrl
+  const currentCategory = category !== null ? category : learningPost?.category
+  const currentTags = tags !== null ? tags : learningPost?.tags || []
+
   const isDisabledSaveButton =
     isSubmitting || !currentTitle?.trim() || !currentThumbnailUrl
 
@@ -106,8 +102,8 @@ export default function Page() {
       category: currentCategory?.trim(),
       tags: currentTags,
       thumbnailUrl: currentThumbnailUrl,
-      postType: 'news',
-      openType: 'page',
+      postType: 'learningcenter',
+      openType: 'modal',
     }
     // 유효성 검사
     const validation = validatePostContentsUpdate(payload)
@@ -133,8 +129,8 @@ export default function Page() {
 
           if (!response.ok) {
             await handleApiError(response, router, {
-              forbiddenMessage: '본인이 작성한 뉴스만 수정할 수 있습니다',
-              notFoundMessage: '삭제되었거나 존재하지 않는 뉴스입니다',
+              forbiddenMessage: '본인이 작성한 학습 자료만 수정할 수 있습니다',
+              notFoundMessage: '삭제되었거나 존재하지 않는 학습 자료입니다',
               validationMessage:
                 '제목과 내용을 올바르게 입력했는지 확인해보세요',
             })
@@ -142,14 +138,14 @@ export default function Page() {
             return currentData
           }
 
-          const updatedNews = await response.json()
+          const updatedLearning = await response.json()
 
           // ✅ 성공 케이스
           showSuccessToast('성공적으로 수정되었습니다!')
-          router.push(`/news-letter/${params.id}`)
+          router.back()
 
           // 업데이트된 데이터를 캐시에 반영 (낙관적 업데이트)
-          return updatedNews
+          return updatedLearning
         },
         {
           // 자동 재검증 활성화 (서버에서 최신 데이터 확인)
@@ -167,26 +163,30 @@ export default function Page() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || status === 'loading') {
     return <EditorFormSkeleton />
   }
 
   if (error) {
     return ErrorPage({
       title: '오류가 발생했습니다',
-      description: error.message || '뉴스를 불러오는데 실패했습니다.',
+      description: error.message || '학습 자료를 불러오는데 실패했습니다.',
       actions: (
-        <Button onClick={() => router.push('/news-letter')}>목록으로</Button>
+        <Button onClick={() => router.push('/learning-center')}>
+          목록으로
+        </Button>
       ),
     })
   }
 
-  if (!newsPost) {
+  if (!learningPost) {
     return ErrorPage({
-      title: '뉴스를 찾을 수 없습니다',
-      description: '요청하신 ID의 뉴스가 존재하지 않습니다.',
+      title: '학습 자료를 찾을 수 없습니다',
+      description: '요청하신 ID의 학습 자료가 존재하지 않습니다.',
       actions: (
-        <Button onClick={() => router.push('/news-letter')}>목록으로</Button>
+        <Button onClick={() => router.push('/learning-center')}>
+          목록으로
+        </Button>
       ),
     })
   }
@@ -195,7 +195,7 @@ export default function Page() {
     <div className="space-y-5">
       <PageBreadcrumb
         items={[
-          { label: '뉴스레터', href: '/news-letter' },
+          { label: '학습센터', href: '/learning-center' },
           { label: '수정하기' },
         ]}
       />
@@ -280,7 +280,7 @@ export default function Page() {
           {
             onClick: () => {
               if (confirm('정말로 취소하시겠습니까?')) {
-                router.push(`/news-letter/${params.id}`)
+                router.back()
               }
             },
             text: '취소',

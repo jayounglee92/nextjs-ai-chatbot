@@ -3,9 +3,8 @@
 import { useSession } from 'next-auth/react'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
-import { forbidden, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import * as React from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
@@ -15,49 +14,34 @@ import {
   handleApiError,
   showSuccessToast,
 } from '@/lib/toast-utils'
-import type { PostContents } from '@/lib/db/schema'
-import {
-  MAX_TAGS_COUNT,
-  validatePostContentsCreate,
-} from '@/lib/validators/post-contents'
+import { validatePostContentsCreate } from '@/lib/validators/post-contents'
 import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
-import { TagInput } from '@/components/tag-input'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
-import { USER_TYPES } from '@/app/(auth)/auth'
+import { TagInput } from '@/components/tag-input'
 
 export default function Page() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const { mutate } = useSWRConfig()
 
-  // 폼 상태
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [category, setCategory] = useState('')
   const [tags, setTags] = useState<string[]>([])
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const isDisabledSaveButton = isSubmitting || !title?.trim() || !thumbnailUrl
 
-  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
-    forbidden()
-  }
-
-  // 유효성 검사
-  const isDisabledSaveButton = React.useMemo(
-    () => isSubmitting || !title?.trim() || !thumbnailUrl,
-    [isSubmitting, title, thumbnailUrl],
-  )
-
-  const handleSubmit = React.useCallback(async () => {
+  const handleSubmit = async () => {
     const payload = {
       title: title.trim(),
       content: content.trim(),
       category: category.trim(),
       tags,
       thumbnailUrl,
-      postType: 'news',
+      postType: 'aiusecase',
       openType: 'page',
     }
     const validation = validatePostContentsCreate(payload)
@@ -74,7 +58,7 @@ export default function Page() {
       // SWR mutate를 사용한 낙관적 업데이트
       await mutate(
         '/api/post',
-        async (currentData: PostContents[] | undefined) => {
+        async (currentData: any) => {
           // 서버에 POST 요청
           const response = await fetch('/api/post', {
             method: 'POST',
@@ -91,15 +75,15 @@ export default function Page() {
             return currentData
           }
 
-          const newPostContents = await response.json()
+          const newAiUseCase = await response.json()
 
           // ✅ 성공 케이스
           showSuccessToast('성공적으로 저장되었습니다!')
-          router.push('/news-letter')
+          router.push('/ai-use-case')
 
           // 새로운 데이터를 캐시에 추가 (낙관적 업데이트)
           if (Array.isArray(currentData)) {
-            return [newPostContents, ...currentData]
+            return [newAiUseCase, ...currentData]
           }
           return currentData
         },
@@ -114,21 +98,21 @@ export default function Page() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [title, content, category, tags, mutate, router, thumbnailUrl])
+  }
 
   return (
     <div className="space-y-5">
       <PageBreadcrumb
         items={[
-          { label: '뉴스레터', href: '/news-letter' },
+          { label: 'AI 활용 사례', href: '/ai-use-case' },
           { label: '작성하기' },
         ]}
       />
 
       {/* 제목 입력 필드 */}
-      <div className="space-y-1">
-        <Label htmlFor="title" className="text-sm font-medium">
-          제목 <span className="text-red-500">*</span>
+      <div className="mb-6">
+        <Label htmlFor="title" className="sr-only">
+          제목
         </Label>
         <Input
           id="title"
@@ -136,7 +120,7 @@ export default function Page() {
           placeholder="제목을 입력하세요"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full !text-lg h-12 mt-1"
+          className="w-full !text-lg h-12"
         />
       </div>
 
@@ -148,8 +132,8 @@ export default function Page() {
       </div>
 
       {/* 썸네일 업로드 */}
-      <div className="space-y-1">
-        <Label htmlFor="thumbnail" className="text-sm font-medium">
+      <div className="flex gap-4 mt-6">
+        <Label className="text-sm font-medium block break-keep">
           썸네일 이미지 <span className="text-red-500">*</span>
         </Label>
         <ThumbnailUpload
@@ -172,27 +156,30 @@ export default function Page() {
       </div>
 
       {/* 카테고리 입력 */}
-      <div className="space-y-1">
-        <Label htmlFor="category" className="text-sm font-medium">
+      <div className="mb-6">
+        <Label htmlFor="category" className="text-sm font-medium block mb-2">
           카테고리
         </Label>
         <Input
           id="category"
           type="text"
-          placeholder="카테고리를 입력하세요 (예: 기술, 비즈니스, 트렌드 등)"
+          placeholder="카테고리를 입력하세요"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full mt-1"
+          className="w-full"
         />
       </div>
 
       {/* 태그 입력 */}
-      <TagInput
-        tags={tags}
-        onTagsChange={setTags}
-        maxTags={MAX_TAGS_COUNT}
-        className="mt-6"
-      />
+      <div className="mb-6">
+        <TagInput
+          tags={tags}
+          onTagsChange={setTags}
+          label="태그"
+          placeholder="태그를 입력하고 Enter를 누르세요"
+          maxTags={10}
+        />
+      </div>
 
       {/* 저장 버튼 */}
       <FixedBottomButtons
@@ -200,7 +187,7 @@ export default function Page() {
           {
             onClick: () => {
               if (confirm('정말로 취소하시겠습니까?') === false) return
-              router.push(`/news-letter`)
+              router.push(`/ai-use-case`)
             },
             text: '취소',
             variant: 'outline',

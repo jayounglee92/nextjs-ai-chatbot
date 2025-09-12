@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { X } from 'lucide-react'
@@ -58,6 +59,9 @@ export function LearningVideoDialog({
                 />
               )}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              {learningItem.summary}
+            </DialogDescription>
             <DialogClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
               <X className="size-5 lg:size-6" />
               <span className="sr-only">Close</span>

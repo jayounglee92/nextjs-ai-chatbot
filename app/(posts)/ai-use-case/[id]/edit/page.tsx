@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams, forbidden } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
@@ -23,7 +23,6 @@ import { toast } from 'sonner'
 import { TagInput } from '@/components/tag-input'
 import { EditorFormSkeleton } from '@/components/editor-form-skeleton'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
-import { USER_TYPES } from '@/app/(auth)/auth'
 
 // API에서 받는 데이터 타입 (getPostById 반환 타입)
 interface PostDetailData {
@@ -44,6 +43,7 @@ export default function Page() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
+
   const { mutate } = useSWRConfig()
   const [title, setTitle] = useState<string | null>(null)
   const [content, setContent] = useState<string | null>(null)
@@ -51,10 +51,6 @@ export default function Page() {
   const [category, setCategory] = useState<string | null>(null)
   const [tags, setTags] = useState<string[] | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
-    forbidden()
-  }
 
   // SWR을 사용하여 AI 활용사례 데이터 조회
   const {
@@ -167,7 +163,7 @@ export default function Page() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || status === 'loading') {
     return <EditorFormSkeleton />
   }
 

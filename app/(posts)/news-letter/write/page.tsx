@@ -28,19 +28,17 @@ import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { USER_TYPES } from '@/app/(auth)/auth'
 
 export default function Page() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const { mutate } = useSWRConfig()
+
+  // 폼 상태
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [category, setCategory] = useState('')
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [tags, setTags] = useState<string[]>([])
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
-    forbidden()
-  }
 
   // 유효성 검사
   const isDisabledSaveButton = React.useMemo(
@@ -55,8 +53,8 @@ export default function Page() {
       category: category.trim(),
       tags,
       thumbnailUrl,
-      postType: 'learningcenter',
-      openType: 'modal',
+      postType: 'news',
+      openType: 'page',
     }
     const validation = validatePostContentsCreate(payload)
 
@@ -93,7 +91,7 @@ export default function Page() {
 
           // ✅ 성공 케이스
           showSuccessToast('성공적으로 저장되었습니다!')
-          router.push('/learning-center')
+          router.push('/news-letter')
 
           // 새로운 데이터를 캐시에 추가 (낙관적 업데이트)
           if (Array.isArray(currentData)) {
@@ -118,7 +116,7 @@ export default function Page() {
     <div className="space-y-5">
       <PageBreadcrumb
         items={[
-          { label: '학습센터', href: '/learning-center' },
+          { label: '뉴스레터', href: '/news-letter' },
           { label: '작성하기' },
         ]}
       />
@@ -131,7 +129,7 @@ export default function Page() {
         <Input
           id="title"
           type="text"
-          placeholder="학습 자료의 제목을 입력하세요"
+          placeholder="제목을 입력하세요"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full !text-lg h-12 mt-1"
@@ -153,8 +151,6 @@ export default function Page() {
         <ThumbnailUpload
           imageUrl={thumbnailUrl || undefined}
           onImageChange={setThumbnailUrl}
-          aspectRatio="16:9"
-          maxHeight={180}
           uploadOptions={{
             maxSize: 5 * 1024 * 1024, // 5MB
             limit: 1,
@@ -171,7 +167,7 @@ export default function Page() {
         />
       </div>
 
-      {/* 카테고리 선택 */}
+      {/* 카테고리 입력 */}
       <div className="space-y-1">
         <Label htmlFor="category" className="text-sm font-medium">
           카테고리
@@ -200,7 +196,7 @@ export default function Page() {
           {
             onClick: () => {
               if (confirm('정말로 취소하시겠습니까?') === false) return
-              router.push(`/learning-center`)
+              router.push(`/news-letter`)
             },
             text: '취소',
             variant: 'outline',

@@ -7,6 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { Fragment } from 'react'
 
 interface BreadcrumbItemData {
   label: string
@@ -23,24 +24,18 @@ export function PageBreadcrumb({ items, className = '' }: PageBreadcrumbProps) {
     <Breadcrumb className={className}>
       <BreadcrumbList>
         {items.map((item, index) => (
-          <BreadcrumbItem key={`${item.label}-${index}`}>
-            {index === items.length - 1 ? (
-              <BreadcrumbPage>
-                {item.href ? (
-                  <Link href={item.href || '#'}>{item.label}</Link>
-                ) : (
-                  item.label
-                )}
-              </BreadcrumbPage>
-            ) : (
-              <>
-                <BreadcrumbLink asChild>
-                  <Link href={item.href || '#'}>{item.label}</Link>
+          <Fragment key={item.label}>
+            <BreadcrumbItem key={`${item.label}-${index}`}>
+              {index === items.length - 1 ? (
+                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink href={item.href || '#'}>
+                  {item.label}
                 </BreadcrumbLink>
-                <BreadcrumbSeparator />
-              </>
-            )}
-          </BreadcrumbItem>
+              )}
+            </BreadcrumbItem>
+            {index !== items.length - 1 && <BreadcrumbSeparator />}
+          </Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

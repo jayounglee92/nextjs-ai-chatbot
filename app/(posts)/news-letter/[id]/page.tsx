@@ -29,10 +29,6 @@ interface Props {
 export default async function Page({ params }: Props) {
   const session = await auth()
 
-  if (!session?.user.types.includes(USER_TYPES.AI_ADMIN)) {
-    forbidden()
-  }
-
   const { id } = await params
   let post: PostDetailData | null = null
 
