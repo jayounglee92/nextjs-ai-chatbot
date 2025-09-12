@@ -1,13 +1,13 @@
 import { auth } from '@/app/(auth)/auth'
 import { redirect } from 'next/navigation'
-import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import { getPostById } from '@/lib/db/queries'
-import Link from 'next/link'
-import { AiUseCaseActions } from './ai-use-case-actions'
-import { PostMetaInfo } from '@/components/post-meta-info'
-import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import type { Metadata, ResolvingMetadata } from 'next'
 import { generatePostMetadata } from '@/lib/metadata-utils'
+import { InfoLayout } from '@/components/info-layout'
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { PostMetaInfo } from '@/components/post-meta-info'
+import { AiUseCaseActions } from './ai-use-case-actions'
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -40,23 +40,16 @@ export default async function Page({ params }: Props) {
 
   if (!useCase) {
     return (
-      <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-xl font-semibold text-foreground mb-2">
-            AI 활용 사례를 찾을 수 없습니다
-          </h1>
-          <p className="text-muted-foreground mb-4">
-            요청하신 ID의 AI 활용 사례가 존재하지 않습니다.
-          </p>
-          <Link
-            href="/ai-use-case"
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
-            목록으로
-          </Link>
-        </div>
-      </div>
+      <InfoLayout
+        title="AI 활용 사례를 찾을 수 없습니다"
+        description="요청하신 ID의 AI 활용 사례가 존재하지 않습니다."
+        backLink="/ai-use-case"
+      />
     )
+  }
+
+  if (useCase.visibility === 'private') {
+    return <InfoLayout title="비공개 게시물입니다" backLink="/ai-use-case" />
   }
 
   return (

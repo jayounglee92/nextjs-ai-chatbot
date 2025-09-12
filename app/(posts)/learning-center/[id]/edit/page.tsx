@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation'
 import { auth, USER_TYPES } from '@/app/(auth)/auth'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { getPostById } from '@/lib/db/queries'
-import Link from 'next/link'
 import { PostForm } from '@/components/post-form'
+import { InfoLayout } from '@/components/info-layout'
 import type { Metadata, ResolvingMetadata } from 'next'
 import { generateEditMetadata } from '@/lib/metadata-utils'
 
@@ -38,22 +38,21 @@ export default async function Page({ params }: PageProps) {
 
   if (!learningData) {
     return (
-      <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-xl font-semibold text-foreground mb-2">
-            학습센터를 찾을 수 없습니다
-          </h1>
-          <p className="text-muted-foreground mb-4">
-            요청하신 ID의 학습자료가 존재하지 않습니다.
-          </p>
-          <Link
-            href="/learning-center"
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
-            목록으로
-          </Link>
-        </div>
-      </div>
+      <InfoLayout
+        title="학습센터를 찾을 수 없습니다"
+        description="요청하신 ID의 학습자료가 존재하지 않습니다."
+        backLink="/learning-center"
+      />
+    )
+  }
+
+  if (learningData.visibility === 'private') {
+    return (
+      <InfoLayout
+        title="비공개 게시물입니다"
+        description="비공개 게시물은 수정할 수 없습니다."
+        backLink="/learning-center"
+      />
     )
   }
 
@@ -77,6 +76,7 @@ export default async function Page({ params }: PageProps) {
           category: learningData.category || '',
           tags: learningData.tags || [],
           openType: learningData.openType,
+          visibility: learningData.visibility,
         }}
       />
     </div>

@@ -49,7 +49,11 @@ import type {
   PostContentsWithTagsArray,
   PostContentsWithTagsArrayResponse,
 } from '../types'
-import type { OpenType, PostType } from '../validators/post-contents'
+import type {
+  OpenType,
+  PostType,
+  Visibility,
+} from '../validators/post-contents'
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -1249,7 +1253,7 @@ export async function getAllPostContents({
     let totalCount: number
 
     const searchTerm = search && search.trim() ? `%${search.trim()}%` : null
-    const whereConditions = []
+    const whereConditions = [eq(posts.visibility, 'public')] // public인 게시물만 조회
 
     if (searchTerm) {
       whereConditions.push(
@@ -1265,13 +1269,13 @@ export async function getAllPostContents({
       whereConditions.push(eq(postContents.category, category))
     }
 
-    const finalWhereCondition =
-      whereConditions.length > 0 ? and(...whereConditions) : undefined
+    const finalWhereCondition = and(...whereConditions)
 
     const [dataResult, totalCountResult] = await Promise.all([
       db
         .select()
         .from(postContents)
+        .innerJoin(posts, eq(postContents.postId, posts.id))
         .where(finalWhereCondition)
         .orderBy(desc(postContents.createdAt))
         .limit(limit)
@@ -1279,13 +1283,14 @@ export async function getAllPostContents({
       db
         .select({ count: count() })
         .from(postContents)
+        .innerJoin(posts, eq(postContents.postId, posts.id))
         .where(finalWhereCondition),
     ])
 
     // tags를 쉼표로 구분된 문자열에서 배열로 변환
     data = dataResult.map((item) => ({
-      ...item,
-      tags: item.tags ? item.tags.split(',') : [],
+      ...item.PostContents,
+      tags: item.PostContents.tags ? item.PostContents.tags.split(',') : [],
     }))
     totalCount = totalCountResult[0]?.count || 0
 
@@ -1338,6 +1343,7 @@ export async function updatePostContents({
   thumbnailUrl,
   summary,
   summaryType = 'auto_truncated',
+  visibility,
 }: {
   id: string
   content?: string
@@ -1347,6 +1353,7 @@ export async function updatePostContents({
   thumbnailUrl?: string | null
   summary?: string
   summaryType?: 'ai_generated' | 'auto_truncated'
+  visibility?: Visibility
 }) {
   try {
     // PostContents 업데이트 데이터
@@ -1369,7 +1376,8 @@ export async function updatePostContents({
     if (
       title !== undefined ||
       thumbnailUrl !== undefined ||
-      content !== undefined
+      content !== undefined ||
+      visibility !== undefined
     ) {
       const postContentsRecord = updatedPostContents[0]
       if (postContentsRecord) {
@@ -1380,6 +1388,7 @@ export async function updatePostContents({
         if (title !== undefined) postsUpdateData.title = title
         if (thumbnailUrl !== undefined)
           postsUpdateData.thumbnailUrl = thumbnailUrl
+        if (visibility !== undefined) postsUpdateData.visibility = visibility
 
         // content가 변경된 경우 summary도 업데이트
         if (content !== undefined) {
@@ -1469,10 +1478,10 @@ export async function savePost({
   thumbnailUrl?: string
   userId: string
   postType: PostType
-  visibility?: 'public' | 'private'
+  visibility?: Visibility
   viewCount?: number
   likeCount?: number
-  openType?: openType
+  openType?: OpenType
 }) {
   try {
     const now = new Date()
@@ -1518,6 +1527,10 @@ export async function getAllPosts({
     const searchTerm = search && search.trim() ? `%${search.trim()}%` : null
     const whereConditions = []
 
+    // visibility 파라미터가 없으면 기본값으로 'public' 사용
+    const visibilityFilter = visibility || 'public'
+    whereConditions.push(eq(posts.visibility, visibilityFilter as Visibility))
+
     if (searchTerm) {
       whereConditions.push(
         or(ilike(posts.title, searchTerm), ilike(posts.summary, searchTerm)),
@@ -1528,12 +1541,7 @@ export async function getAllPosts({
       whereConditions.push(eq(posts.postType, postType as any))
     }
 
-    if (visibility) {
-      whereConditions.push(eq(posts.visibility, visibility as any))
-    }
-
-    const finalWhereCondition =
-      whereConditions.length > 0 ? and(...whereConditions) : undefined
+    const finalWhereCondition = and(...whereConditions)
 
     const [dataResult, totalCountResult] = await Promise.all([
       db
@@ -1606,8 +1614,8 @@ export async function updatePost({
   summary?: string
   summaryType?: 'ai_generated' | 'auto_truncated'
   thumbnailUrl?: string
-  visibility?: 'public' | 'private'
-  openType?: openType
+  visibility?: Visibility
+  openType?: OpenType
 }) {
   try {
     const updateData: Partial<Posts> = {
@@ -1691,6 +1699,7 @@ export async function getPostById({ id }: { id: string }): Promise<{
   userEmail: string | null
   readingTime: number
   summary: string | null
+  visibility: Visibility
 } | null> {
   try {
     const [selectedPost] = await db
@@ -1712,6 +1721,7 @@ export async function getPostById({ id }: { id: string }): Promise<{
         userEmail: user.email,
         postType: posts.postType,
         openType: posts.openType,
+        visibility: posts.visibility,
       })
       .from(postContents)
       .leftJoin(posts, eq(postContents.postId, posts.id))
@@ -1762,7 +1772,7 @@ export async function savePostWithContents({
   userId: string
   postType: PostType
   openType: OpenType
-  visibility?: 'public' | 'private'
+  visibility?: Visibility
   summary?: string
   summaryType?: 'ai_generated' | 'auto_truncated'
 }) {

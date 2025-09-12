@@ -34,6 +34,12 @@ export const POST_TYPE = {
 export type PostType = keyof typeof POST_TYPE
 export type PostTypePath = (typeof POST_TYPE)[PostType]['path']
 
+export const VISIBILITY = {
+  public: 'public',
+  private: 'private',
+} as const
+export type Visibility = keyof typeof VISIBILITY
+
 export const postContentsCreateSchema = z.object({
   title: z.string().min(1, POST_MESSAGES.TITLE_REQUIRED),
   content: z.string().min(1, POST_MESSAGES.CONTENT_REQUIRED),
@@ -46,6 +52,7 @@ export const postContentsCreateSchema = z.object({
   openType: z.enum(Object.keys(openType) as [OpenType], {
     message: POST_MESSAGES.OPEN_TYPE_REQUIRED,
   }),
+  visibility: z.enum(['public', 'private']).default('private'),
 })
 
 export const postContentsUpdateSchema = z.object({
@@ -60,6 +67,7 @@ export const postContentsUpdateSchema = z.object({
   openType: z.enum(['page', 'modal', 'new_tab'], {
     message: POST_MESSAGES.OPEN_TYPE_REQUIRED,
   }),
+  visibility: z.enum(['public', 'private']).default('private'),
 })
 
 export const postContentsQuerySchema = z.object({

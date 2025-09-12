@@ -6,6 +6,7 @@ import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { FixedBottomButtons } from '@/components/fixed-bottom-buttons'
 import { useSWRConfig } from 'swr'
 import {
@@ -16,6 +17,7 @@ import {
 import {
   validatePostContentsCreate,
   validatePostContentsUpdate,
+  type Visibility,
 } from '@/lib/validators/post-contents'
 import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
@@ -37,6 +39,7 @@ interface PostFormProps {
     category?: string
     tags?: string[]
     openType: OpenType
+    visibility?: Visibility
   }
   postType: PostType
 }
@@ -52,6 +55,9 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
   )
   const [category, setCategory] = useState(initialData?.category || '')
   const [tags, setTags] = useState(initialData?.tags || [])
+  const [visibility, setVisibility] = useState<Visibility>(
+    initialData?.visibility || 'private',
+  )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isDisabledSaveButton = isSubmitting || !title?.trim() || !thumbnailUrl
@@ -65,6 +71,7 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
       thumbnailUrl,
       postType,
       openType: POST_TYPE[postType].openType,
+      visibility,
     }
 
     const validation = validatePostContentsCreate(payload)
@@ -124,6 +131,7 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
       thumbnailUrl,
       postType,
       openType: initialData?.openType,
+      visibility,
     }
 
     const validation = validatePostContentsUpdate(payload)
@@ -256,6 +264,31 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
           placeholder="태그를 입력하고 Enter를 누르세요"
           maxTags={10}
         />
+      </div>
+
+      {/* 공개 설정 */}
+      <div className="mb-6">
+        <Label className="text-sm font-medium block mb-3">
+          공개 설정 <span className="text-red-500">*</span>
+        </Label>
+        <RadioGroup
+          value={visibility}
+          onValueChange={(value) => setVisibility(value as Visibility)}
+          className="flex gap-6"
+        >
+          <div className="flex items-center gap-2">
+            <RadioGroupItem value="public" id="public" />
+            <Label htmlFor="public" className="text-sm cursor-pointer">
+              공개
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <RadioGroupItem value="private" id="private" />
+            <Label htmlFor="private" className="text-sm cursor-pointer">
+              비공개
+            </Label>
+          </div>
+        </RadioGroup>
       </div>
 
       {/* 저장 버튼 */}

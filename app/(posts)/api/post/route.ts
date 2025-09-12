@@ -10,7 +10,9 @@ import {
 } from '@/lib/db/queries'
 import {
   postContentsUpdateSchema,
+  PostType,
   validatePostContentsCreate,
+  Visibility,
 } from '@/lib/validators/post-contents'
 
 // GET: 포스트 목록 조회 또는 단일 포스트 조회
@@ -92,6 +94,7 @@ export async function POST(request: NextRequest) {
       thumbnailUrl,
       postType = 'news',
       openType,
+      visibility = 'private',
     } = validation.data
 
     const newPost = await savePostWithContents({
@@ -101,8 +104,9 @@ export async function POST(request: NextRequest) {
       tags: tags && tags.length > 0 ? tags.join(',') : null,
       thumbnailUrl,
       userId: session.user.id,
-      postType: postType as 'news' | 'aiusecase' | 'learningcenter',
+      postType: postType as PostType,
       openType: openType || 'page',
+      visibility: visibility as Visibility,
       summaryType: 'auto_truncated',
     })
 
@@ -143,7 +147,14 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const { title, content, category, tags, thumbnailUrl } = validation.data
+    const {
+      title,
+      content,
+      category,
+      tags,
+      thumbnailUrl,
+      visibility = 'private',
+    } = validation.data
 
     const updatedPostContents = await updatePostContents({
       id,
@@ -152,6 +163,7 @@ export async function PUT(request: NextRequest) {
       category,
       tags: tags && tags.length > 0 ? tags.join(',') : null,
       thumbnailUrl,
+      visibility: visibility as Visibility,
       summaryType: 'auto_truncated',
     })
 
