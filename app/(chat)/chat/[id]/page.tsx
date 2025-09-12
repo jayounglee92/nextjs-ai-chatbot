@@ -7,6 +7,23 @@ import { getChatById, getMessagesByChatId } from '@/lib/db/queries'
 import { DataStreamHandler } from '@/components/data-stream-handler'
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models'
 import { convertToUIMessages } from '@/lib/utils'
+import type { Metadata, ResolvingMetadata } from 'next'
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { id } = await params
+  const chat = await getChatById({ id })
+
+  if (!chat) {
+    notFound()
+  }
+
+  return {
+    title: `DW AI 플랫폼 | Chat | ${chat.title || 'New Chat'}`,
+  }
+}
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params

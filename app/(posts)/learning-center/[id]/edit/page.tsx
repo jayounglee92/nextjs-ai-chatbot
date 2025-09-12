@@ -4,9 +4,19 @@ import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { getPostById } from '@/lib/db/queries'
 import Link from 'next/link'
 import { PostForm } from '@/components/post-form'
+import type { Metadata, ResolvingMetadata } from 'next'
+import { generateEditMetadata } from '@/lib/metadata-utils'
 
 interface PageProps {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata(
+  { params }: PageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { id } = await params
+  return generateEditMetadata({ id, parent, pageType: 'learning-center' })
 }
 
 export default async function Page({ params }: PageProps) {

@@ -73,7 +73,7 @@ export default function Page() {
         />
         <div className="mb-6">
           <SearchBar
-            placeholder="제목, 설명, 태그으로 검색하세요"
+            placeholder="제목, 설명, 태그로 검색하세요"
             basePath="/learning-center"
           />
         </div>

@@ -1,6 +1,6 @@
 import { CommonHeader } from '@/components/common-header'
 
-export default function SpaceLayout({
+export default function Layout({
   children,
 }: {
   children: React.ReactNode

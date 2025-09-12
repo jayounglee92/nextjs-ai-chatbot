@@ -2,12 +2,11 @@ import Link from 'next/link'
 import { ArrowLeft, HomeIcon } from 'lucide-react'
 import { ErrorLayout } from '@/components/error-layout'
 
-export default function Forbidden() {
+export default function NotFound() {
   return (
     <ErrorLayout
-      title="403"
-      subtitle="접근 권한이 없습니다"
-      description="해당 페이지에 접근하려면 관리자 권한이 필요합니다."
+      title="404"
+      subtitle="페이지를 찾을 수 없습니다"
       content={
         <div className="flex gap-6 pt-4">
           <Link

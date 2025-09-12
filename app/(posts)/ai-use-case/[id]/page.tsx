@@ -6,25 +6,19 @@ import Link from 'next/link'
 import { AiUseCaseActions } from './ai-use-case-actions'
 import { PostMetaInfo } from '@/components/post-meta-info'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
-
-// API에서 받는 데이터 타입 (getPostById 반환 타입)
-interface PostDetailData {
-  id: string
-  postId: string
-  content: string
-  category: string | null
-  tags: string[]
-  userId: string
-  title: string | null
-  thumbnailUrl: string | null
-  createdAt: Date | null
-  updatedAt: Date | null
-  userEmail: string | null
-  readingTime: number
-}
+import type { Metadata, ResolvingMetadata } from 'next'
+import { generatePostMetadata } from '@/lib/metadata-utils'
 
 interface Props {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { id } = await params
+  return generatePostMetadata({ id, parent, pageType: 'ai-use-case' })
 }
 
 export default async function Page({ params }: Props) {
@@ -35,7 +29,7 @@ export default async function Page({ params }: Props) {
   }
 
   const { id } = await params
-  let useCase: PostDetailData | null = null
+  let useCase = null
 
   try {
     useCase = await getPostById({ id })

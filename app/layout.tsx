@@ -7,9 +7,19 @@ import { SessionProvider } from 'next-auth/react'
 import { pretendard } from '@/lib/fonts'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://chat.vercel.ai'),
-  title: 'Next.js Chatbot Template',
-  description: 'Next.js chatbot template using the AI SDK.',
+  metadataBase: new URL('https://chat.vercel.ai'), // TODO: 수정
+  title: 'DW AI 플랫폼',
+  description: 'DW AI 플랫폼 : 내/외부 기술 소통과 성장 플랫폼',
+  openGraph: {
+    title: 'DW AI 플랫폼',
+    description: 'DW AI 플랫폼 : 내/외부 기술 소통과 성장 플랫폼',
+    images: ['/images/og-image.png'],
+  },
+  twitter: {
+    title: 'DW AI 플랫폼',
+    description: 'DW AI 플랫폼 : 내/외부 기술 소통과 성장 플랫폼',
+    images: ['/images/og-image.png'],
+  },
 }
 
 export const viewport = {

@@ -4,8 +4,18 @@ import { NewsActions } from './news-actions'
 import { PostMetaInfo } from '@/components/post-meta-info'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import Link from 'next/link'
+import type { Metadata, ResolvingMetadata } from 'next'
+import { generatePostMetadata } from '@/lib/metadata-utils'
 interface Props {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { id } = await params
+  return generatePostMetadata({ id, parent, pageType: 'news-letter' })
 }
 
 export default async function Page({ params }: Props) {

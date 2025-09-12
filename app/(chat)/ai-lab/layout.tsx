@@ -1,6 +1,6 @@
 import { CommonHeader } from '@/components/common-header'
 
-export default function AiLabLayout({
+export default function Layout({
   children,
 }: {
   children: React.ReactNode

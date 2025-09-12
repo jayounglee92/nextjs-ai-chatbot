@@ -281,7 +281,8 @@ export async function getChatById({ id }: { id: string }) {
     const [selectedChat] = await db.select().from(chat).where(eq(chat.id, id))
     return selectedChat
   } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to get chat by id')
+    console.error('Database error in getChatById:', error)
+    return null
   }
 }
 
@@ -1689,6 +1690,7 @@ export async function getPostById({ id }: { id: string }): Promise<{
   updatedAt: Date | null
   userEmail: string | null
   readingTime: number
+  summary: string | null
 } | null> {
   try {
     const [selectedPost] = await db
@@ -1705,6 +1707,7 @@ export async function getPostById({ id }: { id: string }): Promise<{
         thumbnailUrl: posts.thumbnailUrl,
         createdAt: posts.createdAt,
         updatedAt: posts.updatedAt,
+        summary: posts.summary,
         // User에서 가져올 이메일
         userEmail: user.email,
         postType: posts.postType,
