@@ -77,6 +77,8 @@ export default async function Page({ params }: PageProps) {
           tags: useCase.tags || [],
           openType: useCase.openType,
           visibility: useCase.visibility,
+          summaryType: useCase.summaryType || 'auto_truncated',
+          summary: useCase.summary || '',
         }}
       />
     </div>

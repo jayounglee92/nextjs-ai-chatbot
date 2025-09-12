@@ -77,6 +77,8 @@ export default async function Page({ params }: PageProps) {
           tags: newsData.tags || [],
           openType: newsData.openType,
           visibility: newsData.visibility,
+          summaryType: newsData.summaryType || 'auto_truncated',
+          summary: newsData.summary || '',
         }}
       />
     </div>

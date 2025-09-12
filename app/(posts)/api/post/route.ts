@@ -8,11 +8,15 @@ import {
   updatePostContents,
   deletePostContentsById,
 } from '@/lib/db/queries'
+import type {
+  PostType,
+  SummaryType,
+  Visibility,
+} from '@/lib/validators/post-contents'
+
 import {
   postContentsUpdateSchema,
-  PostType,
   validatePostContentsCreate,
-  Visibility,
 } from '@/lib/validators/post-contents'
 
 // GET: 포스트 목록 조회 또는 단일 포스트 조회
@@ -95,6 +99,8 @@ export async function POST(request: NextRequest) {
       postType = 'news',
       openType,
       visibility = 'private',
+      summaryType = 'auto_truncated',
+      summary,
     } = validation.data
 
     const newPost = await savePostWithContents({
@@ -107,7 +113,8 @@ export async function POST(request: NextRequest) {
       postType: postType as PostType,
       openType: openType || 'page',
       visibility: visibility as Visibility,
-      summaryType: 'auto_truncated',
+      summaryType: summaryType as SummaryType,
+      summary,
     })
 
     return NextResponse.json(newPost, { status: 201 })
@@ -154,6 +161,8 @@ export async function PUT(request: NextRequest) {
       tags,
       thumbnailUrl,
       visibility = 'private',
+      summaryType = 'auto_truncated',
+      summary,
     } = validation.data
 
     const updatedPostContents = await updatePostContents({
@@ -164,7 +173,8 @@ export async function PUT(request: NextRequest) {
       tags: tags && tags.length > 0 ? tags.join(',') : null,
       thumbnailUrl,
       visibility: visibility as Visibility,
-      summaryType: 'auto_truncated',
+      summaryType: summaryType as SummaryType,
+      summary,
     })
 
     return NextResponse.json(updatedPostContents)

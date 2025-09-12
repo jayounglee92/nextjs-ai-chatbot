@@ -15,10 +15,13 @@ import {
   showSuccessToast,
 } from '@/lib/toast-utils'
 import {
+  type SummaryType,
   validatePostContentsCreate,
   validatePostContentsUpdate,
   type Visibility,
 } from '@/lib/validators/post-contents'
+import { generateAISummary } from '@/app/(posts)/actions'
+import sanitizeHtml from 'sanitize-html'
 import { formatValidationErrors } from '@/lib/utils'
 import { handleImageUpload } from '@/lib/tiptap-utils'
 import { toast } from 'sonner'
@@ -28,6 +31,9 @@ import {
   type OpenType,
   POST_TYPE,
 } from '@/lib/validators/post-contents'
+import { Button } from './ui/button'
+import { InfoIcon } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 interface PostFormProps {
   mode: 'create' | 'edit'
@@ -40,6 +46,8 @@ interface PostFormProps {
     tags?: string[]
     openType: OpenType
     visibility?: Visibility
+    summaryType?: SummaryType
+    summary?: string
   }
   postType: PostType
 }
@@ -58,9 +66,47 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
   const [visibility, setVisibility] = useState<Visibility>(
     initialData?.visibility || 'private',
   )
+  const [summaryType, setSummaryType] = useState<SummaryType>(
+    initialData?.summaryType || 'auto_truncated',
+  )
+  const [aiGeneratedSummary, setAiGeneratedSummary] = useState<string>(
+    initialData?.summaryType === 'ai_generated' && initialData?.summary
+      ? initialData.summary
+      : '',
+  )
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isDisabledSaveButton = isSubmitting || !title?.trim() || !thumbnailUrl
+
+  const handleGenerateAISummary = async () => {
+    if (!content.trim()) {
+      toast.error('내용을 먼저 입력해주세요.')
+      return
+    }
+
+    setIsGeneratingSummary(true)
+    try {
+      // HTML 태그 제거
+      const cleanContent = sanitizeHtml(content, {
+        allowedTags: [],
+        allowedAttributes: {},
+      })
+
+      // AI 요약 생성
+      const summary = await generateAISummary({
+        content: cleanContent,
+      })
+
+      setAiGeneratedSummary(summary)
+      toast.success('AI 요약이 생성되었습니다!')
+    } catch (error) {
+      console.error('AI 요약 생성 실패:', error)
+      toast.error('AI 요약 생성에 실패했습니다.')
+    } finally {
+      setIsGeneratingSummary(false)
+    }
+  }
 
   const handleCreate = async () => {
     const payload = {
@@ -72,6 +118,8 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
       postType,
       openType: POST_TYPE[postType].openType,
       visibility,
+      summaryType,
+      summary: summaryType === 'ai_generated' ? aiGeneratedSummary : undefined,
     }
 
     const validation = validatePostContentsCreate(payload)
@@ -132,6 +180,8 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
       postType,
       openType: initialData?.openType,
       visibility,
+      summaryType,
+      summary: summaryType === 'ai_generated' ? aiGeneratedSummary : undefined,
     }
 
     const validation = validatePostContentsUpdate(payload)
@@ -192,28 +242,30 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
   const handleSubmit = mode === 'create' ? handleCreate : handleUpdate
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-7">
       {/* 제목 입력 필드 */}
-      <div className="mb-6">
-        <Label htmlFor="title" className="sr-only">
-          제목
-        </Label>
-        <Input
-          id="title"
-          type="text"
-          placeholder="제목을 입력하세요"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full !text-lg h-12"
-        />
-      </div>
+      <div>
+        <div className="mb-4">
+          <Label htmlFor="title" className="sr-only">
+            제목
+          </Label>
+          <Input
+            id="title"
+            type="text"
+            placeholder="제목을 입력하세요"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full !text-lg h-12"
+          />
+        </div>
 
-      {/* 에디터 */}
-      <div className="border rounded-lg overflow-hidden pb-2">
-        <SimpleEditor
-          onContentChange={(newContent) => setContent(newContent)}
-          initialContent={mode === 'edit' ? content : undefined}
-        />
+        {/* 에디터 */}
+        <div className="border rounded-lg overflow-hidden pb-2">
+          <SimpleEditor
+            onContentChange={(newContent) => setContent(newContent)}
+            initialContent={mode === 'edit' ? content : undefined}
+          />
+        </div>
       </div>
 
       {/* 썸네일 업로드 */}
@@ -264,6 +316,83 @@ export function PostForm({ mode, postType, initialData }: PostFormProps) {
           placeholder="태그를 입력하고 Enter를 누르세요"
           maxTags={10}
         />
+      </div>
+
+      {/* 요약 설정 */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-2">
+          <Label className="text-sm font-medium">
+            요약 설정 <span className="text-red-500">*</span>
+          </Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className="p-1">
+                <InfoIcon className="size-4 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" className="max-w-fit w-full">
+              <div className="space-y-1 text-xs">
+                <div>
+                  <strong>• 간단 요약 :</strong> 내용에서 앞에 300자 정도 잘린
+                  텍스트입니다.
+                </div>
+                <div>
+                  <strong>• AI 요약 :</strong> AI가 요약해서 300자 이내, 3문장
+                  이내로 만들어줍니다.
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <RadioGroup
+          value={summaryType}
+          onValueChange={(value) => setSummaryType(value as SummaryType)}
+          className="flex gap-6"
+        >
+          <div className="flex items-center gap-2">
+            <RadioGroupItem value="auto_truncated" id="auto_truncated" />
+            <Label htmlFor="auto_truncated" className="text-sm cursor-pointer">
+              간단 요약
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <RadioGroupItem value="ai_generated" id="ai_generated" />
+            <Label htmlFor="ai_generated" className="text-sm cursor-pointer">
+              AI 요약
+            </Label>
+          </div>
+        </RadioGroup>
+
+        {summaryType === 'ai_generated' && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                onClick={handleGenerateAISummary}
+                disabled={isGeneratingSummary || !content.trim()}
+              >
+                {isGeneratingSummary ? '생성중...' : 'AI 요약 생성하기'}
+              </Button>
+              {isGeneratingSummary && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
+                  <span>AI가 요약을 생성하고 있습니다...</span>
+                </div>
+              )}
+            </div>
+
+            {aiGeneratedSummary && (
+              <div className="border rounded-lg p-4 bg-muted/50">
+                <Label className="text-sm font-medium block mb-2">
+                  생성된 AI 요약
+                </Label>
+                <p className="text-sm text-foreground leading-relaxed">
+                  {aiGeneratedSummary}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 공개 설정 */}

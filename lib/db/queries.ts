@@ -1377,7 +1377,9 @@ export async function updatePostContents({
       title !== undefined ||
       thumbnailUrl !== undefined ||
       content !== undefined ||
-      visibility !== undefined
+      visibility !== undefined ||
+      summaryType !== undefined ||
+      summary !== undefined
     ) {
       const postContentsRecord = updatedPostContents[0]
       if (postContentsRecord) {
@@ -1389,6 +1391,7 @@ export async function updatePostContents({
         if (thumbnailUrl !== undefined)
           postsUpdateData.thumbnailUrl = thumbnailUrl
         if (visibility !== undefined) postsUpdateData.visibility = visibility
+        if (summaryType !== undefined) postsUpdateData.summaryType = summaryType
 
         // content가 변경된 경우 summary도 업데이트
         if (content !== undefined) {
@@ -1396,10 +1399,13 @@ export async function updatePostContents({
             postsUpdateData.summary = sanitizeHtml(content, {
               allowedTags: [],
               allowedAttributes: {},
-            }).substring(0, 200)
+            }).substring(0, 500)
           } else if (summary !== undefined) {
             postsUpdateData.summary = summary
           }
+        } else if (summary !== undefined) {
+          // content가 변경되지 않았지만 summary만 변경된 경우
+          postsUpdateData.summary = summary
         }
 
         await db
@@ -1699,6 +1705,7 @@ export async function getPostById({ id }: { id: string }): Promise<{
   userEmail: string | null
   readingTime: number
   summary: string | null
+  summaryType: 'ai_generated' | 'auto_truncated'
   visibility: Visibility
 } | null> {
   try {
@@ -1722,6 +1729,7 @@ export async function getPostById({ id }: { id: string }): Promise<{
         postType: posts.postType,
         openType: posts.openType,
         visibility: posts.visibility,
+        summaryType: posts.summaryType,
       })
       .from(postContents)
       .leftJoin(posts, eq(postContents.postId, posts.id))
@@ -1789,7 +1797,7 @@ export async function savePostWithContents({
             ? sanitizeHtml(content, {
                 allowedTags: [],
                 allowedAttributes: {},
-              }).substring(0, 200)
+              }).substring(0, 500)
             : summary,
         summaryType,
         thumbnailUrl,

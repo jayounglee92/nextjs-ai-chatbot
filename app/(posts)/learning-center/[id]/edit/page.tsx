@@ -77,6 +77,8 @@ export default async function Page({ params }: PageProps) {
           tags: learningData.tags || [],
           openType: learningData.openType,
           visibility: learningData.visibility,
+          summaryType: learningData.summaryType || 'auto_truncated',
+          summary: learningData.summary || '',
         }}
       />
     </div>

@@ -1,14 +1,14 @@
-'use server';
+'use server'
 
-import { generateText, type UIMessage } from 'ai';
-import { cookies } from 'next/headers';
+import { generateText, type UIMessage } from 'ai'
+import { cookies } from 'next/headers'
 import {
   deleteMessagesByChatIdAfterTimestamp,
   getMessageById,
   updateChatVisiblityById,
-} from '@/lib/db/queries';
-import type { VisibilityType } from '@/components/visibility-selector';
-import { myProvider } from '@/lib/ai/providers';
+} from '@/lib/db/queries'
+import type { VisibilityType } from '@/components/visibility-selector'
+import { myProvider } from '@/lib/ai/providers'
 
 /**
  * 사용자가 선택한 채팅 모델을 브라우저 쿠키에 저장
@@ -21,8 +21,8 @@ import { myProvider } from '@/lib/ai/providers';
  * @param model - 저장할 모델 ID (예: 'chat-model', 'chat-model-mini')
  */
 export async function saveChatModelAsCookie(model: string) {
-  const cookieStore = await cookies();
-  cookieStore.set('chat-model', model);
+  const cookieStore = await cookies()
+  cookieStore.set('chat-model', model)
 }
 
 /**
@@ -43,7 +43,7 @@ export async function saveChatModelAsCookie(model: string) {
 export async function generateTitleFromUserMessage({
   message,
 }: {
-  message: UIMessage;
+  message: UIMessage
 }) {
   const { text: title } = await generateText({
     model: myProvider.languageModel('title-model'), // 제목 생성 전용 모델 사용
@@ -54,11 +54,10 @@ export async function generateTitleFromUserMessage({
     - 따옴표나 콜론은 사용하지 마세요
     - 자연스럽고 간결한 제목을 만드세요`,
     prompt: JSON.stringify(message), // 사용자 메시지를 JSON으로 변환하여 전달
-  });
+  })
 
-  return title;
+  return title
 }
-
 /**
  * 특정 메시지 이후의 모든 메시지들을 삭제 (메시지 편집 기능용)
  *
@@ -76,13 +75,13 @@ export async function generateTitleFromUserMessage({
  */
 export async function deleteTrailingMessages({ id }: { id: string }) {
   // 기준 메시지의 정보를 데이터베이스에서 조회
-  const [message] = await getMessageById({ id });
+  const [message] = await getMessageById({ id })
 
   // 해당 메시지의 생성 시간 이후의 모든 메시지들을 삭제
   await deleteMessagesByChatIdAfterTimestamp({
     chatId: message.chatId, // 같은 채팅방 내에서만
     timestamp: message.createdAt, // 이 시간 이후의 메시지들
-  });
+  })
 }
 
 /**
@@ -104,9 +103,9 @@ export async function updateChatVisibility({
   chatId,
   visibility,
 }: {
-  chatId: string;
-  visibility: VisibilityType;
+  chatId: string
+  visibility: VisibilityType
 }) {
   // 데이터베이스에서 해당 채팅방의 가시성 설정을 업데이트
-  await updateChatVisiblityById({ chatId, visibility });
+  await updateChatVisiblityById({ chatId, visibility })
 }

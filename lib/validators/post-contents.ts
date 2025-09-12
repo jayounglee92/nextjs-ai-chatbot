@@ -40,6 +40,12 @@ export const VISIBILITY = {
 } as const
 export type Visibility = keyof typeof VISIBILITY
 
+export const SUMMARY_TYPE = {
+  auto_truncated: 'auto_truncated',
+  ai_generated: 'ai_generated',
+} as const
+export type SummaryType = keyof typeof SUMMARY_TYPE
+
 export const postContentsCreateSchema = z.object({
   title: z.string().min(1, POST_MESSAGES.TITLE_REQUIRED),
   content: z.string().min(1, POST_MESSAGES.CONTENT_REQUIRED),
@@ -53,6 +59,10 @@ export const postContentsCreateSchema = z.object({
     message: POST_MESSAGES.OPEN_TYPE_REQUIRED,
   }),
   visibility: z.enum(['public', 'private']).default('private'),
+  summaryType: z
+    .enum(['auto_truncated', 'ai_generated'])
+    .default('auto_truncated'),
+  summary: z.string().optional(),
 })
 
 export const postContentsUpdateSchema = z.object({
@@ -68,6 +78,10 @@ export const postContentsUpdateSchema = z.object({
     message: POST_MESSAGES.OPEN_TYPE_REQUIRED,
   }),
   visibility: z.enum(['public', 'private']).default('private'),
+  summaryType: z
+    .enum(['auto_truncated', 'ai_generated'])
+    .default('auto_truncated'),
+  summary: z.string().optional(),
 })
 
 export const postContentsQuerySchema = z.object({
